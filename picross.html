@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>ごほうびピクロス 🌟</title>
+<style>
+/* ===== CSS変数・リセット ===== */
+:root {
+  --bg: #fff9f0;
+  --primary: #ff8c42;
+  --primary2: #ffb347;
+  --accent: #ff6b9d;
+  --accent2: #c084fc;
+  --green: #4ade80;
+  --green2: #22c55e;
+  --blue2: #3b82f6;
+  --lock2: #94a3b8;
+  --text: #3d2c1e;
+  --text2: #7c5a3c;
+  --card-shadow: 0 4px 20px rgba(255,140,66,0.18);
+  --radius: 20px;
+  --radius-sm: 12px;
+  --font: 'Hiragino Maru Gothic ProN', 'BIZ UDPGothic', 'M PLUS Rounded 1c', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.hidden { display: none !important; }
+.screen { min-height: 100vh; }
+
+/* 背景グラデ装飾 */
+body::before {
+content: '';
+position: fixed; inset: 0;
+background:
+radial-gradient(circle at 15% 20%, rgba(255,179,71,0.15) 0%, transparent 40%),
+radial-gradient(circle at 85% 75%, rgba(192,132,252,0.12) 0%, transparent 40%),
+radial-gradient(circle at 50% 50%, rgba(255,107,157,0.08) 0%, transparent 60%);
+pointer-events: none; z-index: 0;
+}
+
+/* ===== ロック画面 ===== */
+#screen-lock {
+position: relative; z-index: 10;
+min-height: 100vh;
+display: flex; align-items: center; justify-content: center;
+padding: 32px 20px;
+}
+.lock-card {
+background: white;
+border-radius: 28px;
+padding: 44px 32px 36px;
+text-align: center;
+max-width: 340px; width: 100%;
+box-shadow: 0 8px 40px rgba(255,140,66,0.18);
+border: 2.5px solid var(--primary2);
+animation: lockCardIn 0.5s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes lockCardIn {
+0%   { transform: scale(0.85) translateY(16px); opacity: 0; }
+100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+.lock-icon {
+font-size: 3.4rem;
+margin-bottom: 16px;
+display: block;
+animation: lockIconBounce 2.4s ease-in-out infinite;
+}
+@keyframes lockIconBounce {
+0%,100% { transform: translateY(0) rotate(-3deg); }
+50%     { transform: translateY(-6px) rotate(3deg); }
+}
+.lock-title {
+font-size: 1.25rem;
+font-weight: 900;
+color: var(--text);
+line-height: 1.4;
+margin-bottom: 14px;
+}
+.lock-desc {
+font-size: 14px;
+color: var(--text2);
+line-height: 1.8;
+margin-bottom: 22px;
+}
+.lock-hint {
+background: linear-gradient(135deg, #fff8e7, #fff0f7);
+border: 2px solid var(--primary2);
+border-radius: var(--radius-sm);
+padding: 12px 16px;
+font-size: 13px;
+font-weight: 700;
+color: var(--primary);
+line-height: 1.6;
+}
+
+/* ===== ホーム画面 ===== */
+#screen-home {
+position: relative; z-index: 1;
+padding: 24px 16px 48px;
+max-width: 600px; margin: 0 auto;
+}
+
+/* ヘッダー */
+.home-header { text-align: center; margin-bottom: 24px; }
+.home-badge {
+display: inline-block;
+background: #fff3d8;
+color: #7a3f00;
+font-size: 11px;
+font-weight: 900;
+letter-spacing: 0.12em;
+padding: 5px 16px;
+border-radius: 99px;
+margin-bottom: 10px;
+border: 2px solid #ffb347;
+box-shadow: 0 2px 8px rgba(255,140,66,0.22);
+text-shadow: 0 1px 0 rgba(255,255,255,0.9);
+}
+.home-title {
+font-size: clamp(1.8rem, 7vw, 2.6rem); font-weight: 900;
+color: #3d2c1e;
+line-height: 1.2; margin-bottom: 6px;
+text-shadow: 0 2px 0 rgba(255,255,255,0.9), 0 3px 10px rgba(255,140,66,0.18);
+animation: floatTitle 3s ease-in-out infinite;
+}
+@keyframes floatTitle { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+.home-sub { font-size: 13px; color: #5f4630; line-height: 1.6; font-weight: 700; }
+
+/* 進捗バナー */
+.progress-banner {
+background: linear-gradient(135deg, #fff, #fff8f0);
+border: 2.5px solid var(--primary2); border-radius: var(--radius);
+padding: 16px 20px; margin-bottom: 16px;
+display: flex; align-items: center; gap: 16px;
+box-shadow: var(--card-shadow);
+}
+.progress-icon { font-size: 2.2rem; flex-shrink: 0; }
+.progress-text { flex: 1; }
+.progress-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; }
+.progress-count { font-size: 1.5rem; font-weight: 900; color: var(--primary); line-height: 1; }
+.progress-count span { font-size: 0.85rem; color: var(--text2); font-weight: 400; }
+.progress-bar-wrap {
+background: #f0e4d4; border-radius: 99px; height: 8px; margin-top: 6px; overflow: hidden;
+}
+.progress-bar-fill {
+height: 100%;
+background: linear-gradient(90deg, var(--primary2), var(--accent));
+border-radius: 99px;
+transition: width 0.6s cubic-bezier(.34,1.56,.64,1);
+}
+
+/* 次回解放バナー */
+.next-unlock-banner {
+background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+border: 2px solid #7dd3fc; border-radius: var(--radius-sm);
+padding: 11px 16px; margin-bottom: 18px;
+font-size: 13px; color: #0369a1; font-weight: 700;
+display: flex; align-items: center; gap: 8px;
+}
+
+.ticket-banner {
+background: linear-gradient(135deg, #fff7ed, #fff0f7);
+border: 2px solid var(--primary2); border-radius: var(--radius-sm);
+padding: 11px 16px; margin-bottom: 12px;
+font-size: 13px; color: var(--primary); font-weight: 800;
+display: flex; align-items: center; gap: 8px;
+}
+
+
+/* ステージグリッド */
+.stage-section-title {
+font-size: 13px; font-weight: 700; color: var(--text2);
+letter-spacing: 0.08em; margin-bottom: 12px; padding-left: 4px;
+}
+.stage-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+gap: 12px; margin-bottom: 28px;
+}
+
+/* ステージカード */
+.stage-card {
+position: relative; background: white; border-radius: var(--radius);
+padding: 16px 12px 14px; text-align: center; cursor: pointer;
+transition: transform 0.18s, box-shadow 0.18s;
+box-shadow: 0 3px 12px rgba(0,0,0,0.07);
+border: 2.5px solid transparent;
+user-select: none; -webkit-tap-highlight-color: transparent;
+}
+.stage-card:active { transform: scale(0.96); }
+.stage-card.unlocked {
+border-color: var(--primary2);
+box-shadow: 0 4px 16px rgba(255,140,66,0.2);
+}
+.stage-card.unlocked:hover {
+transform: translateY(-3px) scale(1.02);
+box-shadow: 0 8px 24px rgba(255,140,66,0.3);
+}
+.stage-card.cleared {
+border-color: var(--green2);
+background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+box-shadow: 0 4px 16px rgba(74,222,128,0.22);
+}
+.stage-card.cleared:hover {
+transform: translateY(-3px) scale(1.02);
+box-shadow: 0 8px 24px rgba(74,222,128,0.32);
+}
+.stage-card.locked {
+background: #f8fafc; cursor: not-allowed;
+opacity: 0.72; border-color: #e2e8f0;
+}
+
+.stage-num { font-size: 11px; font-weight: 700; color: var(--text2); opacity: 0.6; margin-bottom: 4px; }
+
+/* 絵文字：未クリアはぼかし */
+.stage-emoji {
+font-size: 2rem; margin-bottom: 6px; display: block; transition: filter 0.2s;
+}
+.stage-card.locked   .stage-emoji { filter: grayscale(1) opacity(0.35); }
+.stage-card.unlocked .stage-emoji { filter: blur(5px) opacity(0.55); }
+.stage-card.cleared  .stage-emoji { filter: none; }
+
+.stage-name { font-size: 13px; font-weight: 700; line-height: 1.3; }
+.stage-card.locked   .stage-name { color: var(--lock2); }
+.stage-card.unlocked .stage-name { color: #aaa; letter-spacing: 0.1em; }
+.stage-card.cleared  .stage-name { color: #166534; }
+
+/* クリア済みバッジ */
+.stage-clear-badge {
+position: absolute; top: -6px; right: -6px;
+width: 26px; height: 26px;
+background: linear-gradient(135deg, var(--green), var(--green2));
+border-radius: 50%; display: flex; align-items: center; justify-content: center;
+font-size: 13px; box-shadow: 0 2px 8px rgba(34,197,94,0.4); border: 2px solid white;
+}
+.stage-lock-icon { font-size: 1.1rem; margin-top: 4px; display: block; color: var(--lock2); }
+
+
+.stage-size {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: #fff3d8;
+  border: 1px solid #ffb347;
+  color: #7a3f00;
+  font-size: 10px;
+  font-weight: 900;
+}
+.stage-card.locked .stage-size {
+  background: #eef2f7;
+  border-color: #cbd5e1;
+  color: #94a3b8;
+}
+
+/* ミニプレビュー */
+.stage-preview { display: grid; margin: 6px auto 0; gap: 1.5px; width: fit-content; }
+.preview-cell { width: 7px; height: 7px; border-radius: 1px; background: #e8ddd0; }
+.stage-card.cleared  .preview-cell.on { background: var(--green2); }
+.stage-card.unlocked .preview-cell.on { background: #d0cbc4; }
+.stage-card.locked   .preview-cell.on { background: #c8c4be; }
+
+/* 解放アニメ */
+@keyframes unlockPop {
+0%   { transform: scale(0.6) rotate(-8deg); opacity: 0; }
+60%  { transform: scale(1.08) rotate(3deg); opacity: 1; }
+100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+.stage-card.just-unlocked { animation: unlockPop 0.5s cubic-bezier(.34,1.56,.64,1) both; }
+
+
+
+/* エリア表示 */
+.area-list { display: flex; flex-direction: column; gap: 18px; margin-bottom: 28px; }
+.area-block {
+  background: rgba(255,255,255,0.58);
+  border: 2px solid rgba(255,179,71,0.45);
+  border-radius: var(--radius);
+  padding: 12px;
+  box-shadow: 0 3px 14px rgba(255,140,66,0.12);
+}
+.area-block.area-locked {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  opacity: 0.78;
+}
+.area-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  margin-bottom: 10px; padding: 2px 2px 8px;
+  border-bottom: 1.5px dashed rgba(255,179,71,0.45);
+}
+.area-title-main { font-size: 14px; font-weight: 900; color: #7a3f00; line-height: 1.35; }
+.area-title-sub { font-size: 11px; font-weight: 700; color: #7c5a3c; margin-top: 2px; }
+.area-progress-pill {
+  flex-shrink: 0;
+  background: #fff3d8;
+  border: 1.5px solid #ffb347;
+  color: #7a3f00;
+  border-radius: 99px;
+  padding: 5px 9px;
+  font-size: 11px;
+  font-weight: 900;
+}
+.area-block.area-locked .area-title-main,
+.area-block.area-locked .area-title-sub,
+.area-block.area-locked .area-progress-pill { color: #94a3b8; }
+.area-block.area-locked .area-progress-pill { background: #f1f5f9; border-color: #cbd5e1; }
+
+/* リセットボタン */
+.reset-btn {
+display: block; margin: 0 auto;
+background: none; border: 1.5px solid #ddd; border-radius: 99px;
+padding: 7px 18px; font-size: 11px; color: #aaa;
+cursor: pointer; transition: all 0.2s; font-family: var(--font);
+}
+.reset-btn:hover { border-color: #f87171; color: #f87171; }
+
+/* ===== ゲーム画面 ===== */
+#screen-game {
+position: relative; z-index: 1;
+padding: 16px 12px 40px;
+max-width: 520px; margin: 0 auto;
+}
+.game-topbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.btn-back {
+background: white; border: 2px solid var(--primary2); color: var(--primary);
+border-radius: 99px; padding: 8px 16px; font-size: 13px; font-weight: 700;
+cursor: pointer; transition: all 0.18s; flex-shrink: 0; font-family: var(--font);
+}
+.btn-back:hover { background: var(--primary2); color: white; }
+.game-title-wrap { flex: 1; }
+.game-stage-num { font-size: 11px; color: var(--text2); }
+.game-stage-title { font-size: 1.2rem; font-weight: 900; color: var(--text); line-height: 1.2; }
+
+/* モード切替 */
+.mode-switch {
+display: flex; gap: 8px; margin-bottom: 16px;
+background: #f1e8dc; border-radius: 99px; padding: 5px;
+}
+.mode-btn {
+flex: 1; border: none; border-radius: 99px; padding: 10px 8px;
+font-size: 13px; font-weight: 700; cursor: pointer;
+transition: all 0.2s; font-family: var(--font); color: var(--text2); background: transparent;
+}
+.mode-btn.active { background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+.mode-btn.mode-fill.active  { color: var(--primary); }
+.mode-btn.mode-cross.active { color: var(--accent); }
+.mode-btn.mode-erase.active { color: var(--blue2); }
+
+/* 盤面 */
+.picross-container { display: flex; justify-content: center; margin-bottom: 16px; overflow-x: auto; }
+.picross-wrap { display: inline-block; }
+.picross-grid-outer { display: grid; touch-action: none; }
+
+.cell {
+border: 1.5px solid #ddd; cursor: pointer;
+transition: background 0.08s, transform 0.08s;
+display: flex; align-items: center; justify-content: center;
+user-select: none; -webkit-tap-highlight-color: transparent;
+background: white;
+}
+.cell:active { transform: scale(0.88); }
+.cell.filled { background: var(--text); border-color: #1a1a1a; }
+.cell.crossed { background: #fef2f2; }
+.cell.crossed::after {
+content: '×'; font-weight: 900; font-size: 1em; color: #f87171; line-height: 1;
+}
+.hint-cell {
+display: flex; align-items: center; justify-content: center;
+font-weight: 700; color: var(--text2);
+background: #fef8f0; border: 1px solid #eedcc8;
+flex-direction: column; gap: 1px;
+}
+.hint-cell span { display: block; line-height: 1.3; }
+
+/* アクションボタン */
+.game-actions { display: flex; gap: 8px; }
+.act-btn {
+flex: 1; border: none; border-radius: var(--radius-sm);
+padding: 12px 8px; font-size: 13px; font-weight: 700;
+cursor: pointer; transition: all 0.18s; font-family: var(--font);
+}
+.act-btn:active { transform: scale(0.95); }
+.btn-reset { background: #f1e8dc; color: var(--text2); }
+.btn-reset:hover { background: #e8d8c4; }
+.btn-check {
+background: linear-gradient(135deg, var(--primary), var(--accent)); color: white;
+box-shadow: 0 3px 12px rgba(255,107,157,0.35);
+}
+.btn-check:hover { box-shadow: 0 6px 20px rgba(255,107,157,0.5); transform: translateY(-1px); }
+
+.check-feedback {
+margin-top: 12px; padding: 12px 16px; border-radius: var(--radius-sm);
+font-size: 14px; font-weight: 700; text-align: center;
+}
+.check-feedback.wrong {
+background: #fef2f2; color: #ef4444; border: 2px solid #fca5a5;
+}
+
+/* ===== クリアオーバーレイ ===== */
+#overlay-clear {
+position: fixed; inset: 0; z-index: 100;
+display: flex; align-items: center; justify-content: center;
+background: rgba(255,255,255,0.72);
+backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+opacity: 0; pointer-events: none; transition: opacity 0.4s;
+}
+#overlay-clear.show { opacity: 1; pointer-events: all; }
+.clear-card {
+background: white; border-radius: 28px; padding: 36px 32px 28px;
+text-align: center; box-shadow: 0 16px 60px rgba(255,107,157,0.3);
+max-width: 320px; width: 90%;
+transform: scale(0.7) translateY(30px);
+transition: transform 0.5s cubic-bezier(.34,1.56,.64,1);
+position: relative; overflow: hidden;
+}
+#overlay-clear.show .clear-card { transform: scale(1) translateY(0); }
+.clear-card::before {
+content: ''; position: absolute; inset: 0;
+background: linear-gradient(135deg, rgba(255,179,71,0.07), rgba(255,107,157,0.07));
+pointer-events: none;
+}
+.clear-star-row {
+font-size: 2rem; margin-bottom: 8px;
+animation: starBounce 0.6s ease-out 0.3s both;
+}
+@keyframes starBounce {
+0%   { transform: scale(0) rotate(-20deg); }
+60%  { transform: scale(1.2) rotate(5deg); }
+100% { transform: scale(1) rotate(0deg); }
+}
+.clear-title {
+font-size: 2.4rem; font-weight: 900;
+background: linear-gradient(135deg, var(--primary), var(--accent));
+-webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+line-height: 1.1; margin-bottom: 8px;
+}
+.clear-subtitle { font-size: 13px; color: var(--text2); margin-bottom: 14px; line-height: 1.6; }
+
+.clear-msg-box {
+border-radius: var(--radius-sm); padding: 10px 14px;
+font-size: 13px; font-weight: 700; margin-bottom: 14px; display: none;
+}
+.clear-msg-box.show { display: block; }
+.clear-msg-box.unlock {
+background: linear-gradient(135deg, #fff8e7, #fff0f7);
+border: 2px solid var(--primary2); color: var(--primary);
+}
+.clear-msg-box.tomorrow {
+background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+border: 2px solid #7dd3fc; color: #0369a1;
+}
+
+.clear-btns { display: flex; gap: 10px; flex-direction: column; }
+.clear-btn-home {
+background: #f1e8dc; color: var(--text2); border: none; border-radius: 99px;
+padding: 12px; font-size: 14px; font-weight: 700;
+cursor: pointer; font-family: var(--font); transition: all 0.18s;
+}
+.clear-btn-home:hover { background: #e8d8c4; }
+.clear-btn-next {
+background: linear-gradient(135deg, var(--primary), var(--accent)); color: white;
+border: none; border-radius: 99px; padding: 12px;
+font-size: 14px; font-weight: 700; cursor: pointer; font-family: var(--font);
+box-shadow: 0 4px 16px rgba(255,107,157,0.4); transition: all 0.18s; display: none;
+}
+.clear-btn-next.show { display: block; }
+.clear-btn-next:hover { box-shadow: 0 8px 24px rgba(255,107,157,0.5); transform: translateY(-1px); }
+
+/* ===== コンプリートオーバーレイ ===== */
+#overlay-complete {
+position: fixed; inset: 0; z-index: 200;
+display: flex; align-items: center; justify-content: center;
+background: linear-gradient(135deg, rgba(255,140,66,0.93), rgba(255,107,157,0.93));
+opacity: 0; pointer-events: none; transition: opacity 0.5s;
+}
+#overlay-complete.show { opacity: 1; pointer-events: all; }
+.complete-card {
+background: white; border-radius: 32px; padding: 40px 32px 32px;
+text-align: center; max-width: 340px; width: 90%;
+transform: scale(0.5); transition: transform 0.6s cubic-bezier(.34,1.56,.64,1);
+}
+#overlay-complete.show .complete-card { transform: scale(1); }
+.complete-emoji-row {
+font-size: 3rem; margin-bottom: 12px;
+animation: completeSpin 1s ease-out 0.4s both;
+}
+@keyframes completeSpin {
+0%   { transform: scale(0) rotate(-30deg); }
+60%  { transform: scale(1.15) rotate(10deg); }
+100% { transform: scale(1) rotate(0deg); }
+}
+.complete-title {
+font-size: 2.8rem; font-weight: 900;
+background: linear-gradient(135deg, var(--primary), var(--accent), var(--accent2));
+-webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+line-height: 1.1; margin-bottom: 8px;
+}
+.complete-msg { font-size: 14px; color: var(--text2); line-height: 1.7; margin-bottom: 24px; }
+.complete-btn-home {
+background: linear-gradient(135deg, var(--primary), var(--accent)); color: white;
+border: none; border-radius: 99px; padding: 14px 32px;
+font-size: 15px; font-weight: 700; cursor: pointer; font-family: var(--font);
+box-shadow: 0 4px 20px rgba(255,107,157,0.45); transition: all 0.2s;
+}
+.complete-btn-home:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(255,107,157,0.55); }
+
+/* ===== 紙吹雪 ===== */
+.confetti-piece {
+position: fixed; pointer-events: none; z-index: 300;
+animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
+/* ===== レスポンシブ ===== */
+@media (max-width: 400px) {
+.stage-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.mode-btn { font-size: 12px; padding: 10px 4px; }
+}
+@media (min-width: 600px) {
+.stage-grid { grid-template-columns: repeat(5, 1fr); }
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--primary2); border-radius: 99px; }
+</style>
+
+</head>
+<body>
+
+<!-- ===== ロック画面（アクセス権なし時に表示） ===== -->
+
+<div id="screen-lock" class="screen hidden">
+  <div class="lock-card">
+    <span class="lock-icon">🎁</span>
+    <div class="lock-title">ごほうびはまだ<br>解放されていないよ</div>
+    <div class="lock-desc">
+      今日のミッションを終えると<br>
+      ここでピクロスが遊べるよ！<br>
+      頑張ってね 💪
+    </div>
+    <div class="lock-hint">
+      📖 語彙クエストの今日のミッションを<br>
+      クリアしてからまた来てね ✨
+    </div>
+  </div>
+</div>
+
+<!-- ===== ホーム画面 ===== -->
+
+<div id="screen-home" class="screen hidden">
+  <div class="home-header">
+    <div class="home-badge">✨ 今日のごほうび ✨</div>
+    <h1 class="home-title">ごほうびピクロス</h1>
+    <p class="home-sub">よく頑張ったね！10問ごとに新しいエリアが開くよ 🎁</p>
+  </div>
+
+  <div class="progress-banner">
+    <div class="progress-icon" id="progress-icon">🌱</div>
+    <div class="progress-text">
+      <div class="progress-label">クリアした問題数</div>
+      <div class="progress-count" id="progress-count">0<span> / 30</span></div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- チケットバナー -->
+  <div class="ticket-banner" id="ticket-banner">
+    🎟️ <span id="ticket-text"></span>
+  </div>
+
+  <!-- 次回解放バナー -->
+
+  <div class="next-unlock-banner hidden" id="next-unlock-banner">
+    🗓️ <span id="next-unlock-text"></span>
+  </div>
+
+  <div class="stage-section-title">🎯 ステージ一覧</div>
+  <div class="area-list" id="stage-grid"></div>
+
+<button class="reset-btn" onclick="confirmReset()">⚙️ 進捗をリセット</button>
+
+</div>
+
+<!-- ===== ゲーム画面 ===== -->
+
+<div id="screen-game" class="screen hidden">
+  <div class="game-topbar">
+    <button class="btn-back" onclick="goHome()">← 戻る</button>
+    <div class="game-title-wrap">
+      <div class="game-stage-num" id="game-stage-num"></div>
+      <div class="game-stage-title" id="game-stage-title"></div>
+    </div>
+  </div>
+
+  <div class="mode-switch">
+    <button class="mode-btn mode-fill active" id="btn-mode-fill"  onclick="setMode('fill')">🖊 塗る</button>
+    <button class="mode-btn mode-cross"       id="btn-mode-cross" onclick="setMode('cross')">✕ しるし</button>
+    <button class="mode-btn mode-erase"       id="btn-mode-erase" onclick="setMode('erase')">🧹 消す</button>
+  </div>
+
+  <div class="picross-container">
+    <div class="picross-wrap" id="picross-wrap"></div>
+  </div>
+
+  <div class="game-actions">
+    <button class="act-btn btn-reset" onclick="resetBoard()">🔄 リセット</button>
+    <button class="act-btn btn-check" onclick="checkAnswer()">✅ 答え合わせ</button>
+  </div>
+  <div class="check-feedback hidden" id="check-feedback"></div>
+</div>
+
+<!-- ===== クリアオーバーレイ ===== -->
+
+<div id="overlay-clear">
+  <div class="clear-card">
+    <div class="clear-star-row">⭐⭐⭐</div>
+    <div class="clear-title">クリア！</div>
+    <div class="clear-subtitle" id="clear-subtitle"></div>
+    <div class="clear-msg-box" id="clear-msg-box"></div>
+    <div class="clear-btns">
+      <button class="clear-btn-next" id="clear-btn-next" onclick="goNextStage()">次の問題へ ➡</button>
+      <button class="clear-btn-home" onclick="closeOverlayAndHome()">ホームに戻る 🏠</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== コンプリートオーバーレイ ===== -->
+
+<div id="overlay-complete">
+  <div class="complete-card">
+    <div class="complete-emoji-row">🏆✨🎉</div>
+    <div class="complete-title">コンプリート！</div>
+    <div class="complete-msg">
+      <span id="complete-total-count">30</span>問全部クリア！<br>すごい！本当によく頑張ったね🌟<br>きみはピクロスマスターだ！
+    </div>
+    <button class="complete-btn-home" onclick="closeComplete()">🏠 ホームへ戻る</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// 前提：語彙クエスト側で以下を実行してからこのページを開く
+//   localStorage.setItem('picrossRewardDate', 'YYYY-MM-DD');
+// ============================================================
+
+// ============================================================
+// 問題データ（answer: 1=塗る, 0=空白  行優先）
+// ============================================================
+const STAGES = [
+  {
+    title: "りんご 🍎",
+    answer: [
+      [0, 1, 1, 0, 0],
+      [1, 1, 1, 1, 0],
+      [1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1],
+      [0, 1, 1, 1, 0]
+    ]
+  },
+  {
+    title: "つき 🌙",
+    answer: [
+      [0, 0, 1, 1, 0, 0],
+      [0, 1, 1, 0, 0, 0],
+      [1, 1, 0, 0, 0, 0],
+      [1, 1, 0, 0, 0, 0],
+      [0, 1, 1, 0, 0, 0],
+      [0, 0, 1, 1, 0, 0]
+    ]
+  },
+  {
+    title: "ゆきだるま ⛄",
+    answer: [
+      [0, 0, 1, 1, 0, 0],
+      [0, 1, 1, 1, 1, 0],
+      [0, 0, 1, 1, 0, 0],
+      [0, 1, 1, 1, 1, 0],
+      [1, 1, 1, 1, 1, 1],
+      [0, 1, 1, 1, 1, 0]
+    ]
+  },
+  {
+    title: "さかな 🐟",
+    answer: [
+      [1, 0, 0, 0, 0, 0],
+      [1, 1, 0, 1, 1, 0],
+      [1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1],
+      [1, 1, 0, 1, 1, 0],
+      [1, 0, 0, 0, 0, 0]
+    ]
+  },
+  {
+    title: "おうち 🏠",
+    answer: [
+      [0, 0, 1, 1, 0, 0],
+      [0, 1, 1, 1, 1, 0],
+      [1, 1, 1, 1, 1, 1],
+      [1, 1, 0, 0, 1, 1],
+      [1, 1, 0, 0, 1, 1],
+      [1, 1, 1, 1, 1, 1]
+    ]
+  },
+  {
+    title: "きのこ 🍄",
+    answer: [
+      [0, 1, 1, 1, 1, 0],
+      [1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1],
+      [0, 0, 1, 1, 0, 0],
+      [0, 1, 1, 1, 1, 0],
+      [0, 1, 1, 1, 1, 0]
+    ]
+  },
+  {
+    title: "ハート 💖",
+    answer: [
+      [0, 1, 1, 0, 1, 1],
+      [1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1],
+      [0, 1, 1, 1, 1, 0],
+      [0, 0, 1, 1, 0, 0],
+      [0, 0, 0, 0, 0, 0]
+    ]
+  },
+  {
+    title: "にじ 🌈",
+    answer: [
+      [0, 0, 1, 1, 1, 0, 0],
+      [0, 1, 0, 0, 0, 1, 0],
+      [1, 0, 1, 0, 1, 0, 1],
+      [1, 0, 0, 1, 0, 0, 1],
+      [1, 1, 0, 0, 0, 1, 1],
+      [0, 1, 1, 0, 1, 1, 0],
+      [0, 0, 1, 1, 1, 0, 0]
+    ]
+  },
+  {
+    title: "ロケット 🚀",
+    answer: [
+      [0, 0, 0, 1, 0, 0, 0],
+      [0, 0, 1, 1, 1, 0, 0],
+      [0, 1, 1, 1, 1, 1, 0],
+      [0, 1, 0, 1, 0, 1, 0],
+      [0, 1, 1, 1, 1, 1, 0],
+      [1, 0, 1, 0, 1, 0, 1],
+      [1, 0, 0, 0, 0, 0, 1]
+    ]
+  },
+  {
+    title: "おうかん 👑",
+    answer: [
+      [1, 0, 0, 1, 0, 0, 1],
+      [1, 1, 0, 1, 0, 1, 1],
+      [1, 1, 1, 1, 1, 1, 1],
+      [0, 1, 1, 1, 1, 1, 0],
+      [0, 1, 1, 1, 1, 1, 0],
+      [0, 1, 0, 1, 0, 1, 0],
+      [0, 0, 0, 0, 0, 0, 0]
+    ]
+  },
+  {
+    title: "ほし ⭐",
+    answer: [
+      [0, 0, 1, 0, 0],
+      [0, 1, 1, 1, 0],
+      [1, 1, 1, 1, 1],
+      [0, 1, 1, 1, 0],
+      [1, 0, 1, 0, 1]
+    ]
+  },
+  {
+    title: "ねこ 🐱",
+    answer: [
+      [1, 0, 0, 0, 0, 1],
+      [1, 1, 1, 1, 1, 1],
+      [0, 1, 0, 0, 1, 0],
+      [0, 1, 1, 1, 1, 0],
+      [1, 0, 1, 1, 0, 1],
+      [1, 0, 0, 0, 0, 1]
+    ]
+  },
+  {
+    title: "かさ ☂️",
+    answer: [
+      [0, 0, 1, 1, 0, 0],
+      [0, 1, 1, 1, 1, 0],
+      [1, 1, 1, 1, 1, 1],
+      [0, 0, 1, 1, 0, 0],
+      [0, 0, 1, 0, 0, 0],
+      [0, 0, 1, 1, 1, 0]
+    ]
+  },
+  {
+    title: "ふね ⛵",
+    answer: [
+      [0, 0, 1, 0, 0, 0],
+      [0, 0, 1, 1, 0, 0],
+      [0, 1, 1, 1, 1, 0],
+      [0, 0, 1, 0, 0, 0],
+      [1, 1, 1, 1, 1, 1],
+      [0, 1, 1, 1, 1, 0]
+    ]
+  },
+  {
+    title: "ケーキ 🍰",
+    answer: [
+      [0, 0, 1, 0, 0, 0],
+      [0, 1, 1, 1, 1, 0],
+      [1, 1, 1, 1, 1, 1],
+      [1, 0, 1, 0, 1, 1],
+      [1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1]
+    ]
+  },
+  {
+    title: "かぎ 🔑",
+    answer: [
+      [0, 1, 1, 0, 0, 0],
+      [1, 0, 0, 1, 0, 0],
+      [1, 0, 0, 1, 0, 0],
+      [0, 1, 1, 1, 1, 1],
+      [0, 0, 0, 0, 1, 0],
+      [0, 0, 0, 0, 1, 1]
+    ]
+  },
+  {
+    title: "おばけ 👻",
+    answer: [
+      [0, 1, 1, 1, 1, 0],
+      [1, 1, 1, 1, 1, 1],
+      [1, 0, 1, 1, 0, 1],
+      [1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1],
+      [1, 0, 1, 0, 1, 0]
+    ]
+  },
+  {
+    title: "ちょうちょ 🦋",
+    answer: [
+      [1, 1, 0, 0, 0, 1, 1],
+      [1, 1, 1, 0, 1, 1, 1],
+      [0, 1, 1, 1, 1, 1, 0],
+      [0, 0, 1, 1, 1, 0, 0],
+      [0, 1, 1, 1, 1, 1, 0],
+      [1, 1, 1, 0, 1, 1, 1],
+      [1, 1, 0, 0, 0, 1, 1]
+    ]
+  },
+  {
+    title: "くるま 🚗",
+    answer: [
+      [0, 0, 0, 0, 0, 0, 0],
+      [0, 1, 1, 1, 1, 1, 0],
+      [1, 1, 1, 1, 1, 1, 1],
+      [1, 0, 1, 1, 1, 0, 1],
+      [1, 1, 1, 1, 1, 1, 1],
+      [0, 1, 0, 0, 0, 1, 0],
+      [0, 0, 0, 0, 0, 0, 0]
+    ]
+  },
+  {
+    title: "きょうりゅう 🦖",
+    answer: [
+      [0, 0, 1, 1, 1, 0, 0],
+      [0, 1, 1, 1, 1, 1, 0],
+      [1, 1, 0, 1, 1, 0, 0],
+      [1, 1, 1, 1, 1, 1, 0],
+      [0, 1, 1, 1, 1, 1, 1],
+      [0, 0, 1, 0, 1, 0, 0],
+      [0, 1, 1, 0, 1, 1, 0]
+    ]
+  },
+  {
+    title: "はな 🌸",
+    answer: [
+      [0, 1, 0, 1, 0],
+      [1, 1, 1, 1, 1],
+      [0, 1, 1, 1, 0],
+      [1, 1, 1, 1, 1],
+      [0, 1, 0, 1, 0]
+    ]
+  },
+  {
+    title: "とり 🐦",
+    answer: [
+      [0, 0, 1, 1, 0, 0],
+      [0, 1, 1, 1, 1, 0],
+      [1, 1, 0, 1, 1, 1],
+      [0, 1, 1, 1, 1, 0],
+      [0, 0, 1, 1, 0, 0],
+      [0, 1, 0, 0, 1, 0]
+    ]
+  },
+  {
+    title: "くも ☁️",
+    answer: [
+      [0, 0, 1, 1, 0, 0],
+      [0, 1, 1, 1, 1, 0],
+      [1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1],
+      [0, 1, 1, 1, 1, 0],
+      [0, 0, 0, 0, 0, 0]
+    ]
+  },
+  {
+    title: "カップ ☕",
+    answer: [
+      [1, 1, 1, 1, 0, 0],
+      [1, 0, 0, 1, 1, 0],
+      [1, 0, 0, 1, 0, 1],
+      [1, 0, 0, 1, 1, 0],
+      [1, 1, 1, 1, 0, 0],
+      [0, 1, 1, 0, 0, 0]
+    ]
+  },
+  {
+    title: "プレゼント 🎁",
+    answer: [
+      [0, 1, 0, 0, 1, 0],
+      [1, 1, 1, 1, 1, 1],
+      [1, 0, 1, 1, 0, 1],
+      [1, 1, 1, 1, 1, 1],
+      [1, 0, 1, 1, 0, 1],
+      [1, 1, 1, 1, 1, 1]
+    ]
+  },
+  {
+    title: "いぬ 🐶",
+    answer: [
+      [1, 0, 0, 0, 0, 1],
+      [1, 1, 1, 1, 1, 1],
+      [0, 1, 0, 0, 1, 0],
+      [0, 1, 1, 1, 1, 0],
+      [0, 1, 0, 0, 1, 0],
+      [1, 0, 0, 0, 0, 1]
+    ]
+  },
+  {
+    title: "くつ 👟",
+    answer: [
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 1, 1, 0, 0],
+      [0, 1, 1, 1, 1, 0],
+      [1, 1, 1, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1],
+      [0, 1, 0, 1, 0, 1]
+    ]
+  },
+  {
+    title: "まほうのつえ 🪄",
+    answer: [
+      [0, 0, 0, 0, 0, 0, 1],
+      [0, 0, 0, 0, 0, 1, 0],
+      [0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 0, 1, 0, 0, 0],
+      [0, 0, 1, 0, 0, 0, 0],
+      [1, 0, 0, 0, 0, 1, 0],
+      [0, 1, 0, 0, 1, 0, 0]
+    ]
+  },
+  {
+    title: "ひこうき ✈️",
+    answer: [
+      [0, 0, 0, 1, 0, 0, 0],
+      [0, 0, 1, 1, 1, 0, 0],
+      [1, 1, 1, 1, 1, 1, 1],
+      [0, 0, 1, 1, 1, 0, 0],
+      [0, 1, 0, 1, 0, 1, 0],
+      [1, 0, 0, 1, 0, 0, 1],
+      [0, 0, 0, 1, 0, 0, 0]
+    ]
+  },
+  {
+    title: "おしろ 🏰",
+    answer: [
+      [1, 0, 1, 0, 0, 1, 0, 1],
+      [1, 1, 1, 0, 0, 1, 1, 1],
+      [1, 1, 1, 1, 1, 1, 1, 1],
+      [0, 1, 1, 1, 1, 1, 1, 0],
+      [0, 1, 0, 1, 1, 0, 1, 0],
+      [0, 1, 1, 1, 1, 1, 1, 0],
+      [0, 1, 1, 0, 0, 1, 1, 0],
+      [0, 1, 1, 0, 0, 1, 1, 0]
+    ]
+  }
+];
+
+const AREAS = [
+  { title: "はじめの森", icon: "🌱", subtitle: "5×5で開始、6×6中心、最後は7×7", start: 0, end: 9 },
+  { title: "きらきら湖", icon: "💧", subtitle: "6×6を中心に、後半は7×7", start: 10, end: 19 },
+  { title: "まほうの空", icon: "🌈", subtitle: "標準ミックス＋最後だけ8×8ボス", start: 20, end: 29 }
+];
+
+// ============================================================
+// ヒント自動生成
+// ============================================================
+function getRowHints(answer) {
+  return answer.map(row => {
+    const h = []; let n = 0;
+    row.forEach(v => { v ? n++ : (n && (h.push(n), n=0)); });
+    if (n) h.push(n);
+    return h.length ? h : [0];
+  });
+}
+function getColHints(answer) {
+  return Array.from({length: answer[0].length}, (_, c) => {
+    const h = []; let n = 0;
+    answer.forEach(row => { row[c] ? n++ : (n && (h.push(n), n=0)); });
+    if (n) h.push(n);
+    return h.length ? h : [0];
+  });
+}
+
+// ============================================================
+// 日付ユーティリティ
+// ============================================================
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function tomorrowStr() {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+// ============================================================
+// アクセス制御
+// ============================================================
+// 語彙クエスト側が localStorage.setItem('picrossRewardDate', 'YYYY-MM-DD') を
+// 書き込んでからこのページを開く前提。
+
+const LEGACY_REWARD_DATE_KEY = 'picrossRewardDate';
+const REWARD_STATE_KEY = 'picrossRewardState_v1';
+
+function defaultRewardState() {
+  return {
+    dailyTicketDate: null,
+    dailyTicketUsedDate: null,
+    bonusTickets: 0,
+    bonusUsedDate: null,
+    bonusAwardedMilestones: [],
+    playCountDate: null,
+    playCount: 0
+  };
+}
+
+function loadRewardState() {
+  let state = defaultRewardState();
+  try {
+    const raw = localStorage.getItem(REWARD_STATE_KEY);
+    if (raw) state = Object.assign(state, JSON.parse(raw));
+  } catch(e) {}
+
+  // 旧仕様との互換：語彙クエスト側が picrossRewardDate だけを書いている場合も通常チケットとして扱う
+  const legacyDate = localStorage.getItem(LEGACY_REWARD_DATE_KEY);
+  if (legacyDate === todayStr() && state.dailyTicketDate !== legacyDate) {
+    state.dailyTicketDate = legacyDate;
+    writeRewardState(state);
+  }
+  return state;
+}
+
+function writeRewardState(state) {
+  localStorage.setItem(REWARD_STATE_KEY, JSON.stringify(state));
+}
+
+function getTodayPlayCount(state) {
+  return state.playCountDate === todayStr() ? (state.playCount || 0) : 0;
+}
+
+function hasDailyTicket(state = loadRewardState()) {
+  const today = todayStr();
+  return state.dailyTicketDate === today && state.dailyTicketUsedDate !== today;
+}
+
+function hasBonusTicket(state = loadRewardState()) {
+  const today = todayStr();
+  return (state.bonusTickets || 0) > 0 && state.bonusUsedDate !== today;
+}
+
+/** 今日遊べるチケットがあるかどうかを返す */
+function hasValidRewardAccess() {
+  const state = loadRewardState();
+  return hasDailyTicket(state) || hasBonusTicket(state);
+}
+
+/** ピクロスを1問クリアした時点でチケットを1枚消費する */
+function consumePicrossTicket() {
+  const state = loadRewardState();
+  const today = todayStr();
+
+  if (hasDailyTicket(state)) {
+    state.dailyTicketUsedDate = today;
+  } else if (hasBonusTicket(state)) {
+    state.bonusTickets = Math.max(0, (state.bonusTickets || 0) - 1);
+    state.bonusUsedDate = today;
+  } else {
+    return false;
+  }
+
+  state.playCountDate = today;
+  state.playCount = getTodayPlayCount(state) + 1;
+  writeRewardState(state);
+  return true;
+}
+
+function getTicketLabel() {
+  const state = loadRewardState();
+  if (hasDailyTicket(state)) return '今日のごほうびチケット';
+  if (hasBonusTicket(state)) return `ボーナスチケット（残り${state.bonusTickets}枚）`;
+  return 'チケットなし';
+}
+
+/** ロック画面を表示し、ゲーム画面を全て隠す */
+function updateRewardLockMessage() {
+  const title = document.querySelector('#screen-lock .lock-title');
+  const desc  = document.querySelector('#screen-lock .lock-desc');
+  const hint  = document.querySelector('#screen-lock .lock-hint');
+  if (!title || !desc || !hint) return;
+
+  title.innerHTML = 'ごほうびチケットが<br>まだないよ';
+  desc.innerHTML =
+    '今日の必要ミッションを終えると<br>' +
+    'ピクロスチケットがもらえるよ！<br>' +
+    '頑張ってね 💪';
+  hint.innerHTML =
+    '📖 よみときミッションがある日は<br>' +
+    'よみときまでクリアしてから来てね ✨';
+}
+
+function showRewardLockScreen() {
+  updateRewardLockMessage();
+  document.getElementById('screen-lock').classList.remove('hidden');
+  document.getElementById('screen-home').classList.add('hidden');
+  document.getElementById('screen-game').classList.add('hidden');
+  // 開いていたオーバーレイも閉じる
+  document.getElementById('overlay-clear').classList.remove('show');
+  document.getElementById('overlay-complete').classList.remove('show');
+}
+
+/** ごほうび権が有効なときロック画面を隠してホームを表示する */
+function hideRewardLockScreen() {
+  document.getElementById('screen-lock').classList.add('hidden');
+}
+
+/**
+ * アクセス権を検証する。
+ * 無効 → ロック画面表示。
+ * 有効 → ロック画面を隠し、ホームがどこにも表示されていなければホームを表示。
+ */
+function validateRewardAccess() {
+  if (!hasValidRewardAccess()) {
+    showRewardLockScreen();
+    return false;
+  }
+  hideRewardLockScreen();
+  // ゲーム画面もホーム画面もどちらも非表示になってしまっている場合（ロックから復帰）
+  const homeHidden = document.getElementById('screen-home').classList.contains('hidden');
+  const gameHidden = document.getElementById('screen-game').classList.contains('hidden');
+  if (homeHidden && gameHidden) {
+    document.getElementById('screen-home').classList.remove('hidden');
+    renderHome();
+  }
+  return true;
+}
+
+// ============================================================
+// セーブデータ管理
+// ============================================================
+const SAVE_KEY = 'gohobiPicross_v3';
+
+function loadSave() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (raw) {
+      const obj = JSON.parse(raw);
+      if (!Array.isArray(obj.unlocked))        obj.unlocked    = [0];
+      if (!Array.isArray(obj.cleared))         obj.cleared     = [];
+      if (typeof obj.unlockDates !== 'object') obj.unlockDates = {};
+      return obj;
+    }
+  } catch(e) {}
+  return { unlocked: [0], cleared: [], unlockDates: { 0: todayStr() } };
+}
+function writeSave(s) {
+  localStorage.setItem(SAVE_KEY, JSON.stringify(s));
+}
+
+let gameState = loadSave();
+
+// ============================================================
+// 起動時：1日1問 自動解放チェック
+// ============================================================
+function applyDailyUnlock() {
+  const today = todayStr();
+  let changed = false;
+
+  for (let i = 0; i < STAGES.length; i++) {
+    const next = i + 1;
+    if (next >= STAGES.length) break;
+    if (!gameState.cleared.includes(i)) break;
+    if (gameState.unlocked.includes(next) || gameState.cleared.includes(next)) continue;
+
+    const scheduledDate = gameState.unlockDates[next];
+    if (scheduledDate && scheduledDate <= today) {
+      gameState.unlocked.push(next);
+      changed = true;
+    }
+    if (!gameState.unlocked.includes(next) && !gameState.cleared.includes(next)) break;
+  }
+
+  if (changed) writeSave(gameState);
+}
+
+/** 次の「解放待ち」情報 { index, date } または null */
+function getNextUnlockInfo() {
+  for (let i = 0; i < STAGES.length; i++) {
+    if (!gameState.cleared.includes(i)) break;
+    const next = i + 1;
+    if (next >= STAGES.length) break;
+    if (gameState.unlocked.includes(next) || gameState.cleared.includes(next)) continue;
+    return { index: next, date: gameState.unlockDates[next] || null };
+  }
+  return null;
+}
+
+// ============================================================
+// ホーム画面描画
+// ============================================================
+function renderHome() {
+  // アクセス権がなければ描画しない
+  if (!hasValidRewardAccess()) { showRewardLockScreen(); return; }
+
+  applyDailyUnlock();
+
+  const cleared = gameState.cleared.length;
+  document.getElementById('progress-count').innerHTML = `${cleared}<span> / ${STAGES.length}</span>`;
+  document.getElementById('progress-bar').style.width = (cleared / STAGES.length * 100) + '%';
+  const icons = ['🌱','🌿','🍀','🌸','⭐','🌟','💫','🏅','🥇','🏆','👑'];
+  document.getElementById('progress-icon').textContent = icons[Math.min(Math.floor(cleared / Math.max(1, Math.ceil(STAGES.length / 10))), icons.length - 1)];
+
+  // チケット表示
+  const ticketText = document.getElementById('ticket-text');
+  if (ticketText) ticketText.textContent = `使えるチケット：${getTicketLabel()}`;
+
+  // 次回解放バナー
+  const nextInfo = getNextUnlockInfo();
+  const banner   = document.getElementById('next-unlock-banner');
+  if (nextInfo && nextInfo.date) {
+    const [, mm, dd] = nextInfo.date.split('-');
+    document.getElementById('next-unlock-text').textContent =
+      `次の問題は ${parseInt(mm)}月${parseInt(dd)}日 に解放されるよ 🗝️`;
+    banner.classList.remove('hidden');
+  } else if (nextInfo && !nextInfo.date) {
+    document.getElementById('next-unlock-text').textContent =
+      `次の問題はクリアすると明日解放されるよ 🗝️`;
+    banner.classList.remove('hidden');
+  } else {
+    banner.classList.add('hidden');
+  }
+
+  // エリア別ステージ一覧
+  const grid = document.getElementById('stage-grid');
+  grid.innerHTML = '';
+
+  AREAS.forEach((area, areaIndex) => {
+    const areaStages = STAGES.slice(area.start, area.end + 1);
+    const areaCleared = areaStages.filter((_, offset) => gameState.cleared.includes(area.start + offset)).length;
+    const areaUnlocked = areaStages.some((_, offset) => {
+      const idx = area.start + offset;
+      return gameState.cleared.includes(idx) || gameState.unlocked.includes(idx);
+    });
+
+    const block = document.createElement('section');
+    block.className = `area-block ${areaUnlocked ? '' : 'area-locked'}`;
+    block.innerHTML = `
+      <div class="area-header">
+        <div>
+          <div class="area-title-main">${area.icon} エリア${areaIndex + 1}：${area.title}</div>
+          <div class="area-title-sub">${areaUnlocked ? area.subtitle : '前のエリアをクリアすると解放されるよ 🔒'}</div>
+        </div>
+        <div class="area-progress-pill">${areaCleared} / ${areaStages.length}</div>
+      </div>
+      <div class="stage-grid" id="area-grid-${areaIndex}"></div>
+    `;
+
+    const areaGrid = block.querySelector('.stage-grid');
+    areaStages.forEach((stage, offset) => {
+      const i = area.start + offset;
+      const isCleared  = gameState.cleared.includes(i);
+      const isUnlocked = !isCleared && gameState.unlocked.includes(i);
+      const isLocked   = !isCleared && !isUnlocked;
+
+      const card = document.createElement('div');
+      card.className = `stage-card ${isCleared ? 'cleared' : isUnlocked ? 'unlocked' : 'locked'}`;
+      card.id = `stage-card-${i}`;
+
+      const emoji = isCleared ? (stage.title.split(' ')[1] || '🎮') : '❓';
+      const name  = isCleared ? stage.title.split(' ')[0] : '？？？';
+
+      card.innerHTML = `
+        ${isCleared ? '<div class="stage-clear-badge">✓</div>' : ''}
+        <div class="stage-num">No.${i+1}</div>
+        <span class="stage-emoji">${emoji}</span>
+        <div class="stage-name">${name}</div>
+      <div class="stage-size">${stage.answer.length}×${stage.answer[0].length}</div>
+        ${buildMiniPreview(stage.answer, isCleared)}
+        ${isLocked ? '<span class="stage-lock-icon">🔒</span>' : ''}
+      `;
+
+      if (!isLocked) card.addEventListener('click', () => startStage(i));
+      areaGrid.appendChild(card);
+    });
+
+    grid.appendChild(block);
+  });
+}
+
+function buildMiniPreview(answer, isCleared) {
+  const cols = answer[0].length;
+  let html = `<div class="stage-preview" style="grid-template-columns:repeat(${cols},7px)">`;
+  answer.forEach(row => {
+    row.forEach(v => {
+      html += `<div class="preview-cell ${(isCleared && v) ? 'on' : ''}"></div>`;
+    });
+  });
+  return html + '</div>';
+}
+
+// ============================================================
+// ゲーム画面
+// ============================================================
+let currentStageIndex = -1;
+let currentBoard = [];
+let currentMode  = 'fill';
+let isDragging   = false;
+let dragAction   = null;
+
+function startStage(index) {
+  // アクセス権チェック：無効なら即リターン
+  if (!hasValidRewardAccess()) { showRewardLockScreen(); return; }
+
+  currentStageIndex = index;
+  currentMode = 'fill';
+
+  const stage = STAGES[index];
+  const rows = stage.answer.length, cols = stage.answer[0].length;
+  currentBoard = Array.from({length: rows}, () => Array(cols).fill(0));
+
+  const isCleared = gameState.cleared.includes(index);
+  document.getElementById('game-stage-num').textContent   = `ステージ ${index+1} / ${STAGES.length}`;
+  document.getElementById('game-stage-title').textContent =
+    isCleared ? stage.title : `ステージ ${index+1}（？？？）`;
+
+  updateModeButtons();
+  renderBoard();
+  hideCheckFeedback();
+
+  document.getElementById('screen-home').classList.add('hidden');
+  document.getElementById('screen-game').classList.remove('hidden');
+  window.scrollTo(0, 0);
+}
+
+function renderBoard() {
+  const answer = STAGES[currentStageIndex].answer;
+  const rows = answer.length, cols = answer[0].length;
+  const rowHints = getRowHints(answer);
+  const colHints = getColHints(answer);
+
+  const maxW      = Math.min(window.innerWidth - 32, 480);
+  const hintRowLen = Math.max(...rowHints.map(h => h.length));
+  const hintColLen = Math.max(...colHints.map(h => h.length));
+  const hintColW  = Math.max(24, Math.floor(maxW / (cols + hintRowLen) * hintRowLen));
+  const hintRowH  = Math.max(24, 18 * hintColLen);
+  const cellSize  = Math.max(36, Math.min(52, Math.floor((maxW - hintColW) / cols)));
+  const hintFS    = Math.max(11, cellSize * 0.28);
+
+  const wrap = document.getElementById('picross-wrap');
+  wrap.innerHTML = '';
+
+  const outer = document.createElement('div');
+  outer.className = 'picross-grid-outer';
+  outer.style.gridTemplateColumns = `${hintColW}px repeat(${cols}, ${cellSize}px)`;
+  outer.style.gridTemplateRows    = `${hintRowH}px repeat(${rows}, ${cellSize}px)`;
+
+  // 左上コーナー
+  const corner = document.createElement('div');
+  corner.style.cssText = `grid-column:1;grid-row:1;background:#fef8f0;border:1px solid #eedcc8;border-radius:6px 0 0 0;`;
+  outer.appendChild(corner);
+
+  // 列ヒント
+  colHints.forEach((hints, c) => {
+    const el = document.createElement('div');
+    el.className = 'hint-cell';
+    el.style.cssText = `grid-column:${c+2};grid-row:1;width:${cellSize}px;height:${hintRowH}px;font-size:${hintFS}px;`;
+    hints.forEach(n => { const s = document.createElement('span'); s.textContent = n||''; el.appendChild(s); });
+    outer.appendChild(el);
+  });
+
+  // 行ヒント＋セル
+  for (let r = 0; r < rows; r++) {
+    const hr = document.createElement('div');
+    hr.className = 'hint-cell';
+    hr.style.cssText = `grid-column:1;grid-row:${r+2};width:${hintColW}px;height:${cellSize}px;font-size:${hintFS}px;flex-direction:row;gap:3px;`;
+    rowHints[r].forEach(n => { const s = document.createElement('span'); s.textContent = n||''; hr.appendChild(s); });
+    outer.appendChild(hr);
+
+    for (let c = 0; c < cols; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.style.cssText = `grid-column:${c+2};grid-row:${r+2};width:${cellSize}px;height:${cellSize}px;`;
+      cell.dataset.r = r;
+      cell.dataset.c = c;
+      updateCellVisual(cell, currentBoard[r][c]);
+
+      cell.addEventListener('mousedown', e => {
+        e.preventDefault();
+        isDragging = true;
+        dragAction = e.button === 2 ? 'cross' : currentMode;
+        applyAction(r, c, dragAction);
+      });
+      cell.addEventListener('mouseover', () => {
+        if (isDragging) applyAction(r, c, dragAction);
+      });
+      cell.addEventListener('contextmenu', e => e.preventDefault());
+
+      cell.addEventListener('touchstart', e => {
+        e.preventDefault();
+        isDragging = true;
+        dragAction = currentMode;
+        applyAction(r, c, currentMode);
+      }, {passive: false});
+      cell.addEventListener('touchmove', e => {
+        e.preventDefault();
+        if (!isDragging) return;
+        const t = e.touches[0];
+        const el = document.elementFromPoint(t.clientX, t.clientY);
+        if (el?.classList.contains('cell')) {
+          applyAction(parseInt(el.dataset.r), parseInt(el.dataset.c), dragAction);
+        }
+      }, {passive: false});
+
+      outer.appendChild(cell);
+    }
+  }
+
+  document.addEventListener('mouseup',  () => { isDragging = false; dragAction = null; });
+  document.addEventListener('touchend', () => { isDragging = false; dragAction = null; });
+
+  wrap.appendChild(outer);
+}
+
+function applyAction(r, c, action) {
+  if      (action === 'fill')  currentBoard[r][c] = currentBoard[r][c] === 1 ? 0 : 1;
+  else if (action === 'cross') currentBoard[r][c] = currentBoard[r][c] === 2 ? 0 : 2;
+  else if (action === 'erase') currentBoard[r][c] = 0;
+
+  const cell = document.querySelector(`.cell[data-r="${r}"][data-c="${c}"]`);
+  if (cell) {
+    const saved = cell.getAttribute('style');
+    updateCellVisual(cell, currentBoard[r][c]);
+    cell.setAttribute('style', saved);
+  }
+  hideCheckFeedback();
+}
+
+function updateCellVisual(cell, val) {
+  cell.classList.remove('filled', 'crossed');
+  if (val === 1) cell.classList.add('filled');
+  else if (val === 2) cell.classList.add('crossed');
+}
+
+function resetBoard() {
+  const a = STAGES[currentStageIndex].answer;
+  currentBoard = Array.from({length: a.length}, () => Array(a[0].length).fill(0));
+  renderBoard();
+  hideCheckFeedback();
+}
+function setMode(mode) { currentMode = mode; updateModeButtons(); }
+function updateModeButtons() {
+  ['fill','cross','erase'].forEach(m =>
+    document.getElementById(`btn-mode-${m}`).classList.toggle('active', m === currentMode)
+  );
+}
+
+// ============================================================
+// 答え合わせ
+// ============================================================
+function checkAnswer() {
+  const answer = STAGES[currentStageIndex].answer;
+  let correct = true;
+  loop:
+  for (let r = 0; r < answer.length; r++) {
+    for (let c = 0; c < answer[0].length; c++) {
+      if ((answer[r][c] === 1) !== (currentBoard[r][c] === 1)) {
+        correct = false;
+        break loop;
+      }
+    }
+  }
+  if (correct) onStageClear();
+  else showCheckFeedback('まだちょっと違うよ！もう一度確認してみて 🔍');
+}
+function showCheckFeedback(msg) {
+  const el = document.getElementById('check-feedback');
+  el.textContent = msg;
+  el.className = 'check-feedback wrong';
+}
+function hideCheckFeedback() {
+  document.getElementById('check-feedback').className = 'check-feedback hidden';
+}
+
+// ============================================================
+// クリア処理（1日1解放ロジック）
+// ============================================================
+function onStageClear() {
+  const i     = currentStageIndex;
+  const today = todayStr();
+  const wasAlreadyCleared = gameState.cleared.includes(i);
+
+  if (!wasAlreadyCleared) {
+    gameState.cleared.push(i);
+    consumePicrossTicket();
+  }
+
+  const ui = gameState.unlocked.indexOf(i);
+  if (ui !== -1) gameState.unlocked.splice(ui, 1);
+
+  const nextIdx = i + 1;
+  let justUnlocked      = false;
+  let scheduledForLater = false;
+
+  if (nextIdx < STAGES.length && !wasAlreadyCleared) {
+    const alreadyAvail =
+      gameState.unlocked.includes(nextIdx) || gameState.cleared.includes(nextIdx);
+
+    if (!alreadyAvail) {
+      if (hasValidRewardAccess()) {
+        gameState.unlocked.push(nextIdx);
+        gameState.unlockDates[nextIdx] = today;
+        justUnlocked = true;
+      } else {
+        gameState.unlockDates[nextIdx] = tomorrowStr();
+        scheduledForLater = true;
+      }
+    }
+  }
+
+  writeSave(gameState);
+
+  const stage = STAGES[i];
+  document.getElementById('clear-subtitle').textContent =
+    `「${stage.title}」をクリアしたよ！✨`;
+
+  const msgBox = document.getElementById('clear-msg-box');
+  msgBox.className = 'clear-msg-box';
+
+  const isComplete = gameState.cleared.length === STAGES.length;
+
+  if (isComplete) {
+    msgBox.classList.remove('show');
+  } else if (justUnlocked && nextIdx < STAGES.length) {
+    msgBox.textContent = `🔓 次の問題が解放された！さっそく挑戦しよう！`;
+    msgBox.classList.add('show', 'unlock');
+  } else if (scheduledForLater && nextIdx < STAGES.length) {
+    const tom = tomorrowStr().split('-');
+    msgBox.textContent = `🗓️ 次の問題は ${parseInt(tom[1])}月${parseInt(tom[2])}日 に解放されるよ。また来てね ✨`;
+    msgBox.classList.add('show', 'tomorrow');
+  }
+
+  const canGoNext = !isComplete && justUnlocked && nextIdx < STAGES.length;
+  document.getElementById('clear-btn-next').classList.toggle('show', canGoNext);
+
+  document.getElementById('overlay-clear').classList.add('show');
+  spawnConfetti(40);
+
+  if (isComplete) {
+    setTimeout(() => {
+      document.getElementById('overlay-clear').classList.remove('show');
+      showComplete();
+    }, 2400);
+  }
+}
+
+function goNextStage() {
+  document.getElementById('overlay-clear').classList.remove('show');
+  const next = currentStageIndex + 1;
+  if (next < STAGES.length) setTimeout(() => startStage(next), 300);
+}
+function closeOverlayAndHome() {
+  document.getElementById('overlay-clear').classList.remove('show');
+  goHome();
+}
+
+// ============================================================
+// コンプリート演出
+// ============================================================
+function showComplete() {
+  const totalEl = document.getElementById('complete-total-count');
+  if (totalEl) totalEl.textContent = STAGES.length;
+  document.getElementById('overlay-complete').classList.add('show');
+  spawnConfetti(120);
+}
+function closeComplete() {
+  document.getElementById('overlay-complete').classList.remove('show');
+  goHome();
+}
+
+// ============================================================
+// 紙吹雪
+// ============================================================
+function spawnConfetti(count) {
+  const colors = ['#ff8c42','#ffb347','#ff6b9d','#c084fc','#60a5fa','#4ade80','#ffd700','#f87171'];
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.cssText = `
+      left:${Math.random()*100}vw; top:-10px;
+      background:${colors[i % colors.length]};
+      width:${6+Math.random()*8}px; height:${6+Math.random()*8}px;
+      border-radius:${Math.random()>.5?'50%':'2px'};
+      animation-duration:${1.5+Math.random()*2.5}s;
+      animation-delay:${Math.random()*1.2}s;
+    `;
+    document.body.appendChild(p);
+    p.addEventListener('animationend', () => p.remove());
+  }
+}
+
+// ============================================================
+// 画面遷移・リセット
+// ============================================================
+function goHome() {
+  document.getElementById('screen-game').classList.add('hidden');
+  document.getElementById('screen-home').classList.remove('hidden');
+  renderHome();
+  window.scrollTo(0, 0);
+}
+function confirmReset() {
+  if (confirm('進捗を全部リセットしますか？\nクリア記録も消えます。')) {
+    gameState = { unlocked: [0], cleared: [], unlockDates: { 0: todayStr() } };
+    writeSave(gameState);
+    renderHome();
+  }
+}
+
+// ============================================================
+// フォーカス・可視性変化でアクセス権を再チェック
+// （前日のタブを翌日に戻したとき等に即ロック）
+// ============================================================
+window.addEventListener('focus', validateRewardAccess);
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) validateRewardAccess();
+});
+
+// ============================================================
+// 起動
+// ============================================================
+validateRewardAccess();      // まずアクセス権を確認
+if (hasValidRewardAccess()) {
+  renderHome();              // 権限あり → ホーム画面を描画
+}
+</script>
+
+</body>
+</html>
