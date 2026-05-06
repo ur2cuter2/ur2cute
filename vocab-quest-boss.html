@@ -527,6 +527,24 @@ function escapeHtml(value) {
   }[ch]));
 }
 
+function renderWordText(text, word) {
+  const escapedText = escapeHtml(personalizeText(text || ''));
+  const baseWord = escapeHtml(word?.kanji || '');
+
+  return escapedText
+    // 半角 <WORD> / <WORD:...> 互換対応
+    .replace(/&lt;WORD(?::([^&<>]*))?&gt;/g, (_, display) => {
+      const shown = display && display.trim() ? display : baseWord;
+      return `<span class="highlight-word">${shown}</span>`;
+    })
+    // 全角 ＜WORD＞ / ＜WORD:...＞ 標準対応
+    .replace(/＜WORD(?::([^＜＞]*))?＞/g, (_, display) => {
+      const shown = display && display.trim() ? escapeHtml(display) : baseWord;
+      return `<span class="highlight-word">${shown}</span>`;
+    });
+}
+
+
 const ELEMENTS = {
   light:  { img:'assets/images/light.png',  emoji:'☀️',  name:'ひかりの精霊',   cls:'el-light',  sp:'✨', confused:'まぶしすぎて…思い出せない…',  happy:'助けてくれてありがとう！' },
   shadow: { img:'assets/images/shadow.png', emoji:'🌙',  name:'かげの精霊',     cls:'el-shadow', sp:'🌙', confused:'くらくて…わからない…',         happy:'思い出せた…ありがとう…' },
@@ -984,7 +1002,7 @@ function renderQ() {
   document.getElementById('battleName').textContent = info.name;
   document.getElementById('battleEmotion').textContent = qStep===0 ? info.confused : 'もう少しで思い出せそう…';
 
-  document.getElementById('bossText').textContent = yq.text;
+  document.getElementById('bossText').innerHTML = renderWordText(yq.text, word);
 
   const q    = qStep === 0 ? yq.q1    : yq.q2;
   const opts = qStep === 0 ? yq.q1opts : yq.q2opts;
@@ -1023,7 +1041,7 @@ function renderRevivalQ() {
   document.getElementById('battleName').textContent = info.name;
   document.getElementById('battleEmotion').textContent = 'もう一度…助けてほしい…';
 
-  document.getElementById('bossText').textContent = yq.text;
+  document.getElementById('bossText').innerHTML = renderWordText(yq.text, word);
   const q    = step === 0 ? yq.q1    : yq.q2;
   const opts = step === 0 ? yq.q1opts : yq.q2opts;
   document.getElementById('bossQ').textContent = q;
