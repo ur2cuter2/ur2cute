@@ -3029,7 +3029,7 @@ function parseAndMergeCSV(raw) {
         storyQuiz: cols[26] ? {
           question: cols[26].trim(),
           options: [cols[27]?.trim()||'', cols[28]?.trim()||'', cols[29]?.trim()||'', cols[30]?.trim()||''],
-          correct: parseInt(cols[31]) || 0,
+          correct: Math.max(0, Math.min(3, (parseInt(cols[31], 10) || 1) - 1)),
         } : null,
         yomiQuiz: cols[32] ? {
           text:    cols[32].trim(),
