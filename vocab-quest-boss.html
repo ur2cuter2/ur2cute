@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>✨ よみときミッション</title>
+<style>
+:root {
+  --bg:#fdf6ff; --bg2:#f5ecff; --card:#ffffff;
+  --border:rgba(180,140,220,0.25); --accent:#b07edc; --accent2:#d4a8f0;
+  --text:#3a2a4a; --text-sub:#9a80b0; --gold:#f0a830; --green:#5cbd88;
+  --red:#e07070; --shadow:rgba(160,100,220,0.12);
+}
+body.el-light  { --bg:#fffde8;--bg2:#fff9c4;--accent:#c8a000;--accent2:#f0d040;--shadow:rgba(210,170,0,0.15); }
+body.el-shadow { --bg:#f0eaf8;--bg2:#e4d8f5;--accent:#8050c0;--accent2:#b090e0;--shadow:rgba(110,70,190,0.15); }
+body.el-mist   { --bg:#eef4fa;--bg2:#ddeeff;--accent:#5080b0;--accent2:#80b0d8;--shadow:rgba(70,120,190,0.12); }
+body.el-fire   { --bg:#fff4ee;--bg2:#ffe8d8;--accent:#d05818;--accent2:#f08850;--shadow:rgba(200,80,20,0.15); }
+body.el-nature { --bg:#eef8ee;--bg2:#d8f0d8;--accent:#388848;--accent2:#60b060;--shadow:rgba(45,140,55,0.13); }
+body.el-order  { --bg:#eef2ff;--bg2:#dde4ff;--accent:#4050c8;--accent2:#7888f0;--shadow:rgba(60,70,200,0.13); }
+
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Hiragino Maru Gothic ProN','Hiragino Sans',sans-serif;
+  min-height:100dvh;display:flex;flex-direction:column;
+  overflow-x:hidden;transition:background 0.5s,color 0.3s;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 70% 50% at 30% 10%,rgba(255,255,255,0.6) 0%,transparent 60%),
+             radial-gradient(ellipse 50% 40% at 80% 85%,var(--bg2) 0%,transparent 60%);
+  pointer-events:none;z-index:0;
+}
+.sparkles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.sp{position:absolute;font-size:13px;opacity:0;animation:floatUp 4s ease-in-out infinite;}
+.sp:nth-child(1){left:7%; animation-delay:0s;    animation-duration:4.3s;}
+.sp:nth-child(2){left:21%;animation-delay:0.8s;  animation-duration:3.7s;}
+.sp:nth-child(3){left:39%;animation-delay:1.5s;  animation-duration:4.6s;}
+.sp:nth-child(4){left:57%;animation-delay:0.4s;  animation-duration:3.5s;}
+.sp:nth-child(5){left:72%;animation-delay:1.2s;  animation-duration:4.9s;}
+.sp:nth-child(6){left:88%;animation-delay:0.6s;  animation-duration:4.1s;}
+@keyframes floatUp{
+  0%  {transform:translateY(100vh) scale(0.5);opacity:0;}
+  20% {opacity:0.55;}
+  80% {opacity:0.35;}
+  100%{transform:translateY(-8vh) scale(1.1);opacity:0;}
+}
+.page{position:relative;z-index:1;max-width:460px;margin:0 auto;width:100%;padding:16px;flex:1;display:flex;flex-direction:column;}
+
+/* Header */
+.hd{display:flex;align-items:center;gap:10px;padding:10px 0 14px;margin-bottom:6px;}
+.back-link{
+  font-size:11px;font-weight:700;letter-spacing:0.5px;
+  color:var(--text-sub);text-decoration:none;
+  background:var(--card);border:1px solid var(--border);
+  padding:5px 11px;border-radius:20px;transition:all 0.2s;flex-shrink:0;
+}
+.back-link:hover{background:var(--bg2);color:var(--accent);}
+.hd-title{flex:1;text-align:center;}
+.hd-main{font-size:14px;font-weight:900;color:var(--accent);letter-spacing:1px;}
+.hd-sub{font-size:9px;color:var(--text-sub);margin-top:1px;}
+.hd-right{width:44px;text-align:right;font-size:12px;color:var(--text-sub);font-weight:700;}
+
+/* Screens */
+.screen{display:none;flex:1;flex-direction:column;animation:fadeIn 0.3s ease;}
+.screen.active{display:flex;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
+
+/* Character */
+.chara-wrap{display:flex;flex-direction:column;align-items:center;margin:6px 0 14px;}
+.chara-img{
+  width:118px;height:118px;border-radius:50%;
+  background:var(--bg2);border:3px solid var(--accent2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:58px;box-shadow:0 4px 18px var(--shadow);
+  transition:transform 0.3s;
+  overflow:hidden;position:relative;
+}
+.chara-img img{
+  width:100%;height:100%;object-fit:cover;border-radius:50%;
+  position:absolute;inset:0;
+}
+.chara-img .emoji-fallback{
+  font-size:58px;position:relative;z-index:1;
+}
+body.el-light  .chara-img{animation:glow-pulse 2s ease-in-out infinite;}
+body.el-fire   .chara-img{animation:fire-pulse 1.6s ease-in-out infinite;}
+body.el-nature .chara-img{animation:float-gentle 3s ease-in-out infinite;}
+body.el-mist   .chara-img{animation:mist-fade 3.5s ease-in-out infinite;}
+body.el-shadow .chara-img{animation:shadow-flicker 4s ease-in-out infinite;}
+body.el-order  .chara-img{animation:none;}
+@keyframes glow-pulse   {0%,100%{box-shadow:0 4px 18px var(--shadow);}50%{box-shadow:0 4px 28px var(--shadow),0 0 18px var(--accent2);}}
+@keyframes fire-pulse   {0%,100%{transform:scale(1);}50%{transform:scale(1.04);}}
+@keyframes float-gentle {0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+@keyframes mist-fade    {0%,100%{opacity:1;}50%{opacity:0.72;}}
+@keyframes shadow-flicker{0%,100%{opacity:1;}40%{opacity:0.78;}70%{opacity:0.9;}}
+.chara-img.happy{animation:chara-happy 0.65s ease !important;}
+@keyframes chara-happy{0%{transform:scale(1) rotate(0);}25%{transform:scale(1.16) rotate(-6deg);}50%{transform:scale(1.16) rotate(6deg);}75%{transform:scale(1.09) rotate(-3deg);}100%{transform:scale(1) rotate(0);}}
+.chara-name{margin-top:8px;font-size:13px;font-weight:800;color:var(--accent);}
+.chara-emotion{font-size:11px;color:var(--text-sub);margin-top:2px;}
+
+/* Intro */
+.intro-bubble{
+  background:var(--card);border:1.5px solid var(--accent2);
+  border-radius:20px;padding:16px 18px;
+  font-size:14px;line-height:1.9;color:var(--text);
+  margin-bottom:14px;
+  box-shadow:0 2px 12px var(--shadow);
+}
+.intro-bubble strong{color:var(--accent);}
+.pool-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--bg2);border:1px solid var(--accent2);
+  border-radius:20px;padding:6px 16px;
+  font-size:12px;color:var(--text-sub);
+  margin-bottom:18px;align-self:center;
+}
+.pool-badge strong{color:var(--accent);font-size:18px;font-weight:900;}
+.start-btn{
+  width:100%;padding:16px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;border-radius:20px;color:white;
+  font-size:16px;font-weight:900;letter-spacing:1px;cursor:pointer;
+  box-shadow:0 4px 16px var(--shadow);transition:transform 0.15s,box-shadow 0.15s;
+}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 6px 22px var(--shadow);}
+.start-btn:active{transform:none;}
+.start-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+.revival-btn{
+  width:100%;padding:14px;margin-top:10px;
+  background:linear-gradient(135deg,#e06090,#a050c0);
+  border:none;border-radius:20px;color:white;
+  font-size:15px;font-weight:900;letter-spacing:1px;cursor:pointer;
+  box-shadow:0 4px 16px rgba(160,80,192,0.35);transition:transform 0.15s,box-shadow 0.15s;
+  display:none;
+}
+.revival-btn:hover{transform:translateY(-2px);box-shadow:0 6px 22px rgba(160,80,192,0.45);}
+.revival-btn:active{transform:none;}
+.revival-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(224,96,144,0.15);border:1px solid rgba(224,96,144,0.4);
+  border-radius:20px;padding:5px 14px;font-size:11px;color:#c04080;
+  margin-bottom:6px;align-self:center;
+}
+/* ふっかつモード中：バトル画面に小バッジ */
+.revival-label{
+  text-align:center;font-size:10px;font-weight:800;letter-spacing:1.5px;
+  color:#c04080;margin-bottom:6px;
+  background:rgba(224,96,144,0.12);border-radius:99px;padding:3px 14px;
+  align-self:center;display:none;
+}
+
+/* Battle */
+.progress-bar{display:flex;gap:6px;margin-bottom:14px;}
+.prog-seg{flex:1;height:6px;border-radius:3px;background:var(--border);transition:background 0.4s;}
+.prog-seg.done{background:var(--green);}
+.prog-seg.current{background:var(--accent);}
+.q-label{font-size:10px;font-weight:800;letter-spacing:2px;color:var(--text-sub);text-align:center;margin-bottom:10px;}
+.text-box{
+  background:var(--card);border:1.5px solid var(--accent2);border-radius:16px;
+  padding:16px;font-size:15px;line-height:1.9;color:var(--text);
+  margin-bottom:12px;box-shadow:0 2px 10px var(--shadow);
+}
+.q-text{font-size:13px;font-weight:700;color:var(--text);margin-bottom:11px;line-height:1.6;}
+.opt-btn{
+  display:block;width:100%;
+  background:var(--card);border:1.5px solid var(--border);
+  border-radius:14px;padding:13px 16px;margin-bottom:8px;
+  font-size:13px;color:var(--text);text-align:left;cursor:pointer;
+  transition:all 0.15s;line-height:1.5;
+  box-shadow:0 1px 4px rgba(0,0,0,0.04);
+}
+.opt-btn:hover:not(:disabled){background:var(--bg2);border-color:var(--accent2);transform:translateX(3px);}
+.opt-btn.correct{background:rgba(92,189,136,0.12);border-color:rgba(92,189,136,0.6);color:#2a8a55;}
+.opt-btn.wrong{background:rgba(220,100,100,0.08);border-color:rgba(220,100,100,0.35);color:var(--red);}
+.feedback{
+  border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.7;
+  margin-bottom:12px;display:none;animation:feedIn 0.3s ease;
+}
+@keyframes feedIn{from{opacity:0;transform:scale(0.97);}to{opacity:1;transform:scale(1);}}
+.feedback.correct{background:rgba(92,189,136,0.1);border:1.5px solid rgba(92,189,136,0.4);}
+.feedback.wrong{background:rgba(220,100,100,0.07);border:1.5px solid rgba(220,100,100,0.28);}
+.fb-msg{font-size:16px;font-weight:900;color:var(--accent);margin-bottom:3px;}
+.fb-hint{color:var(--text-sub);font-size:12px;}
+.fb-keyword{color:var(--accent);font-weight:800;}
+.next-btn{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;border-radius:16px;color:white;
+  font-size:14px;font-weight:900;cursor:pointer;display:none;
+  box-shadow:0 3px 12px var(--shadow);transition:transform 0.15s;
+}
+.next-btn:hover{transform:translateY(-1px);}
+
+/* Stars */
+#starBurst{position:fixed;inset:0;pointer-events:none;z-index:999;overflow:hidden;}
+.star-p{
+  position:absolute;font-size:20px;
+  animation:starFly 0.95s ease-out forwards;pointer-events:none;
+}
+@keyframes starFly{
+  0%  {transform:translate(-50%,-50%) scale(0.3);opacity:1;}
+  60% {opacity:1;}
+  100%{transform:translate(var(--tx),var(--ty)) scale(1.2);opacity:0;}
+}
+
+/* Result */
+.result-top{display:flex;flex-direction:column;align-items:center;margin:8px 0 18px;text-align:center;}
+.result-emoji{font-size:56px;margin-bottom:8px;}
+.result-title{font-size:22px;font-weight:900;color:var(--accent);margin-bottom:4px;}
+.result-sub{font-size:13px;color:var(--text-sub);line-height:1.6;}
+.score-card{
+  background:var(--card);border:1.5px solid var(--accent2);
+  border-radius:20px;padding:20px;text-align:center;
+  margin-bottom:14px;box-shadow:0 2px 12px var(--shadow);
+}
+.score-big{font-size:52px;font-weight:900;color:var(--gold);line-height:1;}
+.score-den{font-size:20px;color:var(--text-sub);}
+.score-label{font-size:11px;color:var(--text-sub);margin-top:4px;letter-spacing:1px;}
+.review-list{margin-bottom:14px;}
+.review-item{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:10px 14px;margin-bottom:7px;
+  font-size:13px;display:flex;gap:10px;align-items:center;
+}
+.review-mark{font-size:16px;flex-shrink:0;}
+.review-word{font-weight:800;color:var(--accent);margin-right:4px;}
+.result-btns{display:flex;gap:10px;}
+.retry-btn{
+  flex:1;padding:14px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  border:none;border-radius:16px;color:white;
+  font-size:14px;font-weight:900;cursor:pointer;
+  box-shadow:0 3px 12px var(--shadow);transition:transform 0.15s;
+}
+.retry-btn:hover{transform:translateY(-1px);}
+.home-btn{
+  flex:1;padding:14px;background:var(--card);border:1.5px solid var(--border);
+  border-radius:16px;color:var(--text-sub);font-size:14px;font-weight:800;
+  cursor:pointer;text-decoration:none;
+  display:flex;align-items:center;justify-content:center;
+  transition:background 0.15s;
+}
+.home-btn:hover{background:var(--bg2);color:var(--accent);}
+
+
+.picross-reward-btn{
+  flex:1;padding:14px;
+  background:linear-gradient(135deg,#ff8c42,#ff6b9d);
+  border:none;border-radius:16px;color:white;font-size:14px;font-weight:900;
+  cursor:pointer;text-decoration:none;
+  display:none;align-items:center;justify-content:center;
+  box-shadow:0 3px 12px rgba(255,107,157,0.28);
+  transition:transform 0.15s,box-shadow 0.15s;
+}
+.picross-reward-btn.show{display:flex;}
+.picross-reward-btn:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(255,107,157,0.38);}
+.picross-reward-note{
+  display:none;
+  background:rgba(255,140,66,0.10);
+  border:1.5px solid rgba(255,140,66,0.35);
+  color:#c65d18;
+  border-radius:14px;
+  padding:10px 13px;
+  margin-bottom:12px;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.6;
+  text-align:center;
+}
+.picross-reward-note.show{display:block;}
+
+/* No boss */
+.no-boss{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:40px 20px;gap:10px;
+}
+.no-boss-icon{font-size:60px;margin-bottom:8px;}
+.no-boss-title{font-size:17px;font-weight:900;color:var(--text);}
+.no-boss-sub{font-size:13px;color:var(--text-sub);line-height:1.8;}
+
+/* 強くなるボタン */
+.strengthen-btn{
+  width:100%;padding:12px;margin-top:8px;
+  background:transparent;
+  border:1.5px solid var(--accent2);
+  border-radius:16px;color:var(--accent);
+  font-size:13px;font-weight:800;letter-spacing:0.5px;cursor:pointer;
+  transition:background 0.15s;
+  display:none;
+}
+.strengthen-btn:hover{background:var(--bg2);}
+
+/* 強くなるモーダル */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.5);
+  z-index:9000;display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity 0.25s;
+}
+.modal-overlay.show{opacity:1;pointer-events:all;}
+.modal-sheet{
+  background:var(--card);border-radius:24px 24px 0 0;
+  width:100%;max-width:460px;
+  max-height:85dvh;display:flex;flex-direction:column;
+  padding:0 0 env(safe-area-inset-bottom,16px);
+  transform:translateY(20px);transition:transform 0.3s cubic-bezier(0.32,0.72,0,1);
+  box-shadow:0 -4px 32px rgba(0,0,0,0.15);
+}
+.modal-overlay.show .modal-sheet{transform:translateY(0);}
+.modal-handle{
+  width:36px;height:4px;border-radius:2px;background:var(--border);
+  margin:12px auto 0;flex-shrink:0;
+}
+.modal-header{
+  padding:14px 20px 10px;flex-shrink:0;
+  border-bottom:1px solid var(--border);
+}
+.modal-title{font-size:15px;font-weight:900;color:var(--text);}
+.modal-sub{font-size:11px;color:var(--text-sub);margin-top:2px;}
+.modal-body{overflow-y:auto;padding:14px 16px;flex:1;}
+.mistake-item{
+  background:var(--bg2);border-radius:14px;
+  padding:14px 16px;margin-bottom:10px;
+}
+.mistake-word{
+  font-size:16px;font-weight:900;color:var(--accent);
+  margin-bottom:8px;
+}
+.mistake-qtext{
+  font-size:13px;color:var(--text);line-height:1.7;
+  margin-bottom:10px;
+}
+.mistake-answer-row{
+  display:flex;flex-direction:column;gap:6px;
+}
+.mistake-answer{
+  font-size:12px;border-radius:8px;padding:7px 12px;
+  line-height:1.5;
+}
+.mistake-answer.wrong{
+  background:rgba(220,100,100,0.12);
+  color:#b03030;
+  border-left:3px solid #e07070;
+}
+.mistake-answer.correct{
+  background:rgba(92,189,136,0.14);
+  color:#2a7a55;
+  border-left:3px solid #5cbd88;
+}
+.mistake-answer-label{
+  font-size:10px;font-weight:800;letter-spacing:1px;
+  margin-bottom:2px;opacity:0.7;
+}
+.modal-close-btn{
+  margin:6px 16px 14px;padding:12px;
+  background:var(--bg2);border:none;border-radius:12px;
+  font-size:13px;font-weight:800;color:var(--text-sub);cursor:pointer;
+  flex-shrink:0;
+}
+.modal-empty{
+  text-align:center;padding:32px 20px;
+  font-size:13px;color:var(--text-sub);line-height:1.8;
+}
+</style>
+</head>
+<body class="el-light">
+
+<div class="sparkles">
+  <div class="sp">✨</div><div class="sp">⭐</div><div class="sp">🌟</div>
+  <div class="sp">💫</div><div class="sp">✨</div><div class="sp">⭐</div>
+</div>
+<div id="starBurst"></div>
+
+<div class="page">
+  <div class="hd">
+    <a class="back-link" href="./vocab-quest.html">← もどる</a>
+    <div class="hd-title">
+      <div class="hd-main">✨ よみときミッション</div>
+      <div class="hd-sub">ことばを助けよう</div>
+    </div>
+    <div class="hd-right" id="hdRight"></div>
+  </div>
+
+  <!-- INTRO -->
+  <div class="screen active" id="screenIntro">
+    <div class="chara-wrap">
+      <div class="chara-img" id="introImg">🌟</div>
+      <div class="chara-name" id="introName">ことばの精霊</div>
+      <div class="chara-emotion" id="introEmotion">助けを待っているよ…</div>
+    </div>
+    <div class="intro-bubble">
+      倒されたはずのことばが、<br>
+      本当の意味を忘れて<strong>「精霊」の姿で迷っている</strong>よ…<br>
+      文章をよんで、正しい意味を教えてあげよう。<br>
+      精霊が<strong>本来の姿に戻れる</strong>かは、あなた次第✨
+    </div>
+    <div class="pool-badge">
+      <span>💫</span>
+      <span>助けを待つ精霊：<strong id="poolCount">…</strong> 体</span>
+    </div>
+    <div id="poolSub" style="font-size:11px;color:var(--text-sub);text-align:center;margin-bottom:6px;margin-top:-10px;"></div>
+    <button class="start-btn" id="startBtn" onclick="startMission()" disabled>
+      ✨ ことばを助ける
+    </button>
+    <button class="revival-btn" id="revivalBtn" onclick="startRevival()">
+      💫 ふっかつミッション✨
+    </button>
+    <div class="revival-badge" id="revivalBadge" style="display:none;margin-top:6px;">
+      <span>💫</span><span id="revivalCount">0</span>問、助けを求めてるよ
+    </div>
+    <button class="strengthen-btn" id="strengthenBtn" onclick="openStrengthenModal()">
+      💡 もっとつよくなる！
+    </button>
+  </div>
+
+  <!-- BATTLE -->
+  <div class="screen" id="screenBattle">
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="revival-label" id="revivalLabel">💫 ふっかつミッション</div>
+    <div class="chara-wrap">
+      <div class="chara-img" id="battleImg">🌟</div>
+      <div class="chara-name" id="battleName">ことばの精霊</div>
+      <div class="chara-emotion" id="battleEmotion">う〜ん…思い出せない…</div>
+    </div>
+    <div class="q-label" id="qLabel">QUESTION 1</div>
+    <div class="text-box" id="bossText"></div>
+    <div class="q-text" id="bossQ"></div>
+    <div id="bossOpts"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()"></button>
+  </div>
+
+  <!-- RESULT -->
+  <div class="screen" id="screenResult">
+    <div class="result-top">
+      <div class="result-emoji" id="resultEmoji">🌟</div>
+      <div class="result-title" id="resultTitle">ミッション完了！</div>
+      <div class="result-sub" id="resultSub"></div>
+    </div>
+    <div class="score-card">
+      <div><span class="score-big" id="scoreNum">0</span><span class="score-den" id="scoreDen">/0</span></div>
+      <div class="score-label">助けられたことば</div>
+    </div>
+    <div class="review-list" id="reviewList"></div>
+    <div class="picross-reward-note" id="picrossRewardNote"></div>
+    <div class="result-btns">
+      <button class="retry-btn" onclick="retryMission()">✨ もう一度</button>
+      <a class="picross-reward-btn" id="picrossRewardLink" href="./picross.html">🎁 ピクロスへ</a>
+      <a class="home-btn" href="./vocab-quest.html">← バトルへ</a>
+    </div>
+  </div>
+
+  <!-- NO BOSS -->
+  <div class="screen" id="screenNoBoss">
+    <div class="no-boss">
+      <div class="no-boss-icon">🔒</div>
+      <div class="no-boss-title">まだ精霊が現れていないよ</div>
+      <div class="no-boss-sub">
+        バトルでことばモンスターを倒すと<br>精霊が目を覚ますよ！<br><br>
+        まずはデイリーバトルへ ⚔️
+      </div>
+      <a class="home-btn" href="./vocab-quest.html" style="margin-top:20px;width:100%;max-width:260px;">← バトルに戻る</a>
+    </div>
+  </div>
+</div>
+
+<!-- 強くなるモーダル -->
+<div class="modal-overlay" id="strengthenModal" onclick="handleModalOverlayClick(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">💡 もっとつよくなる！</div>
+      <div class="modal-sub">問題文と答えを声に出して確認しよう</div>
+    </div>
+    <div class="modal-body" id="strengthenBody"></div>
+    <button class="modal-close-btn" onclick="closeStrengthenModal()">とじる</button>
+  </div>
+</div>
+
+<script>
+
+// =========================================================
+// PLAYER NAME PERSONALIZATION / SAFE HTML
+// =========================================================
+const PLAYER_NAME_STORAGE_KEY = 'vocabQuestPlayerName';
+const PLAYER_NAME_PLACEHOLDER = '[プレイヤー名]';
+let _cachedPlayerName = null;
+
+function getPlayerName() {
+  if (_cachedPlayerName) return _cachedPlayerName;
+
+  let name = localStorage.getItem(PLAYER_NAME_STORAGE_KEY);
+  if (!name || !name.trim()) {
+    name = prompt('プレイヤー名を入力してね');
+    if (!name || !name.trim()) name = 'ぼうけんしゃ';
+    localStorage.setItem(PLAYER_NAME_STORAGE_KEY, name.trim());
+  }
+
+  _cachedPlayerName = name.trim();
+  return _cachedPlayerName;
+}
+
+function personalizeText(value) {
+  if (typeof value !== 'string') return value;
+  return value.replaceAll(PLAYER_NAME_PLACEHOLDER, getPlayerName());
+}
+
+function personalizeDeep(value) {
+  if (typeof value === 'string') return personalizeText(value);
+  if (Array.isArray(value)) return value.map(personalizeDeep);
+  if (value && typeof value === 'object') {
+    const result = {};
+    for (const [key, val] of Object.entries(value)) result[key] = personalizeDeep(val);
+    return result;
+  }
+  return value;
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[ch]));
+}
+
+const ELEMENTS = {
+  light:  { img:'assets/images/light.png',  emoji:'☀️',  name:'ひかりの精霊',   cls:'el-light',  sp:'✨', confused:'まぶしすぎて…思い出せない…',  happy:'助けてくれてありがとう！' },
+  shadow: { img:'assets/images/shadow.png', emoji:'🌙',  name:'かげの精霊',     cls:'el-shadow', sp:'🌙', confused:'くらくて…わからない…',         happy:'思い出せた…ありがとう…' },
+  mist:   { img:'assets/images/mist.png',   emoji:'🌫️', name:'きりの精霊',     cls:'el-mist',   sp:'💧', confused:'ぼんやりして…うろおぼえ…',     happy:'ふわっと戻れたよ！' },
+  fire:   { img:'assets/images/fire.png',   emoji:'🔥',  name:'ほのおの精霊',   cls:'el-fire',   sp:'🌟', confused:'あつくて…頭が…',               happy:'燃えてきた！ありがとう！' },
+  nature: { img:'assets/images/nature.png', emoji:'🌿',  name:'しぜんの精霊',   cls:'el-nature', sp:'🍃', confused:'木の葉になって…ねむい…',       happy:'元気になったよ〜！' },
+  order:  { img:'assets/images/order.png',  emoji:'⭐',  name:'ちつじょの精霊', cls:'el-order',  sp:'💫', confused:'こんがらがって…整理できない…',  happy:'きれいに整った！' },
+};
+
+const CORRECT_MSGS = [
+  'いいね！', '思い出した！', '助けてくれてありがとう！',
+  'やったー！', '正解！すごいよ！', '元に戻れたよ！',
+];
+
+const USE_WIN = typeof window !== 'undefined' && window.storage;
+
+async function storageLoad(key) {
+  try {
+    if (USE_WIN) { const r = await window.storage.get(key,false); return r ? JSON.parse(r.value) : null; }
+    else { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; }
+  } catch(e) { return null; }
+}
+
+async function storageSave(key, value) {
+  try {
+    const s = JSON.stringify(value);
+    if (USE_WIN) { await window.storage.set(key, s, false); }
+    else { localStorage.setItem(key, s); }
+  } catch(e) { /* ignore */ }
+}
+
+// =========================================================
+// ごほうびピクロス チケット連携
+// - 通常よみときミッションを完全クリアした時だけ通常チケットを発行
+// - ふっかつミッションは対象外
+// - 連続記録が5の倍数なら、ボーナスチケットを1枚発行
+// =========================================================
+const PICROSS_REWARD_STATE_KEY = 'picrossRewardState_v1';
+const PICROSS_LEGACY_DATE_KEY  = 'picrossRewardDate';
+const PICROSS_BONUS_EVERY = 5;
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function loadPicrossRewardState() {
+  try {
+    const raw = localStorage.getItem(PICROSS_REWARD_STATE_KEY);
+    if (raw) {
+      const s = JSON.parse(raw);
+      if (typeof s.bonusTickets !== 'number') s.bonusTickets = 0;
+      if (!Array.isArray(s.bonusGrantedMilestones)) s.bonusGrantedMilestones = [];
+      return s;
+    }
+  } catch(e) {}
+  return {
+    dailyTicketDate: null,
+    dailyTicketUsedDate: null,
+    dailyTicketSource: null,
+    bonusTickets: 0,
+    bonusUsedDate: null,
+    bonusGrantedMilestones: []
+  };
+}
+
+function writePicrossRewardState(s) {
+  localStorage.setItem(PICROSS_REWARD_STATE_KEY, JSON.stringify(s));
+}
+
+function getCurrentStreakCount() {
+  const s = _stateRef || {};
+  const candidates = [
+    s.currentStreak,
+    s.streak,
+    s.streakCount,
+    s.continuousDays,
+    s.consecutiveDays,
+    s.dailyStreak,
+    s.stats?.currentStreak,
+    s.stats?.streak,
+    s.progress?.currentStreak,
+    s.progress?.streak
+  ];
+  for (const v of candidates) {
+    const n = Number(v);
+    if (Number.isFinite(n) && n > 0) return Math.floor(n);
+  }
+  return 0;
+}
+
+function grantPicrossRewardFromYomi(perfect) {
+  if (isRevivalMode || !perfect) {
+    updatePicrossRewardResultUI(false, false, 0);
+    return;
+  }
+
+  const today = todayStr();
+  const reward = loadPicrossRewardState();
+
+  reward.dailyTicketDate = today;
+  reward.dailyTicketSource = 'yomi';
+  reward.dailyTicketGrantedAt = new Date().toISOString();
+
+  // 旧picross.htmlとの互換。新picross.html側では picrossRewardState_v1 を優先して見る想定。
+  localStorage.setItem(PICROSS_LEGACY_DATE_KEY, today);
+
+  const streak = getCurrentStreakCount();
+  let bonusGranted = false;
+  if (streak > 0 && streak % PICROSS_BONUS_EVERY === 0) {
+    const milestoneKey = `${streak}:${today}`;
+    if (!reward.bonusGrantedMilestones.includes(milestoneKey)) {
+      reward.bonusTickets = (Number(reward.bonusTickets) || 0) + 1;
+      reward.bonusGrantedMilestones.push(milestoneKey);
+      bonusGranted = true;
+    }
+  }
+
+  writePicrossRewardState(reward);
+  updatePicrossRewardResultUI(true, bonusGranted, reward.bonusTickets);
+}
+
+function updatePicrossRewardResultUI(ticketGranted, bonusGranted, bonusTickets) {
+  const link = document.getElementById('picrossRewardLink');
+  const note = document.getElementById('picrossRewardNote');
+  if (!link || !note) return;
+
+  link.classList.toggle('show', !!ticketGranted);
+  note.className = 'picross-reward-note';
+
+  if (!ticketGranted) {
+    note.textContent = '';
+    return;
+  }
+
+  if (bonusGranted) {
+    note.textContent = `🎁 よみとき完全クリア！ピクロスチケットを発行したよ。さらに連続記録ボーナスで、持ち越しチケットも1枚ゲット！ 現在 ${bonusTickets} 枚`;
+  } else {
+    note.textContent = '🎁 よみとき完全クリア！ごほうびピクロスが遊べるようになったよ。';
+  }
+  note.classList.add('show');
+}
+
+const DEMO = [
+  {
+    id:'wDEMO1', kanji:'慮る', reading:'おもんぱかる', element:'light',
+    yomiQuiz:{
+      text:'彼女はチームメートの不安な様子に気づき、試合前にそっと言葉をかけた。',
+      q1:'この文から「彼女」についてわかることは何ですか？',
+      q1opts:['自分の勝利だけを考えている','相手の気持ちに気づいて行動できる','言葉が多くうるさい','チームに興味がない'],
+      q1correct:1,
+      q2:'この「彼女」の行動を表す言葉として最もふさわしいのはどれですか？',
+      q2opts:['はっきり主張する','相手の立場をよく考えて行動する','目立つように振る舞う','自分のペースを守る'],
+      q2correct:1,
+    }
+  },
+  {
+    id:'wDEMO2', kanji:'妬む', reading:'ねたむ', element:'shadow',
+    yomiQuiz:{
+      text:'となりの席の子が先生にほめられるたびに、なんだかもやもやした気持ちになった。',
+      q1:'「もやもやした気持ち」はどんな気持ちだと考えられますか？',
+      q1opts:['うれしくて興奮している','うらやましくていやな気持ち','眠くてぼんやりしている','何も感じていない'],
+      q1correct:1,
+      q2:'この気持ちを表す言葉として最もふさわしいのはどれですか？',
+      q2opts:['うらやましがる','さびしがる','喜ぶ','感心する'],
+      q2correct:0,
+    }
+  },
+  {
+    id:'wDEMO3', kanji:'冷静', reading:'れいせい', element:'mist',
+    yomiQuiz:{
+      text:'試合中にミスをしても、彼はあわてず、深呼吸して次のプレーに集中した。',
+      q1:'この文から「彼」についてわかることは何ですか？',
+      q1opts:['ミスが多い','感情に流されず落ち着いて行動できる','試合に興味がない','体が強い'],
+      q1correct:1,
+      q2:'このときの「彼」の状態を表す言葉として最もふさわしいのはどれですか？',
+      q2opts:['大胆','冷静','無関心','慎重'],
+      q2correct:1,
+    }
+  },
+  {
+    id:'wDEMO4', kanji:'うやむや', reading:'うやむや', element:'shadow',
+    yomiQuiz:{
+      text:'窓ガラスが割れた件について先生が聞いたが、みんなは黙ったまま、誰も名乗り出なかった。結局、その日は話し合いが終わってしまった。',
+      q1:'この文でどんなことが問題になっていますか？',
+      q1opts:['窓ガラスが割れたこと自体','誰がやったかが明らかにならないまま終わったこと','先生が怒ったこと','みんなが静かだったこと'],
+      q1correct:1,
+      q2:'この状況を表す言葉として最もふさわしいのはどれですか？',
+      q2opts:['うやむやになった','解決した','明らかになった','決着がついた'],
+      q2correct:0,
+    }
+  },
+  {
+    id:'wDEMO5', kanji:'純粋', reading:'じゅんすい', element:'nature',
+    yomiQuiz:{
+      text:'彼女は見返りを求めず、ただ「助けたいから」という気持ちだけで動いた。',
+      q1:'この文の「彼女」の行動の特徴は何ですか？',
+      q1opts:['計算して得をしようとしている','下心なく素直な気持ちで行動している','仕方なくやっている','人に見せるためにやっている'],
+      q1correct:1,
+      q2:'このような気持ちや行動を表す言葉として最もふさわしいのはどれですか？',
+      q2opts:['計画的','打算的','純粋','慎重'],
+      q2correct:2,
+    }
+  },
+  {
+    id:'wDEMO6', kanji:'忖度', reading:'そんたく', element:'order',
+    yomiQuiz:{
+      text:'部長は何も指示しなかったが、チームの全員がいつの間にか同じ準備を始めていた。',
+      q1:'チームの全員が同じ準備をした理由として最も自然なのは？',
+      q1opts:['全員が同じ夢を見たから','部長の意図を読み取って先回りして動いたから','偶然そうなったから','全員が同じ本を読んでいたから'],
+      q1correct:1,
+      q2:'このときのチームの行動を表す言葉として最もふさわしいのはどれですか？',
+      q2opts:['反抗した','忖度した','命令した','無視した'],
+      q2correct:1,
+    }
+  },
+];
+
+let bossPool=[], queue=[], wordIdx=0, qStep=0, results=[];
+// wordIdx: which word in queue (0-based)
+// qStep: 0=q1, 1=q2
+let yomiProgress = {};  // {wordId: 'cleared'|'attempted'} — loaded from & saved to vq_state
+// yomiMistakes: {`${wordId}_q${step+1}`: {wordId, step(0|1), lastWrong: dateStr}}
+let yomiMistakes = {};
+let _stateRef = null;   // reference to full state for saving back
+let isRevivalMode = false;  // ふっかつミッション中フラグ
+
+
+async function boot() {
+  const savedState = await storageLoad('vq_state');
+  const savedWords  = await storageLoad('vq_words');
+  const words = personalizeDeep(savedWords || []);
+  const defeatedIds = new Set((savedState?.defeatedWords||[]).map(d=>d.id));
+
+  // Load yomiProgress & yomiMistakes from state
+  _stateRef = savedState;
+  yomiProgress = savedState?.yomiProgress || {};
+  yomiMistakes = savedState?.yomiMistakes || {};
+
+  // vq_wordsにはyomiQuizが保存されないので、DEMOデータからマージ
+  // （test.htmlがDEFAULT_WORDSのstoryQuiz等をマージするのと同じ仕組み）
+  words.forEach(w => {
+    const demo = DEMO.find(d => d.id === w.id);
+    if (demo?.yomiQuiz && !w.yomiQuiz) w.yomiQuiz = demo.yomiQuiz;
+  });
+
+  // 撃破済み かつ yomiQuizあり の語をプールに
+  bossPool = words.filter(w => defeatedIds.has(w.id) && w.yomiQuiz);
+
+  // storageにデータがない場合（テスト環境等）はDEMOをそのまま使う
+  if (bossPool.length === 0) bossPool = personalizeDeep([...DEMO]);
+  if (bossPool.length === 0) { showScreen('screenNoBoss'); return; }
+
+  // Sort: 未クリア優先 → クリア済み
+  bossPool.sort((a, b) => {
+    const aCleared = yomiProgress[a.id] === 'cleared' ? 1 : 0;
+    const bCleared = yomiProgress[b.id] === 'cleared' ? 1 : 0;
+    return aCleared - bCleared;
+  });
+
+  document.getElementById('poolCount').textContent = bossPool.length;
+  const unclearedCount = bossPool.filter(w => yomiProgress[w.id] !== 'cleared').length;
+  const subEl = document.getElementById('poolSub');
+  if (subEl) {
+    if (unclearedCount === 0) subEl.textContent = 'すべて解いたよ！もう一周しよう✨';
+    else subEl.textContent = `未クリア：${unclearedCount}体`;
+  }
+
+  setIntroChara(bossPool[Math.floor(Math.random()*bossPool.length)]);
+  document.getElementById('startBtn').disabled = false;
+  updateRevivalUI();
+  showScreen('screenIntro');
+}
+
+// ふっかつUI更新（intro画面のボタン・バッジ）
+function updateRevivalUI() {
+  const mistakes = Object.values(yomiMistakes);
+  const poolIds = new Set(bossPool.map(w => w.id));
+  const active = mistakes.filter(m => poolIds.has(m.wordId));
+  const btn = document.getElementById('revivalBtn');
+  const badge = document.getElementById('revivalBadge');
+  const countEl = document.getElementById('revivalCount');
+  const sBtn = document.getElementById('strengthenBtn');
+  if (!btn) return;
+  if (active.length > 0) {
+    btn.style.display = 'block';
+    badge.style.display = 'flex';
+    countEl.textContent = active.length;
+    if (sBtn) sBtn.style.display = 'block';
+  } else {
+    btn.style.display = 'none';
+    badge.style.display = 'none';
+    if (sBtn) sBtn.style.display = 'none';
+  }
+}
+
+// =========================================================
+// 強くなるモーダル
+// =========================================================
+function openStrengthenModal() {
+  const poolIds = new Set(bossPool.map(w => w.id));
+  const active = Object.values(yomiMistakes)
+    .filter(m => poolIds.has(m.wordId))
+    .sort((a, b) => (b.lastWrong || '').localeCompare(a.lastWrong || ''));
+
+  const body = document.getElementById('strengthenBody');
+  if (!body) return;
+
+  if (active.length === 0) {
+    body.innerHTML = '<div class="modal-empty">まだ記録がないよ！<br>よみときミッションをやってみよう✨</div>';
+  } else {
+    body.innerHTML = active.map(m => {
+      const word = bossPool.find(w => w.id === m.wordId);
+      if (!word || !word.yomiQuiz) return '';
+      const yq = word.yomiQuiz;
+      const step = m.step; // 0=q1, 1=q2
+      const qText  = step === 0 ? yq.q1    : yq.q2;
+      const opts   = step === 0 ? yq.q1opts : yq.q2opts;
+      const corrIdx = step === 0 ? yq.q1correct : yq.q2correct;
+      const wrongIdx = m.chosenIdx;
+      const corrText = opts[corrIdx] || '';
+      const wrongText = (wrongIdx !== undefined && wrongIdx !== null) ? (opts[wrongIdx] || '') : '';
+
+      return `<div class="mistake-item">
+        <div class="mistake-word">${escapeHtml(word.kanji)}（${escapeHtml(word.reading)}）</div>
+        <div class="mistake-qtext">${escapeHtml(qText)}</div>
+        <div class="mistake-answer-row">
+          ${wrongText ? `<div class="mistake-answer wrong">
+            <div class="mistake-answer-label">えらんだ答え</div>
+            ${escapeHtml(wrongText)}
+          </div>` : ''}
+          <div class="mistake-answer correct">
+            <div class="mistake-answer-label">正しい答え</div>
+            ${escapeHtml(corrText)}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('strengthenModal').classList.add('show');
+}
+
+function closeStrengthenModal() {
+  document.getElementById('strengthenModal').classList.remove('show');
+}
+
+function handleModalOverlayClick(e) {
+  if (e.target === document.getElementById('strengthenModal')) {
+    closeStrengthenModal();
+  }
+}
+
+function elOf(w) { return (w.element && ELEMENTS[w.element]) ? w.element : 'light'; }
+
+function setCharaEl(imgEl, el) {
+  const info = ELEMENTS[el];
+  // Try loading the image, fall back to emoji if it fails
+  imgEl.innerHTML = '';
+  const img = document.createElement('img');
+  img.src = info.img;
+  img.alt = info.name;
+  img.onerror = () => {
+    imgEl.innerHTML = `<span class="emoji-fallback">${info.emoji}</span>`;
+  };
+  imgEl.appendChild(img);
+}
+
+function applyEl(el) {
+  const b = document.body;
+  Object.values(ELEMENTS).forEach(e => b.classList.remove(e.cls));
+  b.classList.add(ELEMENTS[el].cls);
+  const sp = ELEMENTS[el].sp;
+  document.querySelectorAll('.sp').forEach((s,i) => { s.textContent = i%2===0 ? sp : '⭐'; });
+}
+
+function setIntroChara(word) {
+  const el = elOf(word);
+  applyEl(el);
+  const info = ELEMENTS[el];
+  setCharaEl(document.getElementById('introImg'), el);
+  document.getElementById('introName').textContent = info.name;
+  document.getElementById('introEmotion').textContent = info.confused;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ふっかつミッション開始
+function startRevival() {
+  isRevivalMode = true;
+  const poolIds = new Set(bossPool.map(w => w.id));
+  // 間違い一覧を直近順にソート
+  const activeMistakes = Object.values(yomiMistakes)
+    .filter(m => poolIds.has(m.wordId))
+    .sort((a, b) => (b.lastWrong || '').localeCompare(a.lastWrong || ''));
+
+  // 最大2問ピック（直近2つ）
+  const picked = activeMistakes.slice(0, 2);
+
+  // queueをrevivalItem（wordId+step）形式に構築
+  queue = picked.map(m => {
+    const word = bossPool.find(w => w.id === m.wordId);
+    return { word, step: m.step };
+  }).filter(x => x.word);
+
+  wordIdx = 0; qStep = -1; results = [];
+  // 最初の問題のstepをセット
+  if (queue.length > 0) qStep = queue[0].step;
+
+  const lbl = document.getElementById('revivalLabel');
+  if (lbl) lbl.style.display = 'block';
+
+  renderRevivalQ();
+  showScreen('screenBattle');
+}
+
+function startMission() {
+  isRevivalMode = false;
+  const lbl = document.getElementById('revivalLabel');
+  if (lbl) lbl.style.display = 'none';
+  // 未クリア優先、同一グループ内はシャッフル
+  const uncleared = bossPool.filter(w => yomiProgress[w.id] !== 'cleared')
+                             .sort(() => Math.random() - 0.5);
+  const cleared   = bossPool.filter(w => yomiProgress[w.id] === 'cleared')
+                             .sort(() => Math.random() - 0.5);
+  const pool = [...uncleared, ...cleared];
+  queue = pool.slice(0, Math.min(2, pool.length));
+  wordIdx=0; qStep=0; results=[];
+  renderQ();
+  showScreen('screenBattle');
+}
+
+function renderQ() {
+  const word = queue[wordIdx];
+  const yq = word.yomiQuiz;
+  const el = elOf(word);
+  applyEl(el);
+  const info = ELEMENTS[el];
+
+  document.getElementById('progressBar').innerHTML = queue.map((_,i) => {
+    let cls = 'prog-seg';
+    if (i < wordIdx) cls += ' done';
+    else if (i === wordIdx) cls += ' current';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  const stepLabel = qStep === 0 ? '状況をよもう' : 'ことばを選ぼう';
+  document.getElementById('hdRight').textContent = `${wordIdx+1}/${queue.length}`;
+  document.getElementById('qLabel').textContent = `${qStep===0?'STEP 1':'STEP 2'} ― ${stepLabel}`;
+
+  setCharaEl(document.getElementById('battleImg'), el);
+  document.getElementById('battleName').textContent = info.name;
+  document.getElementById('battleEmotion').textContent = qStep===0 ? info.confused : 'もう少しで思い出せそう…';
+
+  document.getElementById('bossText').textContent = yq.text;
+
+  const q    = qStep === 0 ? yq.q1    : yq.q2;
+  const opts = qStep === 0 ? yq.q1opts : yq.q2opts;
+
+  document.getElementById('bossQ').textContent = q;
+  document.getElementById('bossOpts').innerHTML = opts.map((opt,i) =>
+    `<button class="opt-btn" onclick="answer(${i})">${escapeHtml(opt)}</button>`
+  ).join('');
+
+  const fb = document.getElementById('feedback');
+  fb.style.display='none'; fb.className='feedback';
+  document.getElementById('nextBtn').style.display='none';
+}
+
+// ふっかつモード用レンダー（1問1ステップ）
+function renderRevivalQ() {
+  const item = queue[wordIdx];
+  const word = item.word;
+  const yq = word.yomiQuiz;
+  const step = item.step; // 0=q1, 1=q2
+  const el = elOf(word);
+  applyEl(el);
+  const info = ELEMENTS[el];
+
+  document.getElementById('progressBar').innerHTML = queue.map((_,i) => {
+    let cls = 'prog-seg';
+    if (i < wordIdx) cls += ' done';
+    else if (i === wordIdx) cls += ' current';
+    return `<div class="${cls}"></div>`;
+  }).join('');
+
+  document.getElementById('hdRight').textContent = `${wordIdx+1}/${queue.length}`;
+  document.getElementById('qLabel').textContent = `💫 ふっかつ ${step===0?'STEP 1':'STEP 2'} ― ${step===0?'状況をよもう':'ことばを選ぼう'}`;
+
+  setCharaEl(document.getElementById('battleImg'), el);
+  document.getElementById('battleName').textContent = info.name;
+  document.getElementById('battleEmotion').textContent = 'もう一度…助けてほしい…';
+
+  document.getElementById('bossText').textContent = yq.text;
+  const q    = step === 0 ? yq.q1    : yq.q2;
+  const opts = step === 0 ? yq.q1opts : yq.q2opts;
+  document.getElementById('bossQ').textContent = q;
+  document.getElementById('bossOpts').innerHTML = opts.map((opt,i) =>
+    `<button class="opt-btn" onclick="answer(${i})">${escapeHtml(opt)}</button>`
+  ).join('');
+
+  const fb = document.getElementById('feedback');
+  fb.style.display='none'; fb.className='feedback';
+  document.getElementById('nextBtn').style.display='none';
+  // qStepをitem.stepに同期（answerで参照するため）
+  qStep = step;
+}
+
+function answer(chosen) {
+  // ふっかつモードとノーマルモードで参照先が異なる
+  const word = isRevivalMode ? queue[wordIdx].word : queue[wordIdx];
+  const yq = word.yomiQuiz;
+  const correct = qStep === 0 ? yq.q1correct : yq.q2correct;
+  const isOk = chosen === correct;
+
+  document.querySelectorAll('.opt-btn').forEach((b,i) => {
+    b.disabled=true;
+    if (i===correct) b.classList.add('correct');
+    else if (i===chosen) b.classList.add('wrong');
+  });
+
+  results.push({word, step:qStep, correct:isOk});
+
+  const fb = document.getElementById('feedback');
+  fb.style.display='block';
+  const isLastWord = wordIdx >= queue.length - 1;
+
+  // ふっかつモードは1問1ステップ（isLastStep は常にtrue）
+  const isLastStep = isRevivalMode ? true : qStep === 1;
+  const mistakeKey = `${word.id}_q${qStep+1}`;
+
+  if (isOk) {
+    fb.className='feedback correct';
+    if (isLastStep) {
+      const msg = CORRECT_MSGS[Math.floor(Math.random()*CORRECT_MSGS.length)];
+      const revivalMsg = isRevivalMode
+        ? '<div class="fb-hint">💫 思い出した！ふっかつ完了だよ！</div>'
+        : '<div class="fb-hint">ことばが本来の姿に戻れたよ！</div>';
+      fb.innerHTML=`<div class="fb-msg">✨ ${msg}</div>${revivalMsg}`;
+      triggerStars();
+      charaHappy();
+      document.getElementById('battleEmotion').textContent = ELEMENTS[elOf(word)].happy;
+      if (isRevivalMode) {
+        // ふっかつ正解 → 間違いリストから卒業
+        delete yomiMistakes[mistakeKey];
+        saveYomiProgress();
+      } else {
+        // 通常正解
+        yomiProgress[word.id] = 'cleared';
+        saveYomiProgress();
+      }
+    } else {
+      fb.innerHTML=`<div class="fb-msg">✅ 正解！</div><div class="fb-hint">もう一息、ことばの名前を当てよう！</div>`;
+      document.getElementById('battleEmotion').textContent='思い出せてきた…！';
+    }
+  } else {
+    fb.className='feedback wrong';
+    if (isLastStep) {
+      fb.innerHTML=`<div class="fb-msg">😢 おしかった…</div><div class="fb-hint">この問題は「<span class="fb-keyword">${escapeHtml(word.kanji)}（${escapeHtml(word.reading)}）</span>」の意味がポイントだったよ。バトルで確認してみてね！</div>`;
+      if (isRevivalMode) {
+        // ふっかつでも間違えた → lastWrongを更新（再度優先出題）
+        yomiMistakes[mistakeKey] = { wordId: word.id, step: qStep, chosenIdx: chosen, lastWrong: new Date().toISOString().slice(0,10) };
+        saveYomiProgress();
+      } else {
+        // 通常モードで間違え → yomiMistakesに記録
+        if (yomiProgress[word.id] !== 'cleared') {
+          yomiProgress[word.id] = 'attempted';
+        }
+        // q2（最終ステップ）で間違えた問題を記録
+        yomiMistakes[mistakeKey] = { wordId: word.id, step: qStep, chosenIdx: chosen, lastWrong: new Date().toISOString().slice(0,10) };
+        saveYomiProgress();
+      }
+    } else {
+      // 通常モードのq1で間違え → q1も記録しておく
+      yomiMistakes[mistakeKey] = { wordId: word.id, step: qStep, chosenIdx: chosen, lastWrong: new Date().toISOString().slice(0,10) };
+      saveYomiProgress();
+      fb.innerHTML=`<div class="fb-msg">😢 もう一度考えてみよう</div><div class="fb-hint">次のステップに進んで、もう少し考えてみよう！</div>`;
+    }
+    document.getElementById('battleEmotion').textContent='また今度…助けてね…';
+  }
+
+  const nb = document.getElementById('nextBtn');
+  nb.style.display='block';
+  if (isLastWord) {
+    nb.textContent='結果を見る ✨';
+  } else if (isLastStep) {
+    nb.textContent='次のことば ▶';
+  } else {
+    nb.textContent='ステップ２へ ▶';
+  }
+}
+
+function triggerStars() {
+  const c = document.getElementById('starBurst');
+  const cx=window.innerWidth/2, cy=window.innerHeight/2;
+  const icons=['⭐','✨','🌟','💫','✦','★','🌸'];
+  for (let i=0;i<14;i++) {
+    const el=document.createElement('div');
+    el.className='star-p';
+    el.textContent=icons[i%icons.length];
+    const a=(i/14)*360, d=80+Math.random()*110;
+    const r=(a*Math.PI)/180;
+    el.style.cssText=`left:${cx}px;top:${cy}px;--tx:${Math.cos(r)*d}px;--ty:${Math.sin(r)*d}px;animation-delay:${i*0.04}s`;
+    c.appendChild(el);
+    setTimeout(()=>el.remove(),1300);
+  }
+}
+
+function charaHappy() {
+  const img=document.getElementById('battleImg');
+  img.classList.remove('happy');
+  void img.offsetWidth;
+  img.classList.add('happy');
+  setTimeout(()=>img.classList.remove('happy'),750);
+}
+
+function nextQuestion() {
+  if (isRevivalMode) {
+    // ふっかつは1問1ステップ
+    wordIdx++;
+    if (wordIdx >= queue.length) showResult();
+    else {
+      qStep = queue[wordIdx].step;
+      renderRevivalQ();
+    }
+  } else {
+    if (qStep === 0) {
+      qStep = 1;
+      renderQ();
+    } else {
+      wordIdx++;
+      qStep = 0;
+      if (wordIdx >= queue.length) showResult();
+      else renderQ();
+    }
+  }
+}
+
+async function saveYomiProgress() {
+  if (!_stateRef) return;
+  _stateRef.yomiProgress = yomiProgress;
+  _stateRef.yomiMistakes = yomiMistakes;
+  await storageSave('vq_state', _stateRef);
+}
+
+function showResult() {
+  let total, score, perfect;
+  let reviewHTML = '';
+
+  if (isRevivalMode) {
+    // ふっかつ：1問1ステップ、正解で卒業
+    total = queue.length;
+    score = results.filter(r => r.correct).length;
+    perfect = score === total;
+
+    reviewHTML = queue.map((item, i) => {
+      const r = results[i];
+      const ok = r && r.correct;
+      return `<div class="review-item">
+        <div class="review-mark">${ok?'💫':'❌'}</div>
+        <div>
+          <span class="review-word">「${escapeHtml(item.word.kanji)}」</span>
+          ${ok?'思い出した！ふっかつ完了✨':'もう少し…また出てくるよ！'}
+        </div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('resultTitle').textContent = perfect?'ぜんぶ思い出した！':score>0?'よくがんばったね！':'またチャレンジしよう！';
+    document.getElementById('resultSub').textContent = perfect
+      ? '💫 全問ふっかつ！すごいよ！'
+      : score>0?`${score}問思い出せたよ！`:'次はきっと思い出せる！';
+  } else {
+    // 通常：語単位（両ステップ正解でOK）
+    const wordResults = queue.map(word => {
+      const rs = results.filter(r => r.word.id === word.id);
+      const allOk = rs.length >= 2 && rs.every(r => r.correct);
+      const anyOk = rs.some(r => r.correct);
+      return { word, allOk, anyOk };
+    });
+    total = wordResults.length;
+    score = wordResults.filter(r => r.allOk).length;
+    perfect = score === total;
+
+    reviewHTML = wordResults.map(r=>`
+      <div class="review-item">
+        <div class="review-mark">${r.allOk?'✅':r.anyOk?'🔶':'❌'}</div>
+        <div>
+          <span class="review-word">「${escapeHtml(r.word.kanji)}」</span>
+          ${r.allOk?'ことばが元に戻った！':r.anyOk?'あと一歩だったよ！':'もう一度バトルで確認しよう'}
+        </div>
+      </div>`).join('');
+
+    document.getElementById('resultTitle').textContent = perfect?'ぜんぶ助けられた！':score>0?'よくがんばったね！':'もう少しだったね…';
+    document.getElementById('resultSub').textContent = perfect
+      ? 'すごい！ことばが全部元の姿に戻ったよ！'
+      : score>0?`${score}体のことばを助けられたよ！`:'次はきっと助けてあげられる！';
+  }
+
+  document.getElementById('resultEmoji').textContent = perfect?'🌟':score>0?'✨':'🌙';
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreDen').textContent  = `/${total}`;
+  document.getElementById('reviewList').innerHTML = reviewHTML;
+
+  if (perfect) triggerStars();
+
+  // 通常よみときミッションを完全クリアしたときだけ、ピクロスチケットを発行する
+  grantPicrossRewardFromYomi(perfect);
+
+  document.getElementById('hdRight').textContent='';
+  // ふっかつラベルを非表示に戻す
+  const lbl = document.getElementById('revivalLabel');
+  if (lbl) lbl.style.display = 'none';
+  showScreen('screenResult');
+}
+
+function retryMission() {
+  isRevivalMode = false;
+  updateRevivalUI();
+  setIntroChara(bossPool[Math.floor(Math.random()*bossPool.length)]);
+  showScreen('screenIntro');
+}
+
+boot();
+</script>
+</body>
+</html>
