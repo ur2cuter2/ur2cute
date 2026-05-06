@@ -1319,6 +1319,43 @@ function depersonalizeDeep(value) {
   return value;
 }
 
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[ch]));
+}
+
+function getAcceptedWordForms(word) {
+  const forms = [word?.kanji];
+
+  if (Array.isArray(word?.variants)) {
+    forms.push(...word.variants);
+  } else if (typeof word?.variants === 'string') {
+    forms.push(...word.variants.split(/[|、,，\s]+/));
+  }
+
+  return [...new Set(
+    forms
+      .map(v => String(v || '').trim())
+      .filter(Boolean)
+  )];
+}
+
+function renderWordText(text, word) {
+  const escapedText = escapeHtml(personalizeText(text || ''));
+  const baseWord = escapeHtml(word?.kanji || '');
+
+  return escapedText.replace(/&lt;WORD(?::([^&<>]*))?&gt;/g, (_, display) => {
+    const shown = display && display.trim() ? display : baseWord;
+    return `<span class="highlight-word">${shown}</span>`;
+  });
+}
+
 function applyPlayerNameToStaticUI() {
   const playerNameDisplay = document.getElementById('playerNameDisplay');
   if (playerNameDisplay) {
@@ -2296,8 +2333,7 @@ function buildBattleCards() {
     const prog = state.wordProgress[word.id];
     const hpPct = Math.max(0, (prog.hp / word.maxHp) * 100);
     const ctx = word.contexts[prog.contextIdx % word.contexts.length];
-    const ctxHtml = ctx.text.replace(/<WORD(?::([^>]*))?>/g, (_, display) =>
-      `<span class="highlight-word">${display || word.kanji}</span>`);
+    const ctxHtml = renderWordText(ctx.text, word);
     const isNew = !prog.defeatedDate && (prog.actionsToday || []).length === 0 && (prog.readCount || 0) === 0;
     const isReviewCard = !!prog.isReview;
     const reviewNum = prog.reviewCount || 0;
@@ -2332,7 +2368,7 @@ function buildBattleCards() {
         </div>
       </div>
       <div class="context-box">
-        <div class="context-source">${ctx.source}</div>
+        <div class="context-source">${escapeHtml(ctx.source)}</div>
         ${ctxHtml}
       </div>
       <div class="action-grid">
@@ -2516,11 +2552,14 @@ function submitWrite(wordId) {
   }
   input.style.borderColor = '';
 
-  // ① ターゲット語句が含まれているか（variantsがあればそちらを語幹として使う）
-  const stem = (word.variants && word.variants.length > 0) ? word.variants[0] : word.kanji;
-  const hasWord = text.includes(stem);
-  // ② 文字数 ≥ ターゲット語句の文字数 + 3
-  const minLen = word.kanji.length + 3;
+  // ① ターゲット語句・語幹・活用形・表記ゆれのいずれかが含まれているか
+  const acceptedForms = getAcceptedWordForms(word);
+  const matchedForm = acceptedForms.find(form => text.includes(form));
+  const hasWord = !!matchedForm;
+
+  // ② 文字数 ≥ マッチした語句の文字数 + 3
+  const minBase = matchedForm || word.kanji;
+  const minLen = minBase.length + 3;
   const hasLength = text.length >= minLen;
 
   const passed = hasWord && hasLength;
@@ -2548,7 +2587,7 @@ function submitWrite(wordId) {
     setTimeout(() => openExplainSheet(word), 900);
   } else {
     let hint = '';
-    if (!hasWord) hint = '「' + stem + '」という言葉を文の中に入れてみよう！';
+    if (!hasWord) hint = '「' + word.kanji + '」や、その活用形を文の中に入れてみよう！';
     else if (!hasLength) hint = 'もう少し長い文にしてみよう！<br>主語(だれが・なにが)と述語(どうした)を入れると、もっとよくなるよ！📝';
     feedbackEl.className = 'ai-feedback show retry';
     feedbackEl.innerHTML = '<div class="ai-feedback-label">🔄 もう一度やってみよう！</div>' + hint;
@@ -2815,12 +2854,12 @@ function buildStoryCards() {
         <div class="story-badge">${badge}</div>
       </div>
       <div class="story-body" id="stbody-${word.id}">
-        <div>${word.story.replace(/<WORD(?::([^>]*))?>/g, (_, d) => `<span class="highlight-word">${d||word.kanji}</span>`)}</div>
+        <div>${renderWordText(word.story, word)}</div>
         ${word.storyQuiz && sp !== 'cleared' ? `
         <div class="story-quiz" id="stquiz-${word.id}">
-          <div class="story-quiz-q">📝 ${word.storyQuiz.question}</div>
+          <div class="story-quiz-q">📝 ${escapeHtml(word.storyQuiz.question)}</div>
           ${word.storyQuiz.options.map((opt, i) =>
-            `<button class="story-opt" onclick="answerStoryQuiz('${word.id}', ${i})">${opt}</button>`
+            `<button class="story-opt" onclick="answerStoryQuiz('${word.id}', ${i})">${escapeHtml(opt)}</button>`
           ).join('')}
           <div class="story-result" id="stresult-${word.id}"></div>
         </div>` : sp === 'cleared' ? '<div class="story-result" style="color:var(--hp-green);">🥇 クイズクリア済み！</div>' : ''}
@@ -2995,69 +3034,11 @@ function buildDefeatedGrid() {
 // 戻り値: マージした語数（エラー時は -1）
 function parseAndMergeCSV(raw) {
   try {
-    const lines = raw.split('\n').filter(l => l.trim() && !l.startsWith('id,'));
-    if (lines.length === 0) return 0;
+    const newWords = parseWordsFromCSV(raw);
+    if (newWords.length === 0) return 0;
 
-    const newWords = lines.map(line => {
-      const cols = line.split(',');
-      if (cols.length < 24) throw new Error(`列が足りない行: ${line.substring(0,30)}...`);
-      return {
-        id: cols[0].trim(),
-        kanji: cols[1].trim(),
-        reading: cols[2].trim(),
-        english: cols[3].trim(),
-        type: cols[4].trim(),
-        emoji: cols[5].trim(),
-        maxHp: parseInt(cols[6]) || 10,
-        meaning: cols[7].trim(),
-        synonyms: [
-          { word: cols[8].trim(), reading: cols[9].trim() },
-          { word: cols[10].trim(), reading: cols[11].trim() },
-        ].filter(s => s.word),
-        contexts: [
-          { source: cols[12].trim(), text: cols[13].trim() },
-          { source: cols[14].trim(), text: cols[15].trim() },
-          { source: cols[16].trim(), text: cols[17].trim() },
-        ],
-        quiz: {
-          question: cols[18].trim(),
-          options: [cols[19].trim(), cols[20].trim(), cols[21].trim(), cols[22].trim()],
-          correct: (parseInt(cols[23]) || 1) - 1,
-        },
-        variants: cols[24] ? cols[24].trim().split('|').map(v => v.trim()).filter(Boolean) : [],
-        story: cols[25] ? cols[25].trim() : '',
-        storyQuiz: cols[26] ? {
-          question: cols[26].trim(),
-          options: [cols[27]?.trim()||'', cols[28]?.trim()||'', cols[29]?.trim()||'', cols[30]?.trim()||''],
-          correct: Math.max(0, Math.min(3, (parseInt(cols[31], 10) || 1) - 1)),
-        } : null,
-        yomiQuiz: cols[32] ? {
-          text:    cols[32].trim(),
-          q1:      cols[33]?.trim()||'',
-          q1opts:  [cols[34]?.trim()||'', cols[35]?.trim()||'', cols[36]?.trim()||'', cols[37]?.trim()||''],
-          q1correct: (parseInt(cols[38]) || 1) - 1,
-          q2:      cols[39]?.trim()||'',
-          q2opts:  [cols[40]?.trim()||'', cols[41]?.trim()||'', cols[42]?.trim()||'', cols[43]?.trim()||''],
-          q2correct: (parseInt(cols[44]) || 1) - 1,
-        } : null,
-      };
-    });
-
-    newWords.forEach(nw => {
-      const idx = words.findIndex(w => w.id === nw.id);
-      if (idx >= 0) {
-        words[idx] = nw;
-        const prog = state.wordProgress[nw.id];
-        if (prog && !prog.defeated) {
-          prog.hp = Math.min(prog.hp, nw.maxHp);
-        }
-      } else {
-        words.push(nw);
-        state.wordProgress[nw.id] = { hp: nw.maxHp, contextIdx:0, actionsToday:[], readCount:0, defeated:false, defeatedDate:null };
-      }
-    });
-
-    return newWords.length;
+    const count = syncWordsFromCSVList(newWords, { resetProgress: false });
+    return count;
   } catch(e) {
     console.error('[CSV merge error]', e);
     return -1;
@@ -3105,21 +3086,26 @@ function exportCSV() {
   const rows = words.map(originalWord => {
     const w = depersonalizeDeep(originalWord);
     const s = w.synonyms || [];
+    const storyOptions = w.storyQuiz?.options || ['', '', '', ''];
+    const yomiQ1Options = w.yomiQuiz?.q1opts || ['', '', '', ''];
+    const yomiQ2Options = w.yomiQuiz?.q2opts || ['', '', '', ''];
+
     return [
       w.id, w.kanji, w.reading, w.english, w.type, w.emoji, w.maxHp, w.meaning,
-      s[0]?.word||'', s[0]?.reading||'', s[1]?.word||'', s[1]?.reading||'',
-      w.contexts[0]?.source||'', w.contexts[0]?.text||'',
-      w.contexts[1]?.source||'', w.contexts[1]?.text||'',
-      w.contexts[2]?.source||'', w.contexts[2]?.text||'',
-      w.quiz.question, ...w.quiz.options, w.quiz.correct,
-      (w.variants||[]).join('|'),
-      w.story||'',
-      w.storyQuiz?.question||'', ...(w.storyQuiz?.options||['','','',' ']), w.storyQuiz?.correct??'',
-      w.yomiQuiz?.text||'',
-      w.yomiQuiz?.q1||'', ...(w.yomiQuiz?.q1opts||['','','',' ']), w.yomiQuiz ? (w.yomiQuiz.q1correct+1) : '',
-      w.yomiQuiz?.q2||'', ...(w.yomiQuiz?.q2opts||['','','',' ']), w.yomiQuiz ? (w.yomiQuiz.q2correct+1) : ''
-    ].join(',');
+      s[0]?.word || '', s[0]?.reading || '', s[1]?.word || '', s[1]?.reading || '',
+      w.contexts?.[0]?.source || '', w.contexts?.[0]?.text || '',
+      w.contexts?.[1]?.source || '', w.contexts?.[1]?.text || '',
+      w.contexts?.[2]?.source || '', w.contexts?.[2]?.text || '',
+      w.quiz?.question || '', ...(w.quiz?.options || ['', '', '', '']), w.quiz ? (w.quiz.correct + 1) : '',
+      (w.variants || []).join('|'),
+      w.story || '',
+      w.storyQuiz?.question || '', ...storyOptions, w.storyQuiz ? (w.storyQuiz.correct + 1) : '',
+      w.yomiQuiz?.text || '',
+      w.yomiQuiz?.q1 || '', ...yomiQ1Options, w.yomiQuiz ? (w.yomiQuiz.q1correct + 1) : '',
+      w.yomiQuiz?.q2 || '', ...yomiQ2Options, w.yomiQuiz ? (w.yomiQuiz.q2correct + 1) : ''
+    ].map(csvEscape).join(',');
   });
+
   document.getElementById('csvInput').value = [header, ...rows].join('\n');
   document.getElementById('csvStatus').className = 'admin-status ok';
   document.getElementById('csvStatus').textContent = '✅ CSVに書き出したよ！コピーして使ってね。';
