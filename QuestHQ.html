@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[プレイヤー名]'s Quest HQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Kaisei+Tokumin:wght@400;700&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #08090f;
+    --kanji-gold: #f5c842;
+    --kanji-red: #e8453c;
+    --kanji-ink: #1a0a00;
+    --crystal-blue: #4fc3f7;
+    --crystal-purple: #ce93d8;
+    --crystal-dark: #04080f;
+    --galaxy-teal: #00e5cc;
+    --galaxy-orange: #ff9800;
+    --galaxy-dark: #050f10;
+    --text: #f0eeea;
+    --text-dim: #888;
+  }
+
+  html, body {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── Starfield ── */
+  .starfield {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: white;
+    animation: twinkle var(--d) ease-in-out infinite;
+    animation-delay: var(--delay);
+    opacity: 0;
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; }
+    50% { opacity: var(--max-op); }
+  }
+
+  /* ── Layout ── */
+  .app {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 20px 40px;
+  }
+
+  /* ── Header ── */
+  .hq-header {
+    text-align: center;
+    margin-bottom: 12px;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hq-eyebrow {
+    font-family: 'Orbitron', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .hq-title {
+    font-size: 36px;
+    font-family: 'Kaisei Tokumin', serif;
+    font-weight: 700;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, var(--kanji-gold) 0%, #fff8e0 50%, var(--crystal-blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 24px rgba(245,200,66,0.3));
+    margin-bottom: 6px;
+  }
+
+  .hq-sub {
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  /* ── Date strip ── */
+  .date-strip {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    margin-bottom: 44px;
+    padding: 6px 18px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    background: rgba(255,255,255,0.03);
+    animation: fadeDown 0.8s 0.1s ease both;
+  }
+
+  .date-strip span { color: var(--text); }
+
+  /* ── Mission cards ── */
+  .missions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+    max-width: 680px;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 480px) {
+    .missions { grid-template-columns: 1fr; }
+  }
+
+  .mission-card {
+    position: relative;
+    border-radius: 20px;
+    padding: 28px 22px 24px;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1),
+                box-shadow 0.3s ease;
+  }
+
+  .mission-card:hover {
+    transform: translateY(-6px) scale(1.01);
+  }
+
+  .mission-card:active {
+    transform: scale(0.97);
+  }
+
+  /* ── Kanji Quest card ── */
+  .card-kanji {
+    background: linear-gradient(145deg, #1a0800 0%, #2d1200 60%, #1a0800 100%);
+    border: 1px solid rgba(245,200,66,0.25);
+    box-shadow: 0 4px 32px rgba(232,69,60,0.15), inset 0 1px 0 rgba(245,200,66,0.15);
+  }
+
+  .card-kanji:hover {
+    box-shadow: 0 12px 48px rgba(232,69,60,0.3), 0 0 0 1px rgba(245,200,66,0.4),
+                inset 0 1px 0 rgba(245,200,66,0.2);
+  }
+
+  .card-kanji::before {
+    content: '語';
+    position: absolute;
+    right: -8px;
+    bottom: -20px;
+    font-family: 'Kaisei Tokumin', serif;
+    font-size: 120px;
+    font-weight: 700;
+    color: rgba(245,200,66,0.06);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .card-kanji::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--kanji-red), var(--kanji-gold), var(--kanji-red));
+    border-radius: 20px 20px 0 0;
+  }
+
+  /* ── Crystal Seeker card ── */
+  .card-crystal {
+    background: linear-gradient(145deg, #04080f 0%, #080f20 60%, #04080f 100%);
+    border: 1px solid rgba(79,195,247,0.2);
+    box-shadow: 0 4px 32px rgba(79,195,247,0.1), inset 0 1px 0 rgba(79,195,247,0.1);
+  }
+
+  .card-crystal:hover {
+    box-shadow: 0 12px 48px rgba(79,195,247,0.25), 0 0 0 1px rgba(79,195,247,0.4),
+                inset 0 1px 0 rgba(79,195,247,0.15);
+  }
+
+  .card-crystal::before {
+    content: '✦';
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    font-size: 80px;
+    color: rgba(79,195,247,0.06);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .card-crystal::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--crystal-blue), var(--crystal-purple), var(--crystal-blue));
+    border-radius: 20px 20px 0 0;
+  }
+
+  /* ── Galaxy Academy card ── */
+  .card-galaxy {
+    background: linear-gradient(145deg, #050f10 0%, #081818 60%, #050f10 100%);
+    border: 1px solid rgba(0,229,204,0.2);
+    box-shadow: 0 4px 32px rgba(0,229,204,0.08), inset 0 1px 0 rgba(0,229,204,0.1);
+  }
+
+  .card-galaxy:hover {
+    box-shadow: 0 12px 48px rgba(0,229,204,0.22), 0 0 0 1px rgba(0,229,204,0.4),
+                inset 0 1px 0 rgba(0,229,204,0.15);
+  }
+
+  /* 銀河の渦 ウォーターマーク */
+  .card-galaxy::before {
+    content: '🌌';
+    position: absolute;
+    right: -4px;
+    bottom: -12px;
+    font-size: 100px;
+    line-height: 1;
+    opacity: 0.07;
+    pointer-events: none;
+    user-select: none;
+    filter: grayscale(0.3);
+  }
+
+  .card-galaxy::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--galaxy-teal), var(--galaxy-orange), var(--galaxy-teal));
+    border-radius: 20px 20px 0 0;
+  }
+
+  /* ── Card internals ── */
+  .card-icon {
+    font-size: 40px;
+    margin-bottom: 14px;
+    display: block;
+    line-height: 1;
+  }
+
+  .card-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .card-kanji .card-label   { color: rgba(245,200,66,0.6); }
+  .card-crystal .card-label { color: rgba(79,195,247,0.6); }
+  .card-galaxy .card-label  { color: rgba(0,229,204,0.6); }
+
+  .card-title {
+    font-weight: 700;
+    font-size: 20px;
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+
+  .card-kanji .card-title {
+    font-family: 'Kaisei Tokumin', serif;
+    color: var(--kanji-gold);
+  }
+
+  .card-crystal .card-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 16px;
+    color: var(--crystal-blue);
+    letter-spacing: 1px;
+  }
+
+  .card-galaxy .card-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 14px;
+    color: var(--galaxy-teal);
+    letter-spacing: 1px;
+  }
+
+  .card-desc {
+    font-size: 12px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .card-kanji .card-desc   { color: rgba(240,230,200,0.55); }
+  .card-crystal .card-desc { color: rgba(180,220,240,0.5); }
+  .card-galaxy .card-desc  { color: rgba(160,240,230,0.5); }
+
+  /* Status pills */
+  .card-status {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .pill {
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-family: 'Orbitron', monospace;
+  }
+
+  .card-kanji .pill {
+    background: rgba(245,200,66,0.1);
+    border: 1px solid rgba(245,200,66,0.25);
+    color: var(--kanji-gold);
+  }
+
+  .card-crystal .pill {
+    background: rgba(79,195,247,0.1);
+    border: 1px solid rgba(79,195,247,0.25);
+    color: var(--crystal-blue);
+  }
+
+  .card-galaxy .pill {
+    background: rgba(0,229,204,0.08);
+    border: 1px solid rgba(0,229,204,0.25);
+    color: var(--galaxy-teal);
+  }
+
+  /* Arrow */
+  .card-arrow {
+    position: absolute;
+    bottom: 22px;
+    right: 22px;
+    font-size: 18px;
+    opacity: 0.4;
+    transition: opacity 0.3s, transform 0.3s;
+  }
+
+  .mission-card:hover .card-arrow {
+    opacity: 1;
+    transform: translateX(4px);
+  }
+
+  .card-kanji .card-arrow   { color: var(--kanji-gold); }
+  .card-crystal .card-arrow { color: var(--crystal-blue); }
+  .card-galaxy .card-arrow  { color: var(--galaxy-teal); }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 48px;
+    text-align: center;
+    font-size: 11px;
+    color: rgba(255,255,255,0.12);
+    letter-spacing: 2px;
+    animation: fadeUp 0.8s 0.4s ease both;
+  }
+
+  .name-button {
+    margin-top: 16px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.45);
+    font-family: 'Exo 2', sans-serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .name-button:hover {
+    background: rgba(255,255,255,0.08);
+    color: rgba(255,255,255,0.75);
+    border-color: rgba(255,255,255,0.22);
+  }
+
+  /* ── Floating particles ── */
+  .particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    animation: floatUp var(--dur) linear infinite;
+    animation-delay: var(--delay);
+    opacity: 0;
+  }
+
+  @keyframes floatUp {
+    0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+    10%  { opacity: var(--op); }
+    90%  { opacity: var(--op); }
+    100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Starfield -->
+<div class="starfield" id="starfield"></div>
+<div class="particles" id="particles"></div>
+
+<div class="app">
+
+  <header class="hq-header">
+    <div class="hq-eyebrow">Mission Control</div>
+    <h1 class="hq-title" id="hqTitle">[プレイヤー名]'s Quest HQ</h1>
+    <div class="hq-sub">Choose your training</div>
+  </header>
+
+  <div class="date-strip" id="dateStrip">
+    Loading...
+  </div>
+
+  <div class="missions">
+
+    <!-- 語彙クエスト -->
+    <a class="mission-card card-kanji" href="vocab-quest.html">
+      <span class="card-icon">⚔️</span>
+      <div class="card-label">Daily Mission</div>
+      <div class="card-title">語彙クエスト</div>
+      <div class="card-desc">中学受験の語彙をバトルで制覇</div>
+      <div class="card-status">
+        <span class="pill">漢字</span>
+        <span class="pill">熟語</span>
+        <span class="pill">慣用句</span>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <!-- Crystal Seeker -->
+    <a class="mission-card card-crystal" href="spelling_quest.html">
+      <span class="card-icon">💎</span>
+      <div class="card-label">Padawan Training</div>
+      <div class="card-title">Crystal Seeker</div>
+      <div class="card-desc">Hunt crystals. Train your spelling. Master the Force.</div>
+      <div class="card-status">
+        <span class="pill">Scan</span>
+        <span class="pill">Train</span>
+        <span class="pill">Ilum</span>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <!-- Galaxy Academy -->
+    <a class="mission-card card-galaxy" href="galaxy-academy/">
+      <span class="card-icon">🌌</span>
+      <div class="card-label">Jedi Academy</div>
+      <div class="card-title">Galaxy Academy</div>
+      <div class="card-desc">AI小説で語彙を読む・問題を解く・ランクを上げる</div>
+      <div class="card-status">
+        <span class="pill">読む</span>
+        <span class="pill">解く</span>
+        <span class="pill">Rank Up</span>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+  </div>
+
+  <footer class="footer">QUEST HQ · 毎日の修行</footer>
+  <button class="name-button" type="button" onclick="changePlayerName()">プレイヤー名を変える</button>
+
+</div>
+
+<script>
+  // Player name personalization
+  const PLAYER_NAME_STORAGE_KEY = 'vocabQuestPlayerName';
+  const PLAYER_NAME_PLACEHOLDER = '[プレイヤー名]';
+
+  function getPlayerName() {
+    let name = localStorage.getItem(PLAYER_NAME_STORAGE_KEY);
+
+    if (!name || !name.trim()) {
+      name = prompt('プレイヤー名を入力してね');
+      if (!name || !name.trim()) {
+        name = 'ぼうけんしゃ';
+      }
+      localStorage.setItem(PLAYER_NAME_STORAGE_KEY, name.trim());
+    }
+
+    return name.trim();
+  }
+
+  function personalizeText(value) {
+    if (typeof value !== 'string') return value;
+    return value.replaceAll(PLAYER_NAME_PLACEHOLDER, getPlayerName());
+  }
+
+  function applyPlayerName() {
+    document.title = personalizeText(document.title);
+
+    const hqTitle = document.getElementById('hqTitle');
+    if (hqTitle) {
+      hqTitle.textContent = personalizeText(hqTitle.textContent);
+    }
+  }
+
+  function changePlayerName() {
+    const current = localStorage.getItem(PLAYER_NAME_STORAGE_KEY) || '';
+    const name = prompt('新しいプレイヤー名を入力してね', current);
+
+    if (name && name.trim()) {
+      localStorage.setItem(PLAYER_NAME_STORAGE_KEY, name.trim());
+      location.reload();
+    }
+  }
+
+  applyPlayerName();
+
+  // Date display
+  const now = new Date();
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dayJa = ['日','月','火','水','木','金','土'];
+  document.getElementById('dateStrip').innerHTML =
+    `<span>${days[now.getDay()]} ${months[now.getMonth()]} ${now.getDate()}</span>　${dayJa[now.getDay()]}曜日`;
+
+  // Starfield
+  const sf = document.getElementById('starfield');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2 + 0.5;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      --d:${2 + Math.random()*4}s;
+      --delay:${Math.random()*4}s;
+      --max-op:${0.3 + Math.random()*0.6};
+    `;
+    sf.appendChild(s);
+  }
+
+  // Particles — gold for left, blue for center, teal for right
+  const pc = document.getElementById('particles');
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const x = Math.random() * 100;
+    const color = x < 33 ? '#f5c842' : x < 66 ? '#4fc3f7' : '#00e5cc';
+    p.style.cssText = `
+      left:${x}%;
+      background:${color};
+      --dur:${6 + Math.random()*8}s;
+      --delay:${Math.random()*8}s;
+      --op:${0.3 + Math.random()*0.4};
+    `;
+    pc.appendChild(p);
+  }
+</script>
+
+</body>
+</html>
