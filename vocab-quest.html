@@ -1,0 +1,4288 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>語彙クエスト ⚔️</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap');
+
+:root {
+  --bg-deep: #0d0a1a;
+  --bg-mid: #1a1530;
+  --bg-card: #221e3a;
+  --bg-card2: #1e1a34;
+  --accent-gold: #f5c842;
+  --accent-teal: #3ecfcf;
+  --accent-pink: #ff6b9d;
+  --accent-purple: #a855f7;
+  --hp-green: #4ade80;
+  --hp-yellow: #fbbf24;
+  --hp-red: #f87171;
+  --xp-blue: #60a5fa;
+  --text-main: #e8e4f8;
+  --text-sub: #9b96c0;
+  --border: rgba(255,255,255,0.08);
+  --glow-gold: 0 0 20px rgba(245,200,66,0.4);
+  --glow-teal: 0 0 20px rgba(62,207,207,0.4);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'M PLUS Rounded 1c', 'Zen Maru Gothic', sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.8) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 50% 10%, rgba(255,255,255,0.9) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 80%, rgba(255,255,255,0.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 40%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(2px 2px at 20% 90%, rgba(245,200,66,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 50%, rgba(62,207,207,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 15%, rgba(255,255,255,0.8) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 75% 65%, rgba(168,85,247,0.5) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 12px 12px 80px;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(62,207,207,0.1));
+  border: 1px solid rgba(168,85,247,0.3);
+  border-radius: 16px;
+  margin-bottom: 12px;
+}
+.header-title {
+  font-size: 20px;
+  font-weight: 900;
+  background: linear-gradient(90deg, var(--accent-gold), var(--accent-teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 1px;
+}
+.header-sub { font-size: 10px; color: var(--text-sub); margin-top: 2px; }
+.hq-link {
+  font-size: 9px; font-weight: 800; letter-spacing: 1.5px;
+  color: var(--text-sub); text-decoration: none;
+  opacity: 0.6; transition: opacity 0.2s;
+  padding: 4px 0;
+  display: inline-block;
+}
+.hq-link:hover, .hq-link:active { opacity: 1; }
+.date-badge {
+  background: rgba(245,200,66,0.15);
+  border: 1px solid rgba(245,200,66,0.4);
+  border-radius: 10px;
+  padding: 5px 10px;
+  font-size: 11px;
+  color: var(--accent-gold);
+  font-weight: 700;
+}
+
+/* PLAYER STATUS */
+.player-status {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.status-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+.status-label { font-size: 9px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+.level-display { display: flex; align-items: baseline; gap: 6px; }
+.level-num { font-size: 32px; font-weight: 900; color: var(--accent-gold); line-height: 1; text-shadow: var(--glow-gold); }
+.level-title { font-size: 12px; color: var(--text-main); font-weight: 800; }
+.level-next { font-size: 10px; color: var(--accent-teal); margin-top: 4px; line-height: 1.5; font-weight: 700; }
+.streak-meta { font-size: 10px; color: var(--text-sub); margin-top: 3px; line-height: 1.5; }
+.streak-goal { font-size: 10px; color: var(--accent-gold); margin-top: 4px; line-height: 1.5; font-weight: 800; }
+.xp-bar-wrap { margin-top: 6px; }
+.xp-text { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-sub); margin-bottom: 3px; }
+.bar-track { height: 7px; background: rgba(255,255,255,0.08); border-radius: 99px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 99px; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.bar-xp { background: linear-gradient(90deg, var(--xp-blue), var(--accent-teal)); }
+.streak-display { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.streak-fire { font-size: 28px; animation: flicker 1.5s ease-in-out infinite alternate; }
+
+/* ---- all-clear animation ---- */
+#allClearAnim {
+  position: fixed; inset: 0; z-index: 9100;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0); pointer-events: none; opacity: 0;
+}
+#allClearAnim.show {
+  pointer-events: all;
+  animation: allClearFade 3.5s ease forwards;
+}
+@keyframes allClearFade {
+  0%   { opacity: 0; }
+  10%  { opacity: 1; }
+  75%  { opacity: 1; }
+  100% { opacity: 0; pointer-events: none; }
+}
+.allclear-bg {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(255,192,120,0.18) 0%, rgba(0,0,0,0.55) 100%);
+}
+.allclear-petals {
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+}
+.petal {
+  position: absolute;
+  font-size: 28px;
+  animation: petalFall linear forwards;
+  opacity: 0;
+}
+@keyframes petalFall {
+  0%   { opacity: 0; transform: translateY(-40px) rotate(0deg); }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(110vh) rotate(720deg); }
+}
+.allclear-content {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  text-align: center; padding: 0 32px;
+}
+.allclear-badge {
+  font-size: 72px;
+  filter: drop-shadow(0 0 20px rgba(255,200,100,0.8));
+  animation: badgePop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.3s both;
+}
+@keyframes badgePop {
+  0%   { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+.allclear-title {
+  font-size: 32px; font-weight: 900; color: #fff;
+  text-shadow: 0 0 20px rgba(255,180,80,0.9), 0 2px 4px rgba(0,0,0,0.5);
+  animation: slideUp 0.5s ease 0.5s both;
+}
+.allclear-message {
+  font-size: 17px; font-weight: 700; color: #fef3c7;
+  line-height: 2;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+  animation: slideUp 0.5s ease 0.7s both;
+  max-width: 300px;
+}
+.allclear-message ruby rt {
+  font-size: 10px; font-weight: 400; opacity: 0.85;
+}
+@keyframes slideUp {
+  0%   { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.allclear-tap {
+  font-size: 13px; color: rgba(255,255,255,0.6);
+  animation: slideUp 0.5s ease 1.2s both;
+  margin-top: 8px;
+}
+
+/* ---- streak animation ---- */
+#streakAnim {
+  position: fixed; inset: 0; z-index: 9000;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+}
+#streakAnim.show { animation: streakFade 2.2s ease forwards; }
+@keyframes streakFade {
+  0%   { opacity: 0; transform: scale(0.7); }
+  15%  { opacity: 1; transform: scale(1.05); }
+  70%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.1); }
+}
+.streak-anim-bolt {
+  font-size: 80px;
+  filter: drop-shadow(0 0 24px #facc15) drop-shadow(0 0 48px #f59e0b);
+  animation: boltFlash 0.15s ease-in-out 3;
+}
+@keyframes boltFlash {
+  0%, 100% { filter: drop-shadow(0 0 24px #facc15) drop-shadow(0 0 48px #f59e0b); }
+  50%       { filter: drop-shadow(0 0 60px #fff) drop-shadow(0 0 90px #facc15) brightness(2); }
+}
+.streak-anim-num {
+  font-size: 52px; font-weight: 900;
+  color: #facc15;
+  text-shadow: 0 0 20px #f59e0b, 0 0 40px #f59e0b, 0 0 2px #fff;
+  letter-spacing: 2px;
+  margin-top: -8px;
+}
+.streak-anim-label {
+  font-size: 18px; font-weight: 700; color: #fff;
+  text-shadow: 0 0 10px #f59e0b;
+  margin-top: 4px;
+  letter-spacing: 1px;
+}
+.streak-anim-lines {
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+}
+.streak-anim-lines::before,
+.streak-anim-lines::after {
+  content: '';
+  position: absolute;
+  width: 2px; height: 60vh;
+  background: linear-gradient(to bottom, transparent, #facc15, transparent);
+  top: 20%; left: 50%;
+  animation: lightningL 0.4s ease-out 0.1s both;
+}
+.streak-anim-lines::before {
+  transform: rotate(-15deg) translateX(-80px);
+}
+.streak-anim-lines::after {
+  transform: rotate(15deg) translateX(80px);
+}
+@keyframes lightningL {
+  0%   { opacity: 0; height: 0; }
+  30%  { opacity: 1; height: 60vh; box-shadow: 0 0 12px #facc15, 0 0 30px #f59e0b; }
+  100% { opacity: 0; height: 60vh; }
+}
+@keyframes flicker { 0% { transform: scale(1) rotate(-3deg); } 100% { transform: scale(1.1) rotate(3deg); } }
+.streak-num { font-size: 32px; font-weight: 900; color: var(--accent-pink); line-height: 1; }
+.defeated-count { font-size: 26px; font-weight: 900; color: var(--hp-green); }
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 5px;
+}
+.tab-btn {
+  flex: 1;
+  padding: 8px 4px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-sub);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-teal));
+  color: white;
+  box-shadow: 0 4px 12px rgba(168,85,247,0.4);
+}
+
+/* PANELS */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* SECTION TITLE */
+.section-title { font-size: 15px; font-weight: 800; color: var(--accent-gold); }
+
+/* BATTLE */
+.battle-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.battle-timer {
+  background: rgba(255,107,157,0.15);
+  border: 1px solid rgba(255,107,157,0.4);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 10px;
+  color: var(--accent-pink);
+  font-weight: 700;
+}
+
+/* MONSTER CARD */
+.monster-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(168,85,247,0.3);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 10px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.monster-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 90px; height: 90px;
+  background: radial-gradient(circle, rgba(168,85,247,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.monster-card.new-word::before { background: radial-gradient(circle, rgba(245,200,66,0.15) 0%, transparent 70%); }
+.monster-card.review-word::before { background: radial-gradient(circle, rgba(62,207,207,0.12) 0%, transparent 70%); }
+.monster-card.review-battle-word::before { background: radial-gradient(circle, rgba(168,85,247,0.15) 0%, transparent 70%); }
+
+.monster-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.monster-left { flex: 1; }
+.word-type-badge {
+  font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 99px;
+  margin-bottom: 6px; display: inline-block;
+}
+.badge-new { background: rgba(245,200,66,0.2); color: var(--accent-gold); border: 1px solid rgba(245,200,66,0.4); }
+.badge-review { background: rgba(62,207,207,0.2); color: var(--accent-teal); border: 1px solid rgba(62,207,207,0.4); }
+.badge-abstract { background: rgba(255,107,157,0.2); color: var(--accent-pink); border: 1px solid rgba(255,107,157,0.4); margin-left: 4px; }
+.word-kanji { font-size: 30px; font-weight: 900; color: var(--text-main); margin-bottom: 3px; letter-spacing: 2px; }
+.word-reading { font-size: 12px; color: var(--text-sub); margin-bottom: 4px; }
+.word-english { font-size: 11px; color: var(--accent-teal); font-weight: 600; }
+.monster-emoji { font-size: 48px; line-height: 1; animation: float 3s ease-in-out infinite; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+/* HP BAR */
+.hp-section { margin-bottom: 12px; }
+.hp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.hp-label { font-size: 10px; font-weight: 700; color: var(--text-sub); }
+.hp-value { font-size: 12px; font-weight: 700; }
+.bar-hp-fill { transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+/* CONTEXT BOX */
+.context-box {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.context-source { font-size: 9px; color: var(--text-sub); margin-bottom: 5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+.highlight-word { color: var(--accent-gold); font-weight: 800; border-bottom: 2px solid rgba(245,200,66,0.4); padding-bottom: 1px; }
+
+/* ACTION BUTTONS */
+.action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.action-btn {
+  padding: 9px 10px;
+  border: 1px solid;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  transition: all 0.2s;
+  background: transparent;
+}
+.action-btn:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.2); }
+.action-btn:active:not(:disabled) { transform: scale(0.97); }
+.action-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.btn-read { border-color: rgba(96,165,250,0.5); color: var(--xp-blue); background: rgba(96,165,250,0.08); }
+.btn-explain { border-color: rgba(62,207,207,0.5); color: var(--accent-teal); background: rgba(62,207,207,0.08); }
+.btn-quiz { border-color: rgba(168,85,247,0.5); color: var(--accent-purple); background: rgba(168,85,247,0.08); }
+.btn-write { border-color: rgba(245,200,66,0.5); color: var(--accent-gold); background: rgba(245,200,66,0.08); }
+.btn-inner { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
+.btn-name { font-size: 11px; }
+.btn-dmg { font-size: 9px; opacity: 0.7; }
+.btn-icon { font-size: 16px; }
+
+/* WRITE INPUT AREA */
+.write-area {
+  margin-top: 10px;
+  display: none;
+}
+.write-area.open { display: block; }
+.write-input {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(245,200,66,0.4);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 13px;
+  resize: none;
+  margin-bottom: 8px;
+}
+.write-input:focus { outline: none; border-color: var(--accent-gold); }
+.write-submit-btn {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, rgba(245,200,66,0.8), rgba(255,154,60,0.8));
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--bg-deep);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.write-submit-btn:hover { filter: brightness(1.1); }
+.write-submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* AI FEEDBACK BOX */
+.ai-feedback {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.8;
+  display: none;
+}
+.ai-feedback.show { display: block; }
+.ai-feedback.good {
+  background: rgba(74,222,128,0.1);
+  border: 1px solid rgba(74,222,128,0.3);
+  color: var(--text-main);
+}
+.ai-feedback.retry {
+  background: rgba(251,191,36,0.1);
+  border: 1px solid rgba(251,191,36,0.3);
+  color: var(--text-main);
+}
+.ai-feedback-label {
+  font-size: 10px;
+  font-weight: 800;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.ai-feedback.good .ai-feedback-label { color: var(--hp-green); }
+.ai-feedback.retry .ai-feedback-label { color: var(--hp-yellow); }
+.ai-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-sub);
+  font-size: 12px;
+  margin-top: 10px;
+}
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-top-color: var(--accent-teal);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* TODAY DONE */
+.today-done-banner {
+  background: linear-gradient(135deg, rgba(74,222,128,0.15), rgba(62,207,207,0.1));
+  border: 1px solid rgba(74,222,128,0.3);
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+.done-emoji { font-size: 44px; margin-bottom: 6px; }
+.done-title { font-size: 17px; font-weight: 900; color: var(--hp-green); margin-bottom: 4px; }
+.done-sub { font-size: 12px; color: var(--text-sub); }
+
+/* MODALS */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  padding: 16px;
+}
+.modal-overlay.show { opacity: 1; pointer-events: all; }
+.modal-popup {
+  background: var(--bg-card);
+  border: 1px solid rgba(168,85,247,0.4);
+  border-radius: 20px;
+  padding: 22px;
+  width: 100%;
+  max-width: 360px;
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-title { font-size: 14px; font-weight: 800; color: var(--accent-purple); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+.modal-question { font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 12px; line-height: 1.6; }
+.quiz-options { display: flex; flex-direction: column; gap: 7px; margin-bottom: 12px; }
+.quiz-option {
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+.quiz-option:hover:not(:disabled) { border-color: rgba(168,85,247,0.5); background: rgba(168,85,247,0.1); }
+.quiz-option.correct { border-color: var(--hp-green); background: rgba(74,222,128,0.15); color: var(--hp-green); }
+.quiz-option.wrong { border-color: var(--hp-red); background: rgba(248,113,113,0.15); color: var(--hp-red); }
+.quiz-result { font-size: 14px; font-weight: 800; text-align: center; padding: 9px; border-radius: 10px; margin-bottom: 10px; }
+.quiz-result.win { color: var(--hp-green); background: rgba(74,222,128,0.1); }
+.quiz-result.lose { color: var(--hp-red); background: rgba(248,113,113,0.1); }
+.modal-close-btn {
+  width: 100%;
+  padding: 11px;
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-teal));
+  border: none;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  color: white;
+  cursor: pointer;
+}
+
+/* DEFEAT OVERLAY */
+.defeat-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  padding: 16px;
+}
+.defeat-overlay.show { opacity: 1; pointer-events: all; }
+.defeat-popup {
+  background: var(--bg-card);
+  border: 2px solid var(--accent-gold);
+  border-radius: 24px;
+  padding: 28px;
+  text-align: center;
+  max-width: 320px;
+  width: 100%;
+  box-shadow: 0 0 60px rgba(245,200,66,0.3);
+  animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.defeat-emoji { font-size: 56px; margin-bottom: 10px; }
+.defeat-title { font-size: 22px; font-weight: 900; color: var(--accent-gold); margin-bottom: 6px; text-shadow: var(--glow-gold); }
+.defeat-word { font-size: 28px; font-weight: 900; margin-bottom: 6px; }
+.defeat-xp { font-size: 15px; color: var(--accent-teal); font-weight: 700; margin-bottom: 18px; }
+.defeat-btn {
+  background: linear-gradient(135deg, var(--accent-gold), #ff9a3c);
+  border: none;
+  border-radius: 12px;
+  padding: 11px 26px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--bg-deep);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.defeat-btn:hover { transform: scale(1.05); }
+
+/* LEVELUP */
+.levelup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 110;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.levelup-overlay.show { opacity: 1; pointer-events: all; }
+.levelup-popup { text-align: center; animation: levelupAnim 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes levelupAnim { from { transform: scale(0.3) rotate(-10deg); opacity: 0; } to { transform: scale(1) rotate(0deg); opacity: 1; } }
+.levelup-stars { font-size: 44px; margin-bottom: 6px; }
+.levelup-text {
+  font-size: 44px;
+  font-weight: 900;
+  background: linear-gradient(90deg, var(--accent-gold), var(--accent-pink), var(--accent-teal));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 6px;
+}
+.levelup-sub { font-size: 18px; color: white; font-weight: 700; margin-bottom: 22px; }
+.levelup-btn {
+  background: linear-gradient(135deg, var(--accent-gold), var(--accent-pink));
+  border: none;
+  border-radius: 16px;
+  padding: 13px 34px;
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 900;
+  color: white;
+  cursor: pointer;
+}
+
+/* DAMAGE FLOAT */
+.dmg-float {
+  position: fixed;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--accent-gold);
+  text-shadow: 0 0 10px rgba(245,200,66,0.8);
+  pointer-events: none;
+  z-index: 200;
+  animation: floatUp 1.2s ease-out forwards;
+}
+@keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-70px) scale(1.4); } }
+
+/* QUEST */
+.quest-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 10px;
+  transition: border-color 0.2s;
+}
+.quest-card:hover { border-color: rgba(245,200,66,0.3); }
+.quest-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.quest-world-badge {
+  font-size: 18px;
+  width: 34px; height: 34px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.quest-meta { flex: 1; }
+.quest-world { font-size: 9px; color: var(--text-sub); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+.quest-name { font-size: 13px; font-weight: 800; color: var(--text-main); }
+.quest-reward {
+  display: flex; align-items: center; gap: 3px;
+  font-size: 10px; color: var(--accent-gold); font-weight: 700;
+  background: rgba(245,200,66,0.1); border: 1px solid rgba(245,200,66,0.3);
+  border-radius: 8px; padding: 3px 7px; white-space: nowrap;
+}
+.quest-prompt {
+  font-size: 12px; color: var(--text-sub); line-height: 1.7; margin-bottom: 10px;
+  border-left: 3px solid rgba(245,200,66,0.4); padding-left: 10px;
+}
+.quest-input {
+  width: 100%; background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 9px 11px; color: var(--text-main); font-family: inherit;
+  font-size: 13px; resize: none; transition: border-color 0.2s;
+}
+.quest-input:focus { outline: none; border-color: rgba(245,200,66,0.5); }
+.quest-submit {
+  margin-top: 7px; width: 100%; padding: 9px;
+  background: linear-gradient(135deg, rgba(245,200,66,0.8), rgba(255,154,60,0.8));
+  border: none; border-radius: 10px; font-family: inherit;
+  font-size: 12px; font-weight: 800; color: var(--bg-deep); cursor: pointer; transition: all 0.2s;
+}
+.quest-submit:hover { filter: brightness(1.1); }
+.quest-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+.quest-done {
+  background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3);
+  border-radius: 10px; padding: 10px 12px; font-size: 12px; color: var(--hp-green); font-weight: 700;
+}
+
+/* REVIEW */
+.review-schedule {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px; margin-bottom: 10px;
+}
+.review-day-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+}
+.review-day-row:last-child { border-bottom: none; }
+.review-day-label {
+  font-size: 11px; font-weight: 800; color: var(--text-sub);
+  width: 52px; flex-shrink: 0; padding-top: 3px;
+}
+.review-day-label.today-label { color: var(--accent-gold); }
+.review-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.review-chip {
+  font-size: 11px; font-weight: 700; padding: 3px 9px;
+  border-radius: 99px; background: rgba(62,207,207,0.1);
+  color: var(--accent-teal); border: 1px solid rgba(62,207,207,0.2);
+}
+.review-chip.today-chip {
+  background: rgba(245,200,66,0.15); color: var(--accent-gold);
+  border-color: rgba(245,200,66,0.3);
+}
+.review-empty { font-size: 11px; color: var(--text-sub); padding-top: 3px; }
+
+/* EXPLAIN SHEET */
+.explain-sheet-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 8000;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+.explain-sheet-overlay.show { opacity: 1; pointer-events: all; }
+.explain-sheet {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(100%);
+  width: 100%; max-width: 480px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 20px 20px 0 0;
+  padding: 20px 18px 32px;
+  z-index: 8001;
+  transition: transform 0.32s cubic-bezier(0.32,0.72,0,1);
+}
+.explain-sheet.show { transform: translateX(-50%) translateY(0); }
+.explain-spirit {
+  font-size: 11px; font-weight: 800; letter-spacing: 1px;
+  color: var(--accent-teal); margin-bottom: 10px;
+}
+.explain-title {
+  font-size: 17px; font-weight: 900;
+  background: linear-gradient(90deg, var(--accent-gold), var(--accent-teal));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+.explain-desc {
+  font-size: 13px; color: var(--text-main); margin-bottom: 6px; font-weight: 700;
+}
+.explain-hint {
+  font-size: 11px; color: var(--text-sub); margin-bottom: 14px; line-height: 1.7;
+}
+.explain-textarea {
+  width: 100%; background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 11px 13px; color: var(--text-main);
+  font-size: 14px; resize: none; line-height: 1.7;
+  font-family: inherit; margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+.explain-textarea:focus { outline: none; border-color: rgba(245,200,66,0.5); }
+.explain-feedback {
+  background: rgba(62,207,207,0.1); border: 1px solid rgba(62,207,207,0.3);
+  border-radius: 10px; padding: 10px 13px;
+  font-size: 13px; color: var(--accent-teal); line-height: 1.6;
+  margin-bottom: 12px; display: none;
+}
+.explain-btns { display: flex; gap: 8px; }
+.explain-submit-btn {
+  flex: 1; padding: 12px;
+  background: linear-gradient(135deg, rgba(245,200,66,0.25), rgba(62,207,207,0.15));
+  border: 1px solid rgba(245,200,66,0.4); border-radius: 12px;
+  color: var(--accent-gold); font-size: 14px; font-weight: 800;
+  cursor: pointer; transition: all 0.15s;
+}
+.explain-submit-btn:hover { background: linear-gradient(135deg, rgba(245,200,66,0.35), rgba(62,207,207,0.25)); }
+.explain-submit-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.explain-skip-btn {
+  padding: 12px 16px;
+  background: transparent; border: 1px solid var(--border);
+  border-radius: 12px; color: var(--text-sub);
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  transition: all 0.15s;
+}
+.explain-skip-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--text-main); }
+
+/* STORY */
+.story-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px; margin-bottom: 10px;
+  transition: border-color 0.2s;
+}
+.story-card.unlocked { border-color: rgba(245,200,66,0.25); cursor: pointer; }
+.story-card.locked { opacity: 0.45; }
+.story-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 0;
+}
+.story-emoji { font-size: 22px; }
+.story-meta { flex: 1; }
+.story-word { font-size: 14px; font-weight: 800; color: var(--text-main); }
+.story-sub { font-size: 10px; color: var(--text-sub); margin-top: 2px; }
+.story-badge {
+  font-size: 18px; flex-shrink: 0;
+}
+.story-body {
+  display: none; margin-top: 12px;
+  font-size: 13px; color: var(--text-main); line-height: 1.9;
+  background: rgba(255,255,255,0.03); border-radius: 10px; padding: 12px;
+}
+.story-body.open { display: block; }
+.story-body .highlight-word {
+  color: var(--accent-gold); font-weight: 800;
+  border-bottom: 1px solid rgba(245,200,66,0.4);
+}
+.story-quiz { margin-top: 12px; }
+.story-quiz-q { font-size: 13px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
+.story-opt {
+  display: block; width: 100%; text-align: left;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 12px; margin-bottom: 6px;
+  font-size: 13px; color: var(--text-main); cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.story-opt:hover { background: rgba(245,200,66,0.08); border-color: rgba(245,200,66,0.3); }
+.story-opt.correct { background: rgba(74,222,128,0.15); border-color: rgba(74,222,128,0.5); color: var(--hp-green); }
+.story-opt.wrong { background: rgba(248,113,113,0.12); border-color: rgba(248,113,113,0.4); color: var(--hp-red); }
+.story-result { font-size: 13px; font-weight: 700; margin-top: 8px; text-align: center; }
+
+/* GUARDIAN GALLERY */
+.guardian-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px; margin-top: 10px;
+}
+.guardian-card {
+  background: var(--bg-card); border-radius: 14px;
+  padding: 14px 12px; text-align: center;
+  border: 1px solid var(--border);
+  cursor: pointer; transition: transform 0.15s;
+}
+.guardian-card:active { transform: scale(0.97); }
+.guardian-card.locked { opacity: 0.35; filter: grayscale(1); cursor: default; }
+.guardian-emoji { font-size: 32px; margin-bottom: 6px; }
+.guardian-name { font-size: 12px; font-weight: 800; color: var(--text-main); margin-bottom: 2px; }
+.guardian-subject { font-size: 10px; font-weight: 700; color: var(--text-sub); margin-bottom: 6px; }
+.guardian-lock-lv { font-size: 10px; color: var(--text-sub); }
+.guardian-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  z-index: 7000; display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.2s; padding: 20px;
+}
+.guardian-modal-overlay.show { opacity: 1; pointer-events: all; }
+.guardian-modal {
+  background: var(--bg-card); border-radius: 20px; padding: 24px 20px;
+  max-width: 360px; width: 100%; border: 1px solid var(--border);
+  animation: fadeIn 0.25s ease;
+}
+.guardian-modal-emoji { font-size: 52px; text-align: center; margin-bottom: 8px; }
+.guardian-modal-name { font-size: 18px; font-weight: 900; color: var(--text-main); text-align: center; margin-bottom: 4px; }
+.guardian-modal-subject { font-size: 11px; font-weight: 800; letter-spacing: 1px; color: var(--accent-teal); text-align: center; margin-bottom: 14px; }
+.guardian-modal-desc { font-size: 13px; color: var(--text-main); line-height: 1.8; margin-bottom: 12px; }
+.guardian-modal-fact {
+  background: rgba(245,200,66,0.08); border: 1px solid rgba(245,200,66,0.2);
+  border-radius: 10px; padding: 10px 12px; font-size: 12px; color: var(--text-sub);
+  line-height: 1.7; margin-bottom: 16px;
+}
+.guardian-modal-close {
+  width: 100%; padding: 12px; background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border); border-radius: 12px;
+  color: var(--text-sub); font-size: 14px; font-weight: 700; cursor: pointer;
+}
+
+/* WALL */
+.defeated-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 7px;
+  margin-bottom: 14px;
+}
+.defeated-chip {
+  background: var(--bg-card); border: 1px solid rgba(74,222,128,0.2);
+  border-radius: 10px; padding: 9px 6px; text-align: center;
+}
+.defeated-emoji { font-size: 18px; margin-bottom: 3px; }
+.defeated-word { font-size: 11px; font-weight: 700; color: var(--hp-green); }
+.defeated-date { font-size: 9px; color: var(--text-sub); margin-top: 2px; }
+
+/* ADMIN */
+.admin-section { margin-bottom: 14px; }
+.admin-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px; margin-bottom: 10px;
+}
+.admin-label { font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; }
+.admin-textarea {
+  width: 100%; background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 12px; color: var(--text-main); font-family: 'Courier New', monospace;
+  font-size: 11px; resize: vertical; min-height: 120px; transition: border-color 0.2s;
+}
+.admin-textarea:focus { outline: none; border-color: rgba(168,85,247,0.5); }
+.admin-btn {
+  padding: 9px 16px;
+  border: 1px solid;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  margin-right: 6px;
+  margin-top: 6px;
+}
+.btn-purple { border-color: rgba(168,85,247,0.6); color: var(--accent-purple); background: rgba(168,85,247,0.08); }
+.btn-teal { border-color: rgba(62,207,207,0.6); color: var(--accent-teal); background: rgba(62,207,207,0.08); }
+.btn-pink { border-color: rgba(255,107,157,0.6); color: var(--accent-pink); background: rgba(255,107,157,0.08); }
+.btn-gold { border-color: rgba(245,200,66,0.6); color: var(--accent-gold); background: rgba(245,200,66,0.08); }
+.admin-btn:hover { filter: brightness(1.2); transform: translateY(-1px); }
+.admin-status {
+  margin-top: 8px; padding: 8px 12px; border-radius: 8px;
+  font-size: 12px; font-weight: 700; display: none;
+}
+.admin-status.ok { background: rgba(74,222,128,0.1); color: var(--hp-green); border: 1px solid rgba(74,222,128,0.3); display: block; }
+.admin-status.err { background: rgba(248,113,113,0.1); color: var(--hp-red); border: 1px solid rgba(248,113,113,0.3); display: block; }
+
+.csv-hint {
+  font-size: 10px; color: var(--text-sub); margin-top: 6px; line-height: 1.7;
+  background: rgba(255,255,255,0.03); border-radius: 8px; padding: 8px 10px;
+}
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 28px; color: var(--text-sub); font-size: 13px; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <a class="hq-link" href="./QuestHQ.html">← QUEST HQ</a>
+      <div class="header-title">⚔️ 語彙クエスト</div>
+      <div class="header-sub"><span id="playerNameDisplay">[プレイヤー名]</span>の言葉のモンスターを倒そう！</div>
+    </div>
+    <div class="date-badge" id="dateBadge">📅 …</div>
+  </div>
+
+  <!-- PLAYER STATUS -->
+  <div class="player-status">
+    <div class="status-card">
+      <div class="status-label">⚔️ 冒険者レベル</div>
+      <div class="level-display">
+        <div class="level-num" id="levelNum">1</div>
+        <div class="level-title" id="levelTitle">見習い</div>
+      </div>
+      <div class="level-next" id="levelNextTitle">次の称号まで あと4レベル</div>
+      <div class="xp-bar-wrap">
+        <div class="xp-text"><span>けいけんち</span><span id="xpText">0 / 5</span></div>
+        <div class="bar-track"><div class="bar-fill bar-xp" id="xpBar" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="status-card">
+      <div class="status-label">🔥 連続</div>
+      <div class="streak-display" onclick="showCalendar()" title="タップでカレンダーを見る">
+        <div class="streak-fire">🔥</div>
+        <div>
+          <div class="streak-num" id="streakNum">0</div>
+          <div style="font-size:10px;color:var(--text-sub)">日連続 📅</div>
+          <div class="streak-meta" id="bestStreakText">最高記録：0日</div>
+          <div class="streak-goal" id="streakGoalText">まずは10日連続をめざそう！</div>
+        </div>
+      </div>
+    </div>
+    <div class="status-card" style="grid-column:span 2;">
+      <div class="status-label">💀 倒した語モンスター</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="defeated-count" id="defeatedCount">0</div>
+        <div style="font-size:11px;color:var(--text-sub)">語　／　次のLvまで <span id="nextLevelXp">5</span> XP</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('battle',this)">⚔️ バトル</button>
+    <button class="tab-btn" onclick="switchTab('quest',this)">📖 ストーリー</button>
+    <button class="tab-btn" onclick="switchTab('review',this)">🔄 ふくしゅう</button>
+    <button class="tab-btn" onclick="switchTab('wall',this)">🏆 殿堂</button>
+    <button class="tab-btn" onclick="switchTab('admin',this)">⚙️ 管理</button>
+  </div>
+
+  <!-- BATTLE PANEL -->
+  <div class="panel active" id="panel-battle">
+    <div class="battle-header">
+      <div class="section-title">🗡️ 今日のバトル</div>
+      <div class="battle-timer">⏱ 5分チャレンジ</div>
+    </div>
+    <div id="battleCards"></div>
+    <!-- BONUS LINK: 週末・祝日・長期休みのみ表示 -->
+    <div id="bonusLink" style="display:none;margin-top:18px;text-align:center;">
+      <a href="./vocab-quest-boss.html" style="
+        display:flex;align-items:center;justify-content:center;gap:10px;
+        background:linear-gradient(135deg,rgba(240,168,48,0.12),rgba(245,200,66,0.08));
+        border:1px solid rgba(245,200,66,0.4);border-radius:14px;
+        padding:13px 20px;text-decoration:none;">
+        <span style="font-size:22px;">✨</span>
+        <span style="text-align:left;line-height:1.4;">
+          <div style="font-size:13px;font-weight:900;color:var(--accent-gold);letter-spacing:0.5px;">よみときミッション</div>
+          <div style="font-size:10px;color:var(--text-sub);">🎁 今日はボーナスデー！ことばを助けよう</div>
+        </span>
+      </a>
+    </div>
+  </div>
+
+  <!-- STORY PANEL -->
+  <div class="panel" id="panel-quest">
+    <div class="section-title" style="margin-bottom:4px;">📖 ショートストーリー</div>
+    <div style="font-size:11px;color:var(--text-sub);margin-bottom:12px;">倒した語のストーリーを読もう。クイズで金バッジをゲット！</div>
+    <div id="storyCards"></div>
+  </div>
+
+  <!-- REVIEW PANEL -->
+  <div class="panel" id="panel-review">
+    <div class="section-title" style="margin-bottom:12px;">🔄 ふくしゅうスケジュール</div>
+    <div class="review-schedule" id="reviewSchedule"></div>
+    <div class="section-title" style="margin-bottom:8px;font-size:13px;margin-top:14px;">📊 間かく復習ルール</div>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px;font-size:12px;color:var(--text-sub);line-height:2.2;">
+      <div>📅 <strong style="color:var(--text-main)">当日</strong>　→　最初の接しょく</div>
+      <div>📅 <strong style="color:var(--text-main)">翌日</strong>　→　記おくを固める</div>
+      <div>📅 <strong style="color:var(--text-main)">3日後</strong>　→　定着チェック</div>
+      <div>📅 <strong style="color:var(--text-main)">7日後</strong>　→　長期記おくへ</div>
+      <div>📅 <strong style="color:var(--text-main)">14日後</strong>　→　完全定着！</div>
+    </div>
+  </div>
+
+  <!-- WALL PANEL -->
+  <div class="panel" id="panel-wall">
+    <div class="section-title" style="margin-bottom:12px;">🏆 殿堂入り語モンスター</div>
+    <div class="defeated-grid" id="defeatedGrid"></div>
+    <div style="margin-top:20px;">
+      <div class="section-title" style="margin-bottom:4px;font-size:14px;">👥 仲間たち</div>
+      <div style="font-size:11px;color:var(--text-sub);margin-bottom:6px;">レベルアップで解放！タップすると知識が読めるよ</div>
+      <div class="level-next" id="guardianNextText" style="margin-bottom:10px;"></div>
+      <div class="guardian-grid" id="guardianGrid"></div>
+    </div>
+  </div>
+  <!-- GUARDIAN DETAIL MODAL -->
+  <div class="guardian-modal-overlay" id="guardianModal" onclick="closeGuardianModal()">
+    <div class="guardian-modal" onclick="event.stopPropagation()">
+      <div class="guardian-modal-emoji" id="gModalEmoji"></div>
+      <div class="guardian-modal-name" id="gModalName"></div>
+      <div class="guardian-modal-subject" id="gModalSubject"></div>
+      <div class="guardian-modal-desc" id="gModalDesc"></div>
+      <div class="guardian-modal-fact" id="gModalFact"></div>
+      <button class="guardian-modal-close" onclick="closeGuardianModal()">とじる</button>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="panel" id="panel-admin">
+    <div class="section-title" style="margin-bottom:12px;">⚙️ 管理パネル</div>
+
+    <div class="admin-card">
+      <div class="admin-label">👤 プレイヤー名</div>
+      <div style="font-size:11px;color:var(--text-sub);margin-bottom:10px;line-height:1.7;">
+        この端末だけに保存される名前です。GitHub上のCSVやHTMLには保存されません。
+      </div>
+      <button class="admin-btn btn-teal" onclick="changePlayerName()">👤 プレイヤー名を変更</button>
+    </div>
+
+    <div class="admin-card">
+      <div class="admin-label">📋 CSVで語モンスターを追加・更新</div>
+      <div class="csv-hint">
+        列の順番：id, kanji, reading, english, type(concrete/abstract), emoji, maxHp,<br>
+        meaning, syn1_word, syn1_reading, syn2_word, syn2_reading,<br>
+        c1_source, c1_text, c2_source, c2_text, c3_source, c3_text,<br>
+        quiz_q, quiz_a1, quiz_a2, quiz_a3, quiz_a4, quiz_correct(0〜3)<br>
+        ※文脈テキストの中で語を使う部分は &lt;WORD&gt; と書いてください
+      </div>
+      <textarea class="admin-textarea" id="csvInput" rows="6" placeholder="ここにCSVを貼り付け…"></textarea>
+      <div>
+        <button class="admin-btn btn-purple" onclick="importCSV()">📥 CSVを読み込む</button>
+        <button class="admin-btn btn-teal" onclick="exportCSV()">📤 CSVを書き出す</button>
+      </div>
+      <div class="admin-status" id="csvStatus"></div>
+    </div>
+
+    <div class="admin-card">
+      <div class="admin-label">💾 セーブデータのバックアップ</div>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <button class="admin-btn btn-gold" style="margin:0;" onclick="exportSave()">📤 エクスポート</button>
+        <button class="admin-btn btn-teal" style="margin:0;" onclick="importSave()">📥 インポート</button>
+      </div>
+      <textarea id="saveDataArea" class="admin-textarea" rows="5"
+        placeholder="エクスポートするとここにJSONが出ます。コピーして保存してね。&#10;インポートする時はここにJSONを貼り付けてから📥ボタンを押してね。"></textarea>
+      <div class="admin-status" id="saveStatus"></div>
+    </div>
+
+    <div class="admin-card">
+      <div class="admin-label">🛠️ 表示がおかしい時の修復</div>
+      <div style="font-size:11px;color:var(--text-sub);margin-bottom:10px;line-height:1.7;">壊れた語データを消して、GitHub上の vocab-words.csv から読み直します。iPadでも使えます。</div>
+      <button class="admin-btn btn-gold" onclick="repairFromCSV({resetProgress:false}).then(count=>showStatus(document.getElementById('saveStatus'), '🛠️ 修復完了！' + (count || words.length) + '語を同期したよ', 'ok'))">🛠️ CSVから修復</button>
+    </div>
+
+    <div class="admin-card">
+      <div class="admin-label">🔄 データリセット（注意！）</div>
+      <div style="font-size:11px;color:var(--text-sub);margin-bottom:10px;line-height:1.7;">レベル・撃破記録も含めて初期化し、CSVから読み直します。</div>
+      <button class="admin-btn btn-pink" onclick="confirmReset()">⚠️ セーブデータをリセット</button>
+    </div>
+
+    <div class="admin-card">
+      <div class="admin-label">🏖️ 長期休みモード</div>
+      <div style="font-size:11px;color:var(--text-sub);margin-bottom:12px;">ONにすると平日でもよみときミッションリンクが表示されます</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button id="vacToggleBtn" onclick="toggleLongVacation()"
+          style="padding:10px 20px;border-radius:10px;border:1px solid var(--border);
+                 background:var(--bg-card);color:var(--text-sub);font-size:13px;
+                 font-weight:800;cursor:pointer;transition:all 0.2s;">
+          ⬜ OFF
+        </button>
+        <div id="vacStatus" style="font-size:12px;color:var(--text-sub);">現在：通常モード</div>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <div class="admin-label">🔬 ストレージ診断</div>
+      <button class="admin-btn btn-teal" onclick="diagStorage()">診断を実行</button>
+      <pre id="diagResult" style="margin-top:10px;font-size:11px;color:var(--text-sub);background:rgba(255,255,255,0.03);border-radius:8px;padding:10px;white-space:pre-wrap;word-break:break-all;display:none;"></pre>
+    </div>
+
+    <div class="admin-card">
+      <div class="admin-label">📝 提出(ていしゅつ)ログ</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+        <span id="submitLogCount" style="font-size:12px;color:var(--text-sub);"></span>
+        <button class="admin-btn btn-pink" style="margin:0;padding:6px 14px;font-size:12px;" onclick="clearSubmitLog()">🗑️ ログを全件削除</button>
+      </div>
+      <div id="submitLogList" style="max-height:400px;overflow-y:auto;"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ALL CLEAR ANIMATION -->
+<div id="allClearAnim" onclick="closeAllClear()">
+  <div class="allclear-bg"></div>
+  <div class="allclear-petals" id="allClearPetals"></div>
+  <div class="allclear-content">
+    <div class="allclear-badge">🌸</div>
+    <div class="allclear-title">今日のバトル完了！</div>
+    <div class="allclear-message" id="allClearMsg">よくがんばったね！</div>
+    <div class="allclear-tap">タップして閉じる</div>
+  </div>
+</div>
+
+<!-- STREAK ANIMATION -->
+<div id="streakAnim">
+  <div class="streak-anim-lines"></div>
+  <div class="streak-anim-bolt">⚡</div>
+  <div class="streak-anim-num" id="streakAnimNum">0</div>
+  <div class="streak-anim-label">日連続！</div>
+</div>
+
+<!-- CALENDAR MODAL -->
+<div class="modal-overlay" id="calendarModal" onclick="if(event.target===this)closeCalendar()">
+  <div class="modal-popup" style="max-width:380px;width:95%;">
+    <div class="modal-title" id="calendarTitle">📅 連続記録</div>
+    <div id="calendarBody" style="padding:8px 0;"></div>
+    <button class="modal-close-btn" style="display:block;margin-top:8px;" onclick="closeCalendar()">とじる</button>
+  </div>
+</div>
+
+<!-- QUIZ MODAL -->
+<div class="modal-overlay" id="quizModal">
+  <div class="modal-popup">
+    <div class="modal-title" id="quizModalTitle">⚔️ クイズバトル！</div>
+    <div class="modal-question" id="quizQuestion"></div>
+    <div class="quiz-options" id="quizOptions"></div>
+    <div class="quiz-result" id="quizResult" style="display:none;"></div>
+    <button class="modal-close-btn" id="quizCloseBtn" style="display:none;"></button>
+  </div>
+</div>
+
+<!-- EXPLAIN SHEET -->
+<div class="explain-sheet-overlay" id="explainOverlay" onclick="skipExplain()"></div>
+<div class="explain-sheet" id="explainSheet">
+  <div class="explain-spirit">✨ ことばの精霊より</div>
+  <div class="explain-title">ことばの精霊を助けよう！</div>
+  <div class="explain-desc" id="explainDesc">この言葉、お父さん・お母さんに説明できる？</div>
+  <div class="explain-hint">
+    むずかしい言葉は使わなくていいよ<br>
+    「〜ってこと」って言いかえてみよう
+  </div>
+  <textarea class="explain-textarea" id="explainInput" rows="2"
+    placeholder="「〜ってこと」「〜なときに使う言葉」など"></textarea>
+  <div class="explain-feedback" id="explainFeedback">
+    いいね！ちゃんと考えたね✨<br>ことばの精霊が少し元気になったよ！
+  </div>
+  <div class="explain-btns">
+    <button class="explain-submit-btn" id="explainSubmitBtn" onclick="submitExplain()">✏️ 書いてみた！</button>
+    <button class="explain-skip-btn" onclick="skipExplain()">またあとでやる</button>
+  </div>
+</div>
+
+<!-- DEFEAT OVERLAY -->
+<div class="defeat-overlay" id="defeatOverlay">
+  <div class="defeat-popup">
+    <div class="defeat-emoji">💥</div>
+    <div class="defeat-title">撃破！！</div>
+    <div class="defeat-word" id="defeatWord"></div>
+    <div class="defeat-xp" id="defeatXP"></div>
+    <button class="defeat-btn" onclick="closeDefeat()">つぎへ ▶</button>
+  </div>
+</div>
+
+<!-- LEVELUP OVERLAY -->
+
+
+<script>
+
+// =========================================================
+// PLAYER NAME PERSONALIZATION
+// =========================================================
+const PLAYER_NAME_STORAGE_KEY = 'vocabQuestPlayerName';
+const PLAYER_NAME_PLACEHOLDER = '[プレイヤー名]';
+
+let _cachedPlayerName = null;
+
+function getPlayerName() {
+  if (_cachedPlayerName) return _cachedPlayerName;
+
+  let name = localStorage.getItem(PLAYER_NAME_STORAGE_KEY);
+
+  if (!name || !name.trim()) {
+    name = prompt('プレイヤー名を入力してね');
+    if (!name || !name.trim()) {
+      name = 'ぼうけんしゃ';
+    }
+    localStorage.setItem(PLAYER_NAME_STORAGE_KEY, name.trim());
+  }
+
+  _cachedPlayerName = name.trim();
+  return _cachedPlayerName;
+}
+
+function personalizeText(value) {
+  if (typeof value !== 'string') return value;
+  return value.replaceAll(PLAYER_NAME_PLACEHOLDER, getPlayerName());
+}
+
+function personalizeDeep(value) {
+  if (typeof value === 'string') return personalizeText(value);
+
+  if (Array.isArray(value)) {
+    return value.map(personalizeDeep);
+  }
+
+  if (value && typeof value === 'object') {
+    const result = {};
+    for (const [key, val] of Object.entries(value)) {
+      result[key] = personalizeDeep(val);
+    }
+    return result;
+  }
+
+  return value;
+}
+
+function depersonalizeText(value) {
+  if (typeof value !== 'string') return value;
+  const playerName = getPlayerName();
+  if (!playerName) return value;
+  return value.replaceAll(playerName, PLAYER_NAME_PLACEHOLDER);
+}
+
+function depersonalizeDeep(value) {
+  if (typeof value === 'string') return depersonalizeText(value);
+
+  if (Array.isArray(value)) {
+    return value.map(depersonalizeDeep);
+  }
+
+  if (value && typeof value === 'object') {
+    const result = {};
+    for (const [key, val] of Object.entries(value)) {
+      result[key] = depersonalizeDeep(val);
+    }
+    return result;
+  }
+
+  return value;
+}
+
+function applyPlayerNameToStaticUI() {
+  const playerNameDisplay = document.getElementById('playerNameDisplay');
+  if (playerNameDisplay) {
+    playerNameDisplay.textContent = getPlayerName();
+  }
+}
+
+function changePlayerName() {
+  const current = localStorage.getItem(PLAYER_NAME_STORAGE_KEY) || '';
+  const name = prompt('新しいプレイヤー名を入力してね', current);
+
+  if (name && name.trim()) {
+    localStorage.setItem(PLAYER_NAME_STORAGE_KEY, name.trim());
+    _cachedPlayerName = name.trim();
+    location.reload();
+  }
+}
+
+// =========================================================
+// CONSTANTS
+// =========================================================
+const LEVELS = [
+  { level:1, title:'見習い', xpNeeded:42 },
+  { level:2, title:'見習い', xpNeeded:42 },
+  { level:3, title:'見習い', xpNeeded:42 },
+  { level:4, title:'見習い', xpNeeded:42 },
+  { level:5, title:'', xpNeeded:42 },
+  { level:6, title:'', xpNeeded:42 },
+  { level:7, title:'', xpNeeded:42 },
+  { level:8, title:'', xpNeeded:42 },
+  { level:9, title:'', xpNeeded:42 },
+  { level:10, title:'', xpNeeded:42 },
+  { level:11, title:'', xpNeeded:42 },
+  { level:12, title:'', xpNeeded:42 },
+  { level:13, title:'', xpNeeded:42 },
+  { level:14, title:'', xpNeeded:42 },
+  { level:15, title:'', xpNeeded:42 },
+  { level:16, title:'', xpNeeded:42 },
+  { level:17, title:'', xpNeeded:42 },
+  { level:18, title:'', xpNeeded:42 },
+  { level:19, title:'', xpNeeded:42 },
+  { level:20, title:'', xpNeeded:42 },
+  { level:21, title:'', xpNeeded:42 },
+  { level:22, title:'', xpNeeded:42 },
+  { level:23, title:'', xpNeeded:42 },
+  { level:24, title:'', xpNeeded:42 },
+  { level:25, title:'', xpNeeded:42 },
+  { level:26, title:'', xpNeeded:42 },
+  { level:27, title:'', xpNeeded:42 },
+  { level:28, title:'', xpNeeded:42 },
+  { level:29, title:'', xpNeeded:42 },
+  { level:30, title:'', xpNeeded:42 },
+  { level:31, title:'', xpNeeded:42 },
+  { level:32, title:'', xpNeeded:42 },
+  { level:33, title:'', xpNeeded:42 },
+  { level:34, title:'', xpNeeded:42 },
+  { level:35, title:'', xpNeeded:42 },
+  { level:36, title:'', xpNeeded:42 },
+  { level:37, title:'', xpNeeded:42 },
+  { level:38, title:'', xpNeeded:42 },
+  { level:39, title:'', xpNeeded:42 },
+  { level:40, title:'', xpNeeded:42 },
+  { level:41, title:'', xpNeeded:42 },
+  { level:42, title:'', xpNeeded:42 },
+  { level:43, title:'', xpNeeded:42 },
+  { level:44, title:'', xpNeeded:42 },
+  { level:45, title:'', xpNeeded:42 },
+  { level:46, title:'', xpNeeded:42 },
+  { level:47, title:'', xpNeeded:42 },
+  { level:48, title:'', xpNeeded:42 },
+  { level:49, title:'', xpNeeded:42 },
+  { level:50, title:'', xpNeeded:42 },
+  { level:51, title:'', xpNeeded:42 },
+  { level:52, title:'', xpNeeded:42 },
+  { level:53, title:'', xpNeeded:42 },
+  { level:54, title:'', xpNeeded:42 },
+  { level:55, title:'', xpNeeded:42 },
+  { level:56, title:'', xpNeeded:42 },
+  { level:57, title:'', xpNeeded:42 },
+  { level:58, title:'', xpNeeded:42 },
+  { level:59, title:'', xpNeeded:42 },
+  { level:60, title:'', xpNeeded:42 },
+  { level:61, title:'', xpNeeded:42 },
+  { level:62, title:'', xpNeeded:42 },
+  { level:63, title:'', xpNeeded:42 },
+  { level:64, title:'', xpNeeded:42 },
+  { level:65, title:'', xpNeeded:42 },
+  { level:66, title:'', xpNeeded:42 },
+  { level:67, title:'', xpNeeded:42 },
+  { level:68, title:'', xpNeeded:42 },
+  { level:69, title:'', xpNeeded:42 },
+  { level:70, title:'', xpNeeded:42 },
+  { level:71, title:'', xpNeeded:42 },
+  { level:72, title:'', xpNeeded:42 },
+  { level:73, title:'', xpNeeded:42 },
+  { level:74, title:'', xpNeeded:42 },
+  { level:75, title:'', xpNeeded:42 },
+  { level:76, title:'', xpNeeded:42 },
+  { level:77, title:'', xpNeeded:42 },
+  { level:78, title:'', xpNeeded:42 },
+  { level:79, title:'', xpNeeded:42 },
+  { level:80, title:'', xpNeeded:42 },
+  { level:81, title:'', xpNeeded:42 },
+  { level:82, title:'', xpNeeded:42 },
+  { level:83, title:'', xpNeeded:42 },
+  { level:84, title:'', xpNeeded:42 },
+  { level:85, title:'', xpNeeded:42 },
+  { level:86, title:'', xpNeeded:42 },
+  { level:87, title:'', xpNeeded:42 },
+  { level:88, title:'', xpNeeded:42 },
+  { level:89, title:'', xpNeeded:42 },
+  { level:90, title:'', xpNeeded:42 },
+  { level:91, title:'', xpNeeded:42 },
+  { level:92, title:'', xpNeeded:42 },
+  { level:93, title:'', xpNeeded:42 },
+  { level:94, title:'', xpNeeded:42 },
+  { level:95, title:'', xpNeeded:42 },
+  { level:96, title:'', xpNeeded:42 },
+  { level:97, title:'', xpNeeded:42 },
+  { level:98, title:'', xpNeeded:42 },
+  { level:99, title:'', xpNeeded:42 },
+  { level:100, title:'', xpNeeded:42 },
+  { level:101, title:'', xpNeeded:42 },
+  { level:102, title:'', xpNeeded:42 },
+  { level:103, title:'', xpNeeded:42 },
+  { level:104, title:'', xpNeeded:42 },
+  { level:105, title:'', xpNeeded:42 },
+  { level:106, title:'', xpNeeded:42 },
+  { level:107, title:'', xpNeeded:42 },
+  { level:108, title:'', xpNeeded:42 },
+  { level:109, title:'', xpNeeded:42 },
+  { level:110, title:'', xpNeeded:42 },
+  { level:111, title:'', xpNeeded:42 },
+  { level:112, title:'', xpNeeded:42 },
+  { level:113, title:'', xpNeeded:42 },
+  { level:114, title:'', xpNeeded:42 },
+  { level:115, title:'', xpNeeded:42 },
+  { level:116, title:'', xpNeeded:42 },
+  { level:117, title:'', xpNeeded:42 },
+  { level:118, title:'', xpNeeded:42 },
+  { level:119, title:'', xpNeeded:42 },
+  { level:120, title:'', xpNeeded:42 },
+  { level:121, title:'', xpNeeded:42 },
+  { level:122, title:'', xpNeeded:42 },
+  { level:123, title:'', xpNeeded:42 },
+  { level:124, title:'', xpNeeded:42 },
+  { level:125, title:'', xpNeeded:42 },
+  { level:126, title:'', xpNeeded:42 },
+  { level:127, title:'', xpNeeded:42 },
+  { level:128, title:'', xpNeeded:42 },
+  { level:129, title:'', xpNeeded:42 },
+  { level:130, title:'', xpNeeded:42 },
+  { level:131, title:'', xpNeeded:42 },
+  { level:132, title:'', xpNeeded:42 },
+  { level:133, title:'', xpNeeded:42 },
+  { level:134, title:'', xpNeeded:42 },
+  { level:135, title:'', xpNeeded:42 },
+  { level:136, title:'', xpNeeded:42 },
+  { level:137, title:'', xpNeeded:42 },
+  { level:138, title:'', xpNeeded:42 },
+  { level:139, title:'', xpNeeded:42 },
+  { level:140, title:'', xpNeeded:42 },
+  { level:141, title:'', xpNeeded:42 },
+  { level:142, title:'', xpNeeded:42 },
+  { level:143, title:'', xpNeeded:42 },
+  { level:144, title:'', xpNeeded:42 },
+  { level:145, title:'', xpNeeded:42 },
+  { level:146, title:'', xpNeeded:42 },
+  { level:147, title:'', xpNeeded:42 },
+  { level:148, title:'', xpNeeded:42 },
+  { level:149, title:'', xpNeeded:42 },
+  { level:150, title:'', xpNeeded:42 },
+  { level:151, title:'', xpNeeded:42 },
+  { level:152, title:'', xpNeeded:42 },
+  { level:153, title:'', xpNeeded:42 },
+  { level:154, title:'', xpNeeded:42 },
+  { level:155, title:'', xpNeeded:42 },
+  { level:156, title:'', xpNeeded:42 },
+  { level:157, title:'', xpNeeded:42 },
+  { level:158, title:'', xpNeeded:42 },
+  { level:159, title:'', xpNeeded:42 },
+  { level:160, title:'', xpNeeded:42 },
+  { level:161, title:'', xpNeeded:42 },
+  { level:162, title:'', xpNeeded:42 },
+  { level:163, title:'', xpNeeded:42 },
+  { level:164, title:'', xpNeeded:42 },
+  { level:165, title:'', xpNeeded:42 },
+  { level:166, title:'', xpNeeded:42 },
+  { level:167, title:'', xpNeeded:42 },
+  { level:168, title:'', xpNeeded:42 },
+  { level:169, title:'', xpNeeded:42 },
+  { level:170, title:'', xpNeeded:42 },
+  { level:171, title:'', xpNeeded:42 },
+  { level:172, title:'', xpNeeded:42 },
+  { level:173, title:'', xpNeeded:42 },
+  { level:174, title:'', xpNeeded:42 },
+  { level:175, title:'', xpNeeded:42 },
+  { level:176, title:'', xpNeeded:42 },
+  { level:177, title:'', xpNeeded:42 },
+  { level:178, title:'', xpNeeded:42 },
+  { level:179, title:'', xpNeeded:42 },
+  { level:180, title:'', xpNeeded:42 },
+  { level:181, title:'', xpNeeded:42 },
+  { level:182, title:'', xpNeeded:42 },
+  { level:183, title:'', xpNeeded:42 },
+  { level:184, title:'', xpNeeded:42 },
+  { level:185, title:'', xpNeeded:42 },
+  { level:186, title:'', xpNeeded:42 },
+  { level:187, title:'', xpNeeded:42 },
+  { level:188, title:'', xpNeeded:42 },
+  { level:189, title:'', xpNeeded:42 },
+  { level:190, title:'', xpNeeded:42 },
+  { level:191, title:'', xpNeeded:42 },
+  { level:192, title:'', xpNeeded:42 },
+  { level:193, title:'', xpNeeded:42 },
+  { level:194, title:'', xpNeeded:42 },
+  { level:195, title:'', xpNeeded:42 },
+  { level:196, title:'', xpNeeded:42 },
+  { level:197, title:'', xpNeeded:42 },
+  { level:198, title:'', xpNeeded:42 },
+  { level:199, title:'', xpNeeded:42 },
+  { level:200, title:'', xpNeeded:99999 }
+];
+
+// =========================================================
+// 学びの守護者（レベル解放キャラクター）
+// =========================================================
+const GUARDIANS = [
+  // Lv2刻みで解放。将来のキャラ追加はここに追記するだけでOK。
+  {
+    id:'g1', unlockLv:2, name:'ことのは姫', emoji:'📜',
+    subject:'国語', color:'rgba(245,200,66,0.2)', border:'rgba(245,200,66,0.5)',
+    desc:'昔、貴族たちは気持ちを伝えるのに和歌を詠んだんだって。五・七・五・七・七の31文字で、愛や悲しみをすべて表現していたんだよ。',
+    fact:'枕草子を書いた清少納言も、源氏物語の紫式部も、どちらも宮廷で働く女性だった。'
+  },
+  {
+    id:'g2', unlockLv:4, name:'算の精', emoji:'🔢',
+    subject:'算数', color:'rgba(62,207,207,0.15)', border:'rgba(62,207,207,0.4)',
+    desc:'「0」という数字を発明したのは古代インドの数学者たちだって知ってた？ヨーロッパに伝わるまで、長い時間がかかったんだよ。',
+    fact:'インドで生まれた「0」は、アラビアを経由してヨーロッパへ伝わった。だから今の数字は「アラビア数字」と呼ばれるんだ。'
+  },
+  {
+    id:'g3', unlockLv:6, name:'草木博士', emoji:'🌿',
+    subject:'理科', color:'rgba(74,222,128,0.15)', border:'rgba(74,222,128,0.4)',
+    desc:'植物が光を使って栄養を作る「光合成」、実は夜には止まるんだって。光がないと動かないから。植物も昼と夜でやることが違うんだね。',
+    fact:'光合成で植物は酸素を出すけど、夜は逆に酸素を吸って二酸化炭素を出している。森の中で夜に過ごすと空気が薄くなることがあるのはそのためだよ。'
+  },
+  {
+    id:'g4', unlockLv:8, name:'地図の翁', emoji:'🗾',
+    subject:'社会', color:'rgba(168,85,247,0.15)', border:'rgba(168,85,247,0.4)',
+    desc:'江戸時代の伊能忠敬は、なんと55歳から日本全国を歩いて地図を作り始めた！17年かけて作った地図は、現代の地図とほぼ同じ精度だったんだって。',
+    fact:'伊能忠敬が歩いた距離は約4万キロ。地球一周とほぼ同じ距離だよ。'
+  },
+  {
+    id:'g5', unlockLv:10, name:'黒潮の使者', emoji:'🌊',
+    subject:'理科', color:'rgba(62,150,207,0.15)', border:'rgba(62,150,207,0.4)',
+    desc:'黒潮は日本の南から北東へ流れる巨大な海流。世界最大級の速さで流れていて、日本の気候を温かく保つのに大きな役割を果たしているんだよ。',
+    fact:'黒潮が運ぶ水の量は、世界中の川が運ぶ水の総量の約20倍ともいわれている。'
+  },
+  {
+    id:'g6', unlockLv:12, name:'ニュートンの林檎', emoji:'🍎',
+    subject:'理科', color:'rgba(248,113,113,0.15)', border:'rgba(248,113,113,0.4)',
+    desc:'アイザック・ニュートンは、リンゴが木から落ちるのを見て「万有引力」を発見したと言われているよ。でも実際には長年の研究の積み重ねがあったんだ。',
+    fact:'ニュートンはペスト（黒死病）が流行して大学が閉鎖された「休校期間」中に、万有引力・微積分・光学など多くの発見をした。逆境が生んだ天才ぶりだね。'
+  },
+  {
+    id:'g7', unlockLv:14, name:'語り部の老賢者', emoji:'📖',
+    subject:'国語', color:'rgba(245,158,11,0.15)', border:'rgba(245,158,11,0.4)',
+    desc:'「源氏物語」は今から約1000年前に書かれた、世界最古の長編小説といわれているんだ。作者の紫式部は宮廷に仕える女性で、漢字も読めたほど賢かったよ。',
+    fact:'源氏物語の登場人物は400人以上。物語の長さは原文で100万字を超えるともいわれ、現代語訳は文庫本で10冊以上になるほど長大なんだ。'
+  },
+  {
+    id:'g8', unlockLv:16, name:'ピタゴラスの弟子', emoji:'📐',
+    subject:'算数', color:'rgba(139,92,246,0.15)', border:'rgba(139,92,246,0.4)',
+    desc:'「三平方の定理」（ピタゴラスの定理）は、直角三角形の3辺の関係を示す公式。実は古代エジプトの建築士たちも、ピラミッドを作るために同じ原理を使っていたんだって。',
+    fact:'ピタゴラスは数学者であり哲学者でもあった。「音楽の音階も数学で説明できる」と考え、音楽と数学の関係を研究した最初の人物のひとりでもあるよ。'
+  },
+  {
+    id:'g9', unlockLv:18, name:'大化の遺人', emoji:'🏯',
+    subject:'社会・歴史', color:'rgba(234,179,8,0.15)', border:'rgba(234,179,8,0.4)',
+    desc:'645年、「大化の改新」で日本は大きく変わったんだって。土地や人を国のものにして、税の仕組みを整えた。これが今の日本の国の形の出発点になったんだよ。',
+    fact:'大化の改新のリーダー、中大兄皇子（なかのおおえのおうじ）は後に天智天皇になった。その仲間・藤原鎌足（ふじわらのかまたり）の子孫が、長く政治を動かす藤原氏だよ。'
+  },
+  {
+    id:'g10', unlockLv:20, name:'言葉の結晶', emoji:'💎',
+    subject:'国語・俳句', color:'rgba(99,202,220,0.15)', border:'rgba(99,202,220,0.4)',
+    desc:'俳句は「五・七・五」のたった17音で情景や感情を表す詩。松尾芭蕉の「古池や 蛙飛び込む 水の音」は300年以上たった今でも世界中で愛されているんだよ。',
+    fact:'俳句には「季語（きご）」という決まりがある。春・夏・秋・冬を表す言葉を必ず入れるんだ。「蛙」は春の季語。季節の言葉一つで、読む人の心に風景が浮かぶんだよ。'
+  },
+    {
+    id:'g11', unlockLv:22, name:'星読みの巫女', emoji:'🌟',
+    subject:'理科・天文', color:'rgba(147,197,253,0.15)', border:'rgba(147,197,253,0.4)',
+    desc:'昔の人たちは、星の動きを見て季節や方角を知っていたんだ。北極星はほとんど動かないように見えるから、旅人や船乗りの道しるべになっていたよ。',
+    fact:'北極星は地球の地軸の延長線上に近い位置にあるため、夜空でほとんど動かないように見える。'
+  },
+  {
+    id:'g12', unlockLv:24, name:'漢字の鍛冶屋', emoji:'⚒️',
+    subject:'国語・漢字', color:'rgba(251,146,60,0.15)', border:'rgba(251,146,60,0.4)',
+    desc:'漢字には、形から意味がわかるものがあるよ。たとえば「森」は木が三つ集まっているから、木がたくさんある場所を表しているんだ。',
+    fact:'漢字には、形から意味を表す「象形文字」や、意味を組み合わせて作られた「会意文字」などがある。'
+  },
+  {
+    id:'g13', unlockLv:26, name:'分数の旅商人', emoji:'🧮',
+    subject:'算数', color:'rgba(45,212,191,0.15)', border:'rgba(45,212,191,0.4)',
+    desc:'分数は「1をいくつに分けたか」を表す考え方。ピザやケーキを分けるときだけでなく、割合や速さを考えるときにも大活躍するよ。',
+    fact:'分母は「いくつに分けたか」、分子は「そのうちいくつ分か」を表している。'
+  },
+  {
+    id:'g14', unlockLv:28, name:'火山の番人', emoji:'🌋',
+    subject:'理科・地学', color:'rgba(248,113,113,0.15)', border:'rgba(248,113,113,0.4)',
+    desc:'日本にはたくさんの火山があるよ。火山は危険なだけでなく、温泉や豊かな土を生み出す力も持っているんだ。',
+    fact:'火山灰が積もってできた土は、水はけがよく、作物によっては育ちやすい土地になることがある。'
+  },
+  {
+    id:'g15', unlockLv:30, name:'三英傑の案内人', emoji:'⚔️',
+    subject:'社会・歴史', color:'rgba(244,114,182,0.15)', border:'rgba(244,114,182,0.4)',
+    desc:'戦国時代の終わりごろ、織田信長・豊臣秀吉・徳川家康の三人は、日本の歴史を大きく動かしたんだ。三人まとめて「三英傑」と呼ばれるよ。',
+    fact:'信長は全国統一を進め、秀吉は天下統一をなしとげ、家康は江戸幕府を開いた。'
+  },
+  {
+    id:'g16', unlockLv:32, name:'ことわざ仙人', emoji:'🧙',
+    subject:'国語・ことわざ', color:'rgba(192,132,252,0.15)', border:'rgba(192,132,252,0.4)',
+    desc:'ことわざは、昔の人の知恵が短い言葉になったもの。「石の上にも三年」は、つらくても続ければ結果が出るという意味だよ。',
+    fact:'ことわざには、生活の知恵、人間関係、努力、失敗への注意など、いろいろなテーマがある。'
+  },
+  {
+    id:'g17', unlockLv:34, name:'割合の魔法使い', emoji:'🪄',
+    subject:'算数・割合', color:'rgba(96,165,250,0.15)', border:'rgba(96,165,250,0.4)',
+    desc:'割合は「くらべる量」が「もとにする量」のどれくらいかを表す考え方。買い物の割引や、テストの正答率にも使われるよ。',
+    fact:'割合は「くらべる量 ÷ もとにする量」で求める。百分率で表すときは、さらに100をかけて「％」にする。'
+  },
+  {
+    id:'g18', unlockLv:36, name:'月のうさぎ', emoji:'🐇',
+    subject:'理科・月', color:'rgba(250,204,21,0.15)', border:'rgba(250,204,21,0.4)',
+    desc:'月は毎日少しずつ形が変わって見えるよ。これは月そのものが変わっているのではなく、太陽の光が当たって見える部分が変わるからなんだ。',
+    fact:'新月、上弦の月、満月、下弦の月というように、月の満ち欠けはおよそ29.5日で一周する。'
+  },
+  {
+    id:'g19', unlockLv:38, name:'江戸の瓦版屋', emoji:'📰',
+    subject:'社会・歴史', color:'rgba(251,191,36,0.15)', border:'rgba(251,191,36,0.4)',
+    desc:'江戸時代には「瓦版」というニュースのような読み物があったよ。火事や事件、珍しい出来事などを人々に知らせていたんだ。',
+    fact:'瓦版は、今の新聞のように情報を広める役割を持っていた。木版で刷られ、町の人たちに売られていた。'
+  },
+  {
+    id:'g20', unlockLv:40, name:'読解の探偵', emoji:'🔍',
+    subject:'国語・読解', color:'rgba(34,197,94,0.15)', border:'rgba(34,197,94,0.4)',
+    desc:'読解では、文章の中にあるヒントを見つける力が大切。「つまり」「しかし」「なぜなら」などの言葉に注目すると、筆者の考えが見えやすくなるよ。',
+    fact:'「しかし」は前の内容と反対のことを示す接続語。「だから」は理由から結果へつなぐ接続語だよ。'
+  },
+  {
+    id:'g21', unlockLv:42, name:'速さの飛脚', emoji:'🏃',
+    subject:'算数・速さ', color:'rgba(56,189,248,0.15)', border:'rgba(56,189,248,0.4)',
+    desc:'速さは「どれくらいの時間で、どれくらい進んだか」を表す考え方。道のり・速さ・時間の関係をつかむと、旅の計画も立てられるよ。',
+    fact:'速さは「道のり ÷ 時間」で求める。道のりは「速さ × 時間」、時間は「道のり ÷ 速さ」で求める。'
+  },
+  {
+    id:'g22', unlockLv:44, name:'雲の観察者', emoji:'☁️',
+    subject:'理科・天気', color:'rgba(186,230,253,0.15)', border:'rgba(186,230,253,0.4)',
+    desc:'雲を見ると、天気の変化を予想できることがあるよ。黒く厚い雲が近づいてきたら、雨が降る合図かもしれないね。',
+    fact:'雲は、空気中の水蒸気が冷やされて、小さな水のつぶや氷のつぶになって集まったものだよ。'
+  },
+  {
+    id:'g23', unlockLv:46, name:'文明の灯火', emoji:'🔥',
+    subject:'社会・世界史', color:'rgba(249,115,22,0.15)', border:'rgba(249,115,22,0.4)',
+    desc:'人類は火を使えるようになったことで、食べ物を焼いたり、寒さをしのいだり、夜に活動したりできるようになったんだ。',
+    fact:'火の利用は、人類の生活を大きく変えた重要な技術の一つと考えられている。'
+  },
+  {
+    id:'g24', unlockLv:48, name:'四字熟語の武人', emoji:'🥋',
+    subject:'国語・四字熟語', color:'rgba(239,68,68,0.15)', border:'rgba(239,68,68,0.4)',
+    desc:'四字熟語は、四つの漢字で深い意味を表す言葉。「一石二鳥」は、一つのことをして二つのよい結果を得るという意味だよ。',
+    fact:'四字熟語には、中国の古い話から生まれたものや、日本で広く使われるようになったものがある。'
+  },
+  {
+    id:'g25', unlockLv:50, name:'語彙の大賢者', emoji:'👑',
+    subject:'総合', color:'rgba(250,204,21,0.2)', border:'rgba(250,204,21,0.6)',
+    desc:'たくさんの言葉を知っていると、文章を読む力も、考える力も、人に伝える力も強くなる。語彙はすべての学びを支える宝物なんだ。',
+    fact:'知らない言葉を一つ覚えると、読める文章の世界が少し広がる。語彙力は国語だけでなく、算数・理科・社会の理解にも役立つ。'
+  },
+  // 🔧 将来の追加枠（Lv22以降、2刻みで追記）
+];
+
+// =========================================================
+// 冒険者称号（5Lvごとに進化 / Lv200まで対応）
+// =========================================================
+const ADVENTURER_TITLES = [
+  { min: 1,   title: '見習い' },
+  { min: 5,   title: 'ことばのたね' },
+  { min: 10,  title: 'ことばの芽' },
+  { min: 15,  title: 'ことばの若葉' },
+  { min: 20,  title: '小さな精霊使い' },
+  { min: 25,  title: 'ことばの精霊使い' },
+  { min: 30,  title: '語モンスターの友だち' },
+  { min: 35,  title: 'ことばの森の案内人' },
+  { min: 40,  title: '読解の探偵' },
+  { min: 45,  title: 'ことばの魔法使い' },
+  { min: 50,  title: '語彙レンジャー' },
+  { min: 55,  title: '文脈ハンター' },
+  { min: 60,  title: '意味を見抜く者' },
+  { min: 65,  title: 'ことばの旅人' },
+  { min: 70,  title: '語彙の錬金術師' },
+  { min: 75,  title: 'ことばの星読み' },
+  { min: 80,  title: '読解の守り手' },
+  { min: 85,  title: '語モンスター調教師' },
+  { min: 90,  title: '語彙の森の賢者' },
+  { min: 95,  title: 'ことばの戦略家' },
+  { min: 100, title: '語彙マスター' },
+  { min: 105, title: '比喩をあやつる者' },
+  { min: 110, title: '文脈の読み手' },
+  { min: 115, title: '意味の探究者' },
+  { min: 120, title: 'ことばの賢人' },
+  { min: 125, title: '語彙の導き手' },
+  { min: 130, title: 'ことばの守護者' },
+  { min: 135, title: '読解の賢者' },
+  { min: 140, title: '語彙の大魔法使い' },
+  { min: 145, title: '文脈の支配者' },
+  { min: 150, title: 'ことばの大賢者' },
+  { min: 155, title: '意味の錬成師' },
+  { min: 160, title: '語彙の英雄' },
+  { min: 165, title: '精霊王のともだち' },
+  { min: 170, title: 'ことばの王国の守り手' },
+  { min: 175, title: '語彙の覇者' },
+  { min: 180, title: 'ことばの伝説' },
+  { min: 185, title: '文脈を統べる者' },
+  { min: 190, title: '語彙の星詠み' },
+  { min: 195, title: 'ことばの神話' },
+  { min: 200, title: '語彙クエストの大英雄' }
+];
+
+function getAdventurerTitle(level) {
+  let current = ADVENTURER_TITLES[0];
+  for (const item of ADVENTURER_TITLES) {
+    if (level >= item.min) current = item;
+  }
+  return current.title;
+}
+
+function getNextAdventurerTitleInfo(level) {
+  return ADVENTURER_TITLES.find(item => item.min > level) || null;
+}
+
+
+const REVIEW_OFFSETS = [0, 1, 3, 7, 14]; // days after first battle
+
+const DEFAULT_WORDS = [];
+
+const DEFAULT_QUESTS = [
+  {
+    id:'q1', world:'⚡ スター・ウォーズ', name:'帝国の経済(けいざい)を語れ！',
+    prompt:'ダース・ベイダーが「経済(けいざい)」について話しているシーンを1文で書いてみよう。\n例：「帝国の経済(けいざい)は、デス・スターの建設(けんせつ)で大変だ…」',
+    targetWords:['経済'], xpReward:5,
+  },
+  {
+    id:'q2', world:'🧙 ハリー・ポッター', name:'魔法界の景気(けいき)レポート',
+    prompt:'ダイアゴン横丁の「景気(けいき)」がよいか悪いかを、1〜2文で書いてみよう！',
+    targetWords:['景気'], xpReward:5,
+  },
+  {
+    id:'q3', world:'🏠 Phineas and Ferb', name:'竹刀(しない)の大発明！',
+    prompt:'フィニアスが「竹刀(しない)」を使った発明をするとしたら？1文で書いてみよう！',
+    targetWords:['竹刀'], xpReward:4,
+  },
+];
+
+// =========================================================
+// STATE
+// =========================================================
+let words = [...DEFAULT_WORDS];
+let quests = [...DEFAULT_QUESTS];
+
+let state = {
+  xp: 0,
+  level: 1,
+  streak: 0,
+  bestStreak: 0,
+  lastPlayDate: null,
+  defeatedWords: [],      // [{id, defeatedDate}]
+  wordProgress: {},       // {id: {hp, contextIdx, actionsToday, readCount, defeated, defeatedDate}}
+  questProgress: {},      // {id: answeredText}
+  storyProgress: {},      // {wordId: 'read'|'cleared'}
+  unlockedGuardians: [],   // 解放済みガーディアンID
+  yomiProgress: {},       // {wordId: 'cleared'|'attempted'} よみときミッション履歴
+  longVacationMode: false, // 長期休み手動フラグ
+  todaySet: [],           // 今日のバトルセット（最大3語のid配列）
+  todaySetDate: null,
+  submitLog: [],          // [{date, kanji, text, passed, type}] type: 'battle'|'quest'
+  playLog: {},            // {dateStr: 'battle'|'all'} 'all'=全撃破, 'battle'=バトルのみ
+};
+
+// =========================================================
+// STORAGE (window.storage with localStorage fallback)
+// =========================================================
+async function storageSave(key, value) {
+  try {
+    if (window.storage) {
+      await window.storage.set(key, JSON.stringify(value));
+    } else {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+  } catch(e) {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch(_){}
+  }
+}
+
+async function storageLoad(key) {
+  try {
+    if (window.storage) {
+      const r = await window.storage.get(key);
+      return r ? JSON.parse(r.value) : null;
+    } else {
+      const v = localStorage.getItem(key);
+      return v ? JSON.parse(v) : null;
+    }
+  } catch(e) {
+    try {
+      const v = localStorage.getItem(key);
+      return v ? JSON.parse(v) : null;
+    } catch(_){ return null; }
+  }
+}
+
+async function saveAll() {
+  await storageSave('vq_state', state);
+  await storageSave('vq_words', words);
+  await storageSave('vq_quests', quests);
+}
+
+async function loadAll() {
+  const savedState  = await storageLoad('vq_state');
+  const savedWords  = await storageLoad('vq_words');
+  const savedQuests = await storageLoad('vq_quests');
+  if (savedState)  state  = savedState;
+  if (savedWords) {
+    words = savedWords;
+    DEFAULT_WORDS.forEach(dw => {
+      const w = words.find(w => w.id === dw.id);
+      if (w) {
+        if (dw.story) w.story = dw.story;
+        if (dw.storyQuiz) w.storyQuiz = dw.storyQuiz;
+        if (dw.yomiQuiz) w.yomiQuiz = dw.yomiQuiz;
+      }
+    });
+  }
+  if (savedQuests) quests = savedQuests;
+  ensureStateDefaults();
+}
+
+// =========================================================
+// INIT WORD PROGRESS
+// =========================================================
+function initWordProgress() {
+  words.forEach(w => {
+    if (!state.wordProgress[w.id]) {
+      state.wordProgress[w.id] = {
+        hp: w.maxHp,
+        contextIdx: 0,
+        actionsToday: [],
+        readCount: 0,
+        defeated: false,
+        defeatedDate: null,  // 撃破日 = 復習スケジュール起点
+        reviewCount: 0,
+        reviewDate: null,
+        isReview: false,
+      };
+    }
+    // 既存データの補完
+    const p = state.wordProgress[w.id];
+    if (p.readCount === undefined) p.readCount = 0;
+    if (p.defeatedDate === undefined) p.defeatedDate = null;
+    if (p.reviewCount === undefined) p.reviewCount = 0;
+    if (p.reviewDate === undefined) p.reviewDate = null;
+    if (p.isReview === undefined) p.isReview = false;
+    // firstBattleDateからの移行（古いデータ対応）
+    if (!p.defeatedDate && p.firstBattleDate && p.defeated) {
+      p.defeatedDate = p.firstBattleDate;
+    }
+    // 旧データ移行: 撃破済みなのにreviewDateがない→復習スケジュールをセット
+    if (p.defeated && !p.reviewDate && p.defeatedDate) {
+      const reviewIntervals = [1, 3, 7, 14, 30];
+      const reviewHps      = [7, 5, 4, 3, 3];
+      const idx2 = Math.min(p.reviewCount || 0, reviewIntervals.length - 1);
+      const interval = reviewIntervals[idx2];
+      const base = new Date(p.defeatedDate);
+      base.setDate(base.getDate() + interval);
+      p.reviewDate = `${base.getFullYear()}-${String(base.getMonth()+1).padStart(2,'0')}-${String(base.getDate()).padStart(2,'0')}`;
+      p.hp = reviewHps[idx2]; // HP0のまま復習に出るのを防ぐ
+    }
+  });
+  // todaySet / todaySetDate が state にない場合の補完
+  if (!state.todaySet) state.todaySet = [];
+  if (!state.todaySetDate) state.todaySetDate = null;
+  if (!state.submitLog) state.submitLog = [];
+  if (!state.playLog) state.playLog = {};
+  if (state.longVacationMode === undefined) state.longVacationMode = false;
+  // ガーディアン遡及解放：実装前にすでにレベルが上がっていた場合の補完
+  if (!state.unlockedGuardians) state.unlockedGuardians = [];
+  const currentLv = getLevel(state.xp).level;
+  GUARDIANS.forEach(g => {
+    if (g.unlockLv <= currentLv && !state.unlockedGuardians.includes(g.id)) {
+      state.unlockedGuardians.push(g.id);
+    }
+  });
+}
+
+// =========================================================
+// DATE HELPERS
+// =========================================================
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+// =========================================================
+// ごほうびピクロス チケット連携
+// - よみときミッションがない日は、語彙バトル完全クリアで通常チケット発行
+// - よみときミッションがある日は、ここでは発行せず、よみとき完全クリア側で発行
+// - 連続記録が5の倍数なら、発行条件達成時にボーナスチケットを1枚発行
+// =========================================================
+const PICROSS_REWARD_STATE_KEY = 'picrossRewardState_v1';
+const PICROSS_LEGACY_DATE_KEY  = 'picrossRewardDate';
+const PICROSS_BONUS_EVERY = 5;
+
+function loadPicrossRewardState() {
+  try {
+    const raw = localStorage.getItem(PICROSS_REWARD_STATE_KEY);
+    if (raw) {
+      const s = JSON.parse(raw);
+      if (typeof s.bonusTickets !== 'number') s.bonusTickets = 0;
+      if (!Array.isArray(s.bonusGrantedMilestones)) s.bonusGrantedMilestones = [];
+      return s;
+    }
+  } catch(e) {}
+  return {
+    dailyTicketDate: null,
+    dailyTicketUsedDate: null,
+    dailyTicketSource: null,
+    bonusTickets: 0,
+    bonusUsedDate: null,
+    bonusGrantedMilestones: []
+  };
+}
+
+function writePicrossRewardState(s) {
+  try { localStorage.setItem(PICROSS_REWARD_STATE_KEY, JSON.stringify(s)); } catch(e) {}
+}
+
+function hasPicrossDailyTicketToday() {
+  const today = todayStr();
+  const reward = loadPicrossRewardState();
+  if (reward.dailyTicketDate === today) return true;
+  // よみときミッション日だけは、旧キー単独では解放済み扱いにしない。
+  // 旧版で誤って picrossRewardDate が残っていても、よみとき未完了ならリンクを出さないため。
+  if (typeof isBonusDay === 'function' && isBonusDay(today)) return false;
+  // 旧キー互換。古いpicross.htmlや古い語彙クエストから発行済みの場合も拾う。
+  try { return localStorage.getItem(PICROSS_LEGACY_DATE_KEY) === today; } catch(e) { return false; }
+}
+
+function grantPicrossRewardFromBattleComplete() {
+  const today = todayStr();
+  const yomiRequired = isBonusDay(today);
+
+  // よみときミッションがある日は、語彙バトル側ではピクロスチケットを出さない。
+  // よみとき完全クリア時に vocab-quest-boss.html 側で発行する。
+  if (yomiRequired) {
+    return { ticketGranted:false, bonusGranted:false, bonusTickets: loadPicrossRewardState().bonusTickets || 0, yomiRequired:true };
+  }
+
+  const reward = loadPicrossRewardState();
+  let ticketGranted = false;
+  let bonusGranted = false;
+
+  if (reward.dailyTicketDate !== today) {
+    reward.dailyTicketDate = today;
+    reward.dailyTicketSource = 'battle';
+    reward.dailyTicketGrantedAt = new Date().toISOString();
+    ticketGranted = true;
+  }
+
+  // 旧picross.htmlとの互換。新picross.html側では picrossRewardState_v1 を優先して見る想定。
+  try { localStorage.setItem(PICROSS_LEGACY_DATE_KEY, today); } catch(e) {}
+
+  const streak = Number(state.streak || 0);
+  if (streak > 0 && streak % PICROSS_BONUS_EVERY === 0) {
+    const milestoneKey = `${streak}:${today}`;
+    if (!reward.bonusGrantedMilestones.includes(milestoneKey)) {
+      reward.bonusTickets = (Number(reward.bonusTickets) || 0) + 1;
+      reward.bonusGrantedMilestones.push(milestoneKey);
+      bonusGranted = true;
+    }
+  }
+
+  writePicrossRewardState(reward);
+  return { ticketGranted, bonusGranted, bonusTickets: reward.bonusTickets || 0, yomiRequired:false };
+}
+
+function getTodayRewardGuidanceHtml() {
+  const today = todayStr();
+  const yomiRequired = isBonusDay(today);
+  const hasTicket = hasPicrossDailyTicketToday();
+
+  if (yomiRequired && !hasTicket) {
+    return `
+      <div class="done-sub" style="margin-top:8px;">次はよみときミッションに挑戦しよう ✨<br>完全クリアするとピクロスが解放されるよ</div>
+      <div style="margin-top:14px;">
+        <a href="./vocab-quest-boss.html" style="
+          display:inline-flex;align-items:center;justify-content:center;gap:8px;
+          padding:12px 18px;border-radius:999px;
+          background:linear-gradient(135deg,var(--accent-purple),var(--accent-teal));
+          color:white;text-decoration:none;font-size:13px;font-weight:900;
+          box-shadow:0 4px 14px rgba(62,207,207,0.25);
+        ">
+          ✨ よみときミッションへ
+        </a>
+      </div>`;
+  }
+
+  if (hasTicket) {
+    return `
+      <div class="done-sub" style="margin-top:8px;">ごほうびピクロスが解放されたよ 🎁</div>
+      <div style="margin-top:14px;">
+        <a href="./picross.html" target="_blank" rel="noopener noreferrer" style="
+          display:inline-flex;align-items:center;justify-content:center;gap:8px;
+          padding:12px 18px;border-radius:999px;
+          background:linear-gradient(135deg,var(--accent-gold),#ff9a3c);
+          color:var(--bg-deep);text-decoration:none;font-size:13px;font-weight:900;
+          box-shadow:0 4px 14px rgba(245,200,66,0.28);
+        ">
+          🎁 ごほうび！ピクロスであそぶ
+        </a>
+      </div>`;
+  }
+
+  return '';
+}
+
+function daysDiff(dateStr) {
+  if (!dateStr) return null;
+  const a = new Date(dateStr);
+  const b = new Date(todayStr());
+  return Math.round((b - a) / 86400000);
+}
+
+
+
+const INITIAL_BEST_STREAK = 38; // 2026/3/9〜4/15の最高記録
+
+function calculateBestStreakFromPlayLog(playLog) {
+  const dates = Object.keys(playLog || {})
+    .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d))
+    .sort();
+  if (dates.length === 0) return 0;
+
+  let best = 1;
+  let current = 1;
+  for (let i = 1; i < dates.length; i++) {
+    const prev = new Date(dates[i - 1]);
+    const cur = new Date(dates[i]);
+    const diff = Math.round((cur - prev) / 86400000);
+    if (diff === 1) {
+      current += 1;
+    } else {
+      current = 1;
+    }
+    if (current > best) best = current;
+  }
+  return best;
+}
+
+function ensureStateDefaults() {
+  if (!state) state = {};
+  if (state.xp === undefined) state.xp = 0;
+  if (state.level === undefined) state.level = 1;
+  if (state.streak === undefined) state.streak = 0;
+  if (state.bestStreak === undefined) state.bestStreak = 0;
+  if (!state.defeatedWords) state.defeatedWords = [];
+  if (!state.wordProgress) state.wordProgress = {};
+  if (!state.questProgress) state.questProgress = {};
+  if (!state.storyProgress) state.storyProgress = {};
+  if (!state.unlockedGuardians) state.unlockedGuardians = [];
+  if (!state.yomiProgress) state.yomiProgress = {};
+  if (!state.todaySet) state.todaySet = [];
+  if (!state.submitLog) state.submitLog = [];
+  if (!state.playLog) state.playLog = {};
+
+  const bestFromLog = calculateBestStreakFromPlayLog(state.playLog);
+  state.bestStreak = Math.max(INITIAL_BEST_STREAK, state.bestStreak || 0, state.streak || 0, bestFromLog || 0);
+}
+
+function recordDailyStreak() {
+  const today = todayStr();
+  if (state.lastPlayDate !== today) {
+    state.streak = (state.streak || 0) + 1;
+    state.bestStreak = Math.max(state.bestStreak || 0, state.streak || 0);
+    state.lastPlayDate = today;
+    setTimeout(() => showStreakAnim(state.streak), 800);
+  }
+}
+
+function getStreakGoalMessage(current, best) {
+  current = current || 0;
+  best = best || 0;
+
+  if (current > best) return '新記録更新中！すごい！';
+  if (current >= best && best > 0) return '自己ベストに到達！すごい！';
+
+  const goals = [10, 20, 30];
+  const nextGoal = goals.find(g => current < g);
+  if (nextGoal) return `まずは${nextGoal}日連続まで あと${nextGoal - current}日！`;
+
+  if (best > current) return `自己ベストまで あと${best - current}日！`;
+  return '今日からまた積み上げよう！';
+}
+function checkStreakAndReset() {
+  ensureStateDefaults();
+  if (!state.lastPlayDate) return;
+  const diff = daysDiff(state.lastPlayDate);
+  state.bestStreak = Math.max(state.bestStreak || 0, state.streak || 0);
+  // 2日以上空いたらリセット（1日空きは復活可能なのでリセットしない）
+  if (diff > 2) state.streak = 0;
+}
+
+function resetDailyActions() {
+  const today = todayStr();
+  if (state.lastPlayDate === today) return;
+  Object.values(state.wordProgress).forEach(p => {
+    if (p.isReview && (p.actionsToday || []).length > 0) {
+      scheduleNextReview(p, false);
+    }
+    p.actionsToday = [];
+    p.readCount = 0;
+  });
+  checkStreakAndReset();
+}
+
+// =========================================================
+// TODAY SET MANAGEMENT
+// =========================================================
+function buildTodaySet() {
+  const today = todayStr();
+  if (state.todaySetDate === today && state.todaySet && state.todaySet.length > 0) return;
+
+  // ---- 新語枠（最大3枚）----
+  const carriedNew = (state.todaySet || []).filter(id => {
+    const prog = state.wordProgress[id];
+    return prog && !prog.defeated && !prog.isReview && !prog.reviewDate;
+  });
+  const newSlots = 3 - carriedNew.length;
+  const alreadyIn = new Set(carriedNew);
+  const newIds = [];
+  for (const w of words) {
+    if (newIds.length >= newSlots) break;
+    const prog = state.wordProgress[w.id];
+    if (!prog || prog.defeated || prog.reviewDate) continue;
+    if (alreadyIn.has(w.id)) continue;
+    if (!prog.defeatedDate && !prog.defeated &&
+        prog.hp === w.maxHp && (prog.actionsToday || []).length === 0 && (prog.readCount || 0) === 0) {
+      newIds.push(w.id);
+    }
+  }
+  const newWordIds = [...carriedNew, ...newIds];
+
+  // ---- 復習枠（最大2枚）----
+  const reviewIds = [];
+  for (const w of words) {
+    if (reviewIds.length >= 2) break;
+    const prog = state.wordProgress[w.id];
+    if (!prog || !prog.reviewDate) continue;
+    if (prog.reviewDate > today) continue;
+    reviewIds.push(w.id);
+    prog.isReview = true;
+  }
+
+  state.todaySet = [...newWordIds, ...reviewIds];
+  state.todaySetDate = today;
+}
+
+function getTodayWords() {
+  buildTodaySet();
+  return state.todaySet
+    .map(id => words.find(w => w.id === id))
+    .filter(Boolean)
+    .filter(w => {
+      const prog = state.wordProgress[w.id];
+      if (!prog) return false;
+      if (prog.isReview) return true;
+      return !prog.defeated;
+    });
+}
+
+// =========================================================
+// LEVEL CALC
+// =========================================================
+function getLevel(xp) {
+  let cumulative = 0;
+  for (let i = 0; i < LEVELS.length - 1; i++) {
+    const prev = cumulative;
+    cumulative += LEVELS[i].xpNeeded;
+    if (xp < cumulative) {
+      return {
+        level: LEVELS[i].level,
+        title: LEVELS[i].title,
+        current: xp - prev,
+        needed: LEVELS[i].xpNeeded,
+        pct: ((xp - prev) / LEVELS[i].xpNeeded) * 100,
+        remaining: cumulative - xp,
+      };
+    }
+  }
+  const last = LEVELS[LEVELS.length-1];
+  return { level:last.level, title:last.title, current:1, needed:1, pct:100, remaining:0 };
+}
+
+// =========================================================
+// UI UPDATE
+// =========================================================
+function updateStatusUI() {
+  ensureStateDefaults();
+  const lvl = getLevel(state.xp);
+  const advTitle = getAdventurerTitle(lvl.level);
+  const nextTitle = getNextAdventurerTitleInfo(lvl.level);
+
+  document.getElementById('levelNum').textContent = lvl.level;
+  document.getElementById('levelTitle').textContent = advTitle;
+
+  const nextEl = document.getElementById('levelNextTitle');
+  if (nextEl) {
+    if (nextTitle) {
+      nextEl.textContent = `次の称号まで あと${nextTitle.min - lvl.level}レベル`;
+    } else {
+      nextEl.textContent = '最高ランク到達！すごい！';
+    }
+  }
+
+  document.getElementById('xpText').textContent = `${lvl.current} / ${lvl.needed}`;
+  document.getElementById('xpBar').style.width = lvl.pct + '%';
+  document.getElementById('streakNum').textContent = state.streak;
+
+  const bestEl = document.getElementById('bestStreakText');
+  if (bestEl) bestEl.textContent = `最高記録：${state.bestStreak || 0}日`;
+  const goalEl = document.getElementById('streakGoalText');
+  if (goalEl) goalEl.textContent = getStreakGoalMessage(state.streak || 0, state.bestStreak || 0);
+
+  document.getElementById('defeatedCount').textContent = state.defeatedWords.length;
+  document.getElementById('nextLevelXp').textContent = lvl.remaining;
+}
+
+function hpColor(pct) {
+  if (pct > 60) return 'var(--hp-green)';
+  if (pct > 30) return 'var(--hp-yellow)';
+  return 'var(--hp-red)';
+}
+
+// =========================================================
+// BUILD BATTLE CARDS
+// =========================================================
+function buildBattleCards() {
+  const container = document.getElementById('battleCards');
+  container.innerHTML = '';
+  const todayWords = getTodayWords();
+
+  if (todayWords.length === 0) {
+    const isTodayMissionComplete = state.playLog && state.playLog[todayStr()] === 'all';
+    if (isTodayMissionComplete) grantPicrossRewardFromBattleComplete();
+    container.innerHTML = `
+      <div class="today-done-banner">
+        <div class="done-emoji">🎉</div>
+        <div class="done-title">今日のバトル完了！</div>
+        <div class="done-sub">すごい！全部のモンスターをたおしたよ！<br>明日またチャレンジしよう ⚔️</div>
+        ${isTodayMissionComplete ? getTodayRewardGuidanceHtml() : ''}
+      </div>`;
+    return;
+  }
+
+  todayWords.forEach(word => {
+    const prog = state.wordProgress[word.id];
+    const hpPct = Math.max(0, (prog.hp / word.maxHp) * 100);
+    const ctx = word.contexts[prog.contextIdx % word.contexts.length];
+    const ctxHtml = ctx.text.replace(/<WORD(?::([^>]*))?>/g, (_, display) =>
+      `<span class="highlight-word">${display || word.kanji}</span>`);
+    const isNew = !prog.defeatedDate && (prog.actionsToday || []).length === 0 && (prog.readCount || 0) === 0;
+    const isReviewCard = !!prog.isReview;
+    const reviewNum = prog.reviewCount || 0;
+    const isAbstract = word.type === 'abstract';
+    const done = prog.actionsToday || [];
+
+    const card = document.createElement('div');
+    card.className = `monster-card ${isNew ? 'new-word' : isReviewCard ? 'review-battle-word' : 'review-word'}`;
+    card.id = `card-${word.id}`;
+    card.innerHTML = `
+      ${isReviewCard ? `<div style="font-size:10px;font-weight:800;color:var(--accent-purple);background:rgba(168,85,247,0.15);border-radius:6px;padding:2px 8px;margin-bottom:6px;display:inline-block;">🔄 復習${reviewNum}回目</div>` : ''}
+      <div class="monster-top">
+        <div class="monster-left">
+          <div>
+            <span class="word-type-badge ${isNew ? 'badge-new' : 'badge-review'}">${isNew ? '🆕 新語' : '🔄 復習'}</span>
+            ${isAbstract ? '<span class="word-type-badge badge-abstract">抽象語(ちゅうしょうご)</span>' : ''}
+          </div>
+          <div class="word-kanji">${word.kanji}</div>
+          <div class="word-reading">${word.reading}</div>
+          <div class="word-english">🌍 ${word.english}</div>
+        </div>
+        <div class="monster-emoji">${word.emoji}</div>
+      </div>
+      <div class="hp-section">
+        <div class="hp-header">
+          <div class="hp-label">❤️ モンスターHP</div>
+          <div class="hp-value" id="hp-${word.id}" style="color:${hpColor(hpPct)}">${prog.hp} / ${word.maxHp}</div>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill bar-hp-fill" id="hpbar-${word.id}"
+               style="width:${hpPct}%;background:${hpColor(hpPct)};box-shadow:0 0 8px ${hpColor(hpPct)};"></div>
+        </div>
+      </div>
+      <div class="context-box">
+        <div class="context-source">${ctx.source}</div>
+        ${ctxHtml}
+      </div>
+      <div class="action-grid">
+        <button class="action-btn btn-read" onclick="doRead('${word.id}')" ${(prog.readCount||0) >= 4 ? 'disabled' : ''}>
+          <div class="btn-inner"><span class="btn-name">📖 よみとる</span><span class="btn-dmg">${(prog.readCount||0) >= 4 ? '完了！' : `あと${4-(prog.readCount||0)}回`}</span></div>
+          <span class="btn-icon">📖</span>
+        </button>
+        <button class="action-btn btn-explain" onclick="doAction('${word.id}','explain',2)" ${done.includes('explain')?'disabled':''}>
+          <div class="btn-inner"><span class="btn-name">💬 せつめい</span><span class="btn-dmg">ダメージ -2</span></div>
+          <span class="btn-icon">💬</span>
+        </button>
+        <button class="action-btn btn-quiz" onclick="openQuiz('${word.id}')" ${done.includes('quiz')?'disabled':''}>
+          <div class="btn-inner"><span class="btn-name">🎯 クイズ</span><span class="btn-dmg">正解で -2</span></div>
+          <span class="btn-icon">🎯</span>
+        </button>
+        <button class="action-btn btn-write" onclick="toggleWriteArea('${word.id}')" ${done.includes('write')?'disabled':''}>
+          <div class="btn-inner"><span class="btn-name">✏️ 文をつくる</span><span class="btn-dmg">正解で -3</span></div>
+          <span class="btn-icon">✏️</span>
+        </button>
+      </div>
+      <div class="write-area" id="write-${word.id}">
+        <textarea class="write-input" id="writeinput-${word.id}" rows="3"
+          placeholder="「${word.kanji}」を使った文を書いてみよう！"></textarea>
+        <div class="ai-feedback" id="writefeedback-${word.id}"></div>
+        <button class="write-submit-btn" id="writesubmit-${word.id}"
+          onclick="submitWrite('${word.id}')">ていしゅつ！ ✏️</button>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function toggleWriteArea(wordId) {
+  const area = document.getElementById(`write-${wordId}`);
+  area.classList.toggle('open');
+}
+
+// =========================================================
+// READ ACTION（よみとる：4回で合計3ダメージ）
+// =========================================================
+function doRead(wordId) {
+  const prog = state.wordProgress[wordId];
+  const word = words.find(w => w.id === wordId);
+  if (!prog || (prog.readCount || 0) >= 4) return;
+
+  // 文脈を次に進める
+  prog.contextIdx = (prog.contextIdx + 1) % word.contexts.length;
+  prog.readCount = (prog.readCount || 0) + 1;
+
+  // ダメージ：1回目+1、2回目0、3回目+1、4回目+1
+  const dmgTable = [1, 0, 1, 1];
+  const dmg = dmgTable[prog.readCount - 1];
+
+  if (dmg > 0) {
+    applyDamage(wordId, dmg, prog.readCount === 1 ? 'read' : `read${prog.readCount}`);
+  } else {
+    // 2回目はダメージなしだが文脈だけ更新してカードを再描画
+    if (!prog.startedDate) prog.startedDate = todayStr();
+    const today = todayStr();
+    recordDailyStreak();
+    saveAll();
+    buildBattleCards();
+  }
+}
+
+// =========================================================
+// ACTION HANDLER
+// =========================================================
+function doAction(wordId, action, damage) {
+  const prog = state.wordProgress[wordId];
+  const word = words.find(w => w.id === wordId);
+  if (!prog.actionsToday) prog.actionsToday = [];
+  if (action !== 'quiz' && prog.actionsToday.includes(action)) return;
+
+  if (action === 'explain') {
+    showExplainModal(word, damage);
+    return;
+  }
+  applyDamage(wordId, damage, action);
+}
+
+function showExplainModal(word, damage) {
+  const modal = document.getElementById('quizModal');
+  document.getElementById('quizModalTitle').textContent = '💬 意味を確認(かくにん)！';
+  document.getElementById('quizQuestion').textContent = `「${word.kanji}（${word.reading}）」の意味：`;
+
+  const synonyms = word.synonyms || [];
+  const synonymHtml = synonyms.length > 0
+    ? `<div style="margin-top:10px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.3);border-radius:12px;padding:10px 14px;">
+        <div style="font-size:11px;color:var(--text-sub);margin-bottom:6px;">📚 にた意味の言葉</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          ${synonyms.map(s => `<span style="font-size:14px;font-weight:700;color:var(--accent-purple);">${s.word}<span style="font-size:11px;font-weight:400;color:var(--text-sub);">（${s.reading}）</span></span>`).join('')}
+        </div>
+      </div>`
+    : '';
+
+  document.getElementById('quizOptions').innerHTML = `
+    <div style="background:rgba(62,207,207,0.1);border:1px solid rgba(62,207,207,0.3);border-radius:12px;padding:12px 14px;font-size:14px;font-weight:700;color:var(--accent-teal);line-height:1.7;">${word.meaning}</div>
+    ${synonymHtml}
+    <div style="margin-top:8px;font-size:11px;color:var(--text-sub);">声に出してよんでみよう！</div>`;
+  document.getElementById('quizResult').style.display = 'none';
+  const closeBtn = document.getElementById('quizCloseBtn');
+  closeBtn.style.display = 'block';
+  closeBtn.textContent = 'わかった！ -2ダメージ ⚔️';
+  closeBtn.onclick = () => {
+    modal.classList.remove('show');
+    applyDamage(word.id, damage, 'explain');
+  };
+  modal.classList.add('show');
+}
+
+// =========================================================
+// QUIZ
+// =========================================================
+function openQuiz(wordId) {
+  const word = words.find(w => w.id === wordId);
+  const modal = document.getElementById('quizModal');
+  document.getElementById('quizModalTitle').textContent = '⚔️ クイズバトル！';
+  document.getElementById('quizQuestion').textContent = word.quiz.question;
+  document.getElementById('quizResult').style.display = 'none';
+  document.getElementById('quizCloseBtn').style.display = 'none';
+
+  const optsEl = document.getElementById('quizOptions');
+  optsEl.innerHTML = '';
+  word.quiz.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-option';
+    btn.textContent = opt;
+    btn.onclick = () => answerQuiz(i, word);
+    optsEl.appendChild(btn);
+  });
+  modal.classList.add('show');
+}
+
+function answerQuiz(idx, word) {
+  const allBtns = document.querySelectorAll('.quiz-option');
+  const correct = word.quiz.correct === idx;
+
+  if (correct) {
+    allBtns.forEach(b => b.disabled = true);
+    allBtns[word.quiz.correct].classList.add('correct');
+    const res = document.getElementById('quizResult');
+    res.style.display = 'block';
+    res.className = 'quiz-result win';
+    res.textContent = '🎉 せいかい！ -2ダメージ！';
+    const closeBtn = document.getElementById('quizCloseBtn');
+    closeBtn.style.display = 'block';
+    closeBtn.textContent = 'とじる';
+    closeBtn.onclick = () => {
+      document.getElementById('quizModal').classList.remove('show');
+      applyDamage(word.id, 2, 'quiz');
+    };
+  } else {
+    allBtns.forEach(b => b.disabled = true);
+    allBtns[idx].classList.add('wrong');
+    const res = document.getElementById('quizResult');
+    res.style.display = 'block';
+    res.className = 'quiz-result lose';
+    res.textContent = '😅 ざんねん！もう一度チャレンジ！';
+    setTimeout(() => {
+      allBtns[idx].classList.remove('wrong');
+      allBtns.forEach(b => b.disabled = false);
+      res.style.display = 'none';
+    }, 1200);
+  }
+}
+
+// =========================================================
+// WRITE - JS採点（ターゲット語句含有 + 文字数チェック）
+// =========================================================
+function submitWrite(wordId) {
+  const word = words.find(w => w.id === wordId);
+  const input = document.getElementById('writeinput-' + wordId);
+  const submitBtn = document.getElementById('writesubmit-' + wordId);
+  const feedbackEl = document.getElementById('writefeedback-' + wordId);
+  const text = input.value.trim();
+
+  if (!text || text.length < 3) {
+    input.style.borderColor = 'var(--hp-red)';
+    return;
+  }
+  input.style.borderColor = '';
+
+  // ① ターゲット語句が含まれているか（variantsがあればそちらを語幹として使う）
+  const stem = (word.variants && word.variants.length > 0) ? word.variants[0] : word.kanji;
+  const hasWord = text.includes(stem);
+  // ② 文字数 ≥ ターゲット語句の文字数 + 3
+  const minLen = word.kanji.length + 3;
+  const hasLength = text.length >= minLen;
+
+  const passed = hasWord && hasLength;
+
+  // ログに保存
+  if (!state.submitLog) state.submitLog = [];
+  state.submitLog.push({
+    date: todayStr(),
+    kanji: word.kanji,
+    text: text,
+    passed: passed,
+    type: 'battle'
+  });
+
+  feedbackEl.style.display = 'block';
+
+  if (passed) {
+    feedbackEl.className = 'ai-feedback show good';
+    feedbackEl.innerHTML = '<div class="ai-feedback-label">✅ クリア！</div>「' + word.kanji + '」をじょうずに使えてるよ！すごい！🎉';
+    applyDamage(wordId, 3, 'write');
+    submitBtn.disabled = true;
+    input.disabled = true;
+    saveAll();
+    // 例文OK後に「ことばの精霊」説明シートを表示（少し遅らせて）
+    setTimeout(() => openExplainSheet(word), 900);
+  } else {
+    let hint = '';
+    if (!hasWord) hint = '「' + stem + '」という言葉を文の中に入れてみよう！';
+    else if (!hasLength) hint = 'もう少し長い文にしてみよう！<br>主語(だれが・なにが)と述語(どうした)を入れると、もっとよくなるよ！📝';
+    feedbackEl.className = 'ai-feedback show retry';
+    feedbackEl.innerHTML = '<div class="ai-feedback-label">🔄 もう一度やってみよう！</div>' + hint;
+    submitBtn.disabled = false;
+    saveAll();
+  }
+}
+
+// =========================================================
+// QUEST - JS採点（ターゲット語句含有 + 文字数チェック）
+// =========================================================
+async function submitQuest(questId, xpReward) {
+  const quest = quests.find(q => q.id === questId);
+  const input = document.getElementById('qa-' + questId);
+  const submitBtn = document.querySelector('[data-quest-submit="' + questId + '"]');
+  const feedbackEl = document.getElementById('qfeedback-' + questId);
+  const text = input ? input.value.trim() : '';
+
+  if (!text || text.length < 3) {
+    if (input) input.style.borderColor = 'var(--hp-red)';
+    return;
+  }
+  if (input) input.style.borderColor = '';
+  if (submitBtn) submitBtn.disabled = true;
+
+  const targetWord = quest.targetWords[0];
+
+  // ① ターゲット語句が含まれているか
+  const hasWord = text.includes(targetWord);
+  // ② 文字数 ≥ ターゲット語句の文字数 + 3
+  const minLen = targetWord.length + 3;
+  const hasLength = text.length >= minLen;
+  const passed = hasWord && hasLength;
+
+  // ログに保存
+  if (!state.submitLog) state.submitLog = [];
+  state.submitLog.push({
+    date: todayStr(),
+    kanji: targetWord,
+    text: text,
+    passed: passed,
+    type: 'quest'
+  });
+
+  if (feedbackEl) feedbackEl.style.display = 'block';
+
+  if (passed) {
+    if (feedbackEl) {
+      feedbackEl.className = 'ai-feedback show good';
+      feedbackEl.innerHTML = '<div class="ai-feedback-label">✅ クリア！</div>「' + targetWord + '」をじょうずに使えてるよ！🎉';
+    }
+    const oldLevel = getLevel(state.xp).level;
+    state.xp += xpReward;
+    state.questProgress[questId] = text;
+    await saveAll();
+    updateStatusUI();
+    showDmgFloat('+' + xpReward + ' XP');
+    const newLevel = getLevel(state.xp).level;
+    if (newLevel > oldLevel) setTimeout(() => showLevelUp(newLevel), 600);
+    setTimeout(() => buildQuestCards(), 1500);
+  } else {
+    let hint = '';
+    if (!hasWord) hint = '「' + targetWord + '」という言葉を文の中に入れてみよう！';
+    else if (!hasLength) hint = 'もう少し長い文にしてみよう！<br>主語(だれが・なにが)と述語(どうした)を入れると、もっとよくなるよ！📝';
+    if (feedbackEl) {
+      feedbackEl.className = 'ai-feedback show retry';
+      feedbackEl.innerHTML = '<div class="ai-feedback-label">🔄 もう一度やってみよう！</div>' + hint;
+    }
+    if (submitBtn) submitBtn.disabled = false;
+    await saveAll();
+  }
+}
+
+// =========================================================
+// APPLY DAMAGE
+// =========================================================
+async function applyDamage(wordId, damage, action) {
+  const prog = state.wordProgress[wordId];
+  const word = words.find(w => w.id === wordId);
+  if (!prog.actionsToday) prog.actionsToday = [];
+
+  prog.hp = Math.max(0, prog.hp - damage);
+  if (!prog.actionsToday.includes(action)) prog.actionsToday.push(action);
+  prog.contextIdx = (prog.contextIdx + 1) % word.contexts.length;
+
+  // 初回アクション記録（新語扱い解除トリガー）
+  if (!prog.startedDate) prog.startedDate = todayStr();
+
+  // XP
+  const xpGain = Math.ceil(damage / 2);
+  const oldLevel = getLevel(state.xp).level;
+  state.xp += xpGain;
+  const newLevel = getLevel(state.xp).level;
+
+  // Streak & playLog
+  const today = todayStr();
+  if (!state.playLog) state.playLog = {};
+  if (state.longVacationMode === undefined) state.longVacationMode = false;
+  // ガーディアン遡及解放：実装前にすでにレベルが上がっていた場合の補完
+  if (!state.unlockedGuardians) state.unlockedGuardians = [];
+  const currentLv = getLevel(state.xp).level;
+  GUARDIANS.forEach(g => {
+    if (g.unlockLv <= currentLv && !state.unlockedGuardians.includes(g.id)) {
+      state.unlockedGuardians.push(g.id);
+    }
+  });
+  recordDailyStreak();
+  // playLogをまずbattleで記録（全撃破判定は撃破後に行う）
+  if (state.playLog[today] !== 'all') state.playLog[today] = 'battle';
+
+  await saveAll();
+  updateStatusUI();
+  showDmgFloat(`-${damage}`);
+
+  if (prog.hp <= 0) {
+    if (prog.isReview) {
+      scheduleNextReview(prog, true);  // isReview が false になる
+
+      // 全撃破判定（復習語が最後の1枚だった場合）
+      const remaining = state.todaySet.filter(id => {
+        const p = state.wordProgress[id];
+        if (!p) return false;
+        if (p.isReview) return true;
+        return !p.defeated;
+      }).length;
+      if (remaining === 0 && state.todaySet.length > 0) {
+        state.playLog[today] = 'all';
+        state._pendingAllClear = true;
+        grantPicrossRewardFromBattleComplete();
+      }
+
+      await saveAll();
+      updateStatusUI();
+      setTimeout(() => showReviewDefeat(word, true), 400);
+    } else if (!prog.defeated) {
+      prog.defeated = true;
+      prog.defeatedDate = todayStr();
+      scheduleNextReview(prog, true);
+      state.defeatedWords.push({ id: wordId, date: new Date().toLocaleDateString('ja-JP'), defeatedDate: todayStr() });
+
+      // 全撃破判定：今日のセットに残っているバトル対象（新語・復習語とも）がゼロになったか
+      const remaining = state.todaySet.filter(id => {
+        const p = state.wordProgress[id];
+        if (!p) return false;
+        if (p.isReview) return true;   // 復習語はまだ残っている
+        return !p.defeated;            // 新語は未撃破なら残っている
+      }).length;
+      if (remaining === 0 && state.todaySet.length > 0) {
+        state.playLog[today] = 'all';
+        state._pendingAllClear = true;
+        grantPicrossRewardFromBattleComplete();
+      }
+
+      await saveAll();
+      updateStatusUI();
+      setTimeout(() => showDefeat(word), 400);
+    }
+  } else {
+    buildBattleCards();
+  }
+
+  if (newLevel > oldLevel) setTimeout(() => showLevelUp(newLevel), 1200);
+}
+
+// =========================================================
+// DEFEAT / LEVELUP
+// =========================================================
+function showDefeat(word) {
+  document.getElementById('defeatWord').textContent = `「${word.kanji}」 を撃破(げきは)！`;
+  document.getElementById('defeatXP').textContent = `+${word.maxHp} XP 獲得(かくとく)！`;
+  document.getElementById('defeatOverlay').classList.add('show');
+  buildDefeatedGrid();
+}
+
+function showReviewDefeat(word, defeated) {
+  const prog = state.wordProgress[word.id];
+  const reviewCount = prog.reviewCount; // already incremented in scheduleNextReview
+  document.getElementById('defeatWord').textContent = defeated
+    ? `「${word.kanji}」 復習クリア！`
+    : `「${word.kanji}」 明日また会おう！`;
+  document.getElementById('defeatXP').textContent = defeated
+    ? `復習${reviewCount}回目 クリア！ +${prog.hp > 0 ? prog.hp : 3} XP 🔄`
+    : `次回は明日！引き続きがんばろう 💪`;
+  document.getElementById('defeatOverlay').classList.add('show');
+  buildBattleCards();
+}
+
+function closeDefeat() {
+  document.getElementById('defeatOverlay').classList.remove('show');
+  buildBattleCards();
+  if (state._pendingAllClear) {
+    state._pendingAllClear = false;
+    setTimeout(() => showAllClear(), 300);
+  }
+}
+
+function showLevelUp(level) {
+  const titleStr = getAdventurerTitle(level);
+  document.getElementById('levelupSub').textContent = `レベル${level}「${titleStr}」になった！`;
+
+  // ガーディアン解放チェック
+  const newGuardian = GUARDIANS.find(g => g.unlockLv === level);
+  const guardianDiv = document.getElementById('guardianUnlock');
+  if (newGuardian && !(state.unlockedGuardians||[]).includes(newGuardian.id)) {
+    if (!state.unlockedGuardians) state.unlockedGuardians = [];
+    state.unlockedGuardians.push(newGuardian.id);
+    saveAll();
+    document.getElementById('guardianEmoji').textContent = newGuardian.emoji;
+    document.getElementById('guardianName').textContent = newGuardian.name;
+    document.getElementById('guardianSubject').textContent = '📚 ' + newGuardian.subject;
+    guardianDiv.style.display = 'block';
+  } else {
+    guardianDiv.style.display = 'none';
+  }
+
+  document.getElementById('levelupOverlay').classList.add('show');
+}
+
+function closeLevelup() {
+  document.getElementById('levelupOverlay').classList.remove('show');
+  // 殿堂タブが開いていれば再描画
+  if (document.getElementById('panel-wall').classList.contains('active')) buildDefeatedGrid();
+}
+
+
+function showDmgFloat(text) {
+  const el = document.createElement('div');
+  el.className = 'dmg-float';
+  el.textContent = text;
+  el.style.left = (Math.random() * 60 + 20) + '%';
+  el.style.top = '35%';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1300);
+}
+
+// =========================================================
+// BUILD QUEST CARDS
+// =========================================================
+function buildStoryCards() {
+  const container = document.getElementById('storyCards');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const storyWords = words.filter(w => w.story);
+  if (storyWords.length === 0) {
+    container.innerHTML = '<div class="empty-state">ストーリーはまだありません。<br>CSVからデータを読み込んでね📖</div>';
+    return;
+  }
+
+  storyWords.forEach(word => {
+    const prog = state.storyProgress || {};
+    const sp = prog[word.id];
+    const isDefeated = state.wordProgress[word.id]?.defeated;
+    const badge = sp === 'cleared' ? '🥇' : sp === 'read' ? '🥈' : '📖';
+    const card = document.createElement('div');
+    card.className = 'story-card ' + (isDefeated ? 'unlocked' : 'locked');
+    card.innerHTML = `
+      <div class="story-header">
+        <div class="story-emoji">${word.emoji}</div>
+        <div class="story-meta">
+          <div class="story-word">「${word.kanji}」のストーリー</div>
+          <div class="story-sub">${isDefeated ? (sp === 'cleared' ? '✅ クイズクリア' : sp === 'read' ? '📖 読了' : 'タップして読む') : '🔒 まず倒してみよう！'}</div>
+        </div>
+        <div class="story-badge">${badge}</div>
+      </div>
+      <div class="story-body" id="stbody-${word.id}">
+        <div>${word.story.replace(/<WORD(?::([^>]*))?>/g, (_, d) => `<span class="highlight-word">${d||word.kanji}</span>`)}</div>
+        ${word.storyQuiz && sp !== 'cleared' ? `
+        <div class="story-quiz" id="stquiz-${word.id}">
+          <div class="story-quiz-q">📝 ${word.storyQuiz.question}</div>
+          ${word.storyQuiz.options.map((opt, i) =>
+            `<button class="story-opt" onclick="answerStoryQuiz('${word.id}', ${i})">${opt}</button>`
+          ).join('')}
+          <div class="story-result" id="stresult-${word.id}"></div>
+        </div>` : sp === 'cleared' ? '<div class="story-result" style="color:var(--hp-green);">🥇 クイズクリア済み！</div>' : ''}
+      </div>`;
+
+    if (isDefeated) {
+      card.querySelector('.story-header').addEventListener('click', () => {
+        const body = document.getElementById('stbody-' + word.id);
+        body.classList.add('open'); // 一度開いたら閉じない
+        if (!sp) {
+          if (!state.storyProgress) state.storyProgress = {};
+          state.storyProgress[word.id] = 'read';
+          // サブテキストだけ更新（再描画せず）
+          const sub = card.querySelector('.story-sub');
+          if (sub) sub.textContent = '📖 読了';
+          saveAll();
+        }
+      });
+    }
+    container.appendChild(card);
+  });
+}
+
+function answerStoryQuiz(wordId, chosenIdx) {
+  const word = words.find(w => w.id === wordId);
+  if (!word?.storyQuiz) return;
+  const correct = word.storyQuiz.correct;
+  const opts = document.querySelectorAll(`#stquiz-${wordId} .story-opt`);
+  opts.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === correct) btn.classList.add('correct');
+    else if (i === chosenIdx) btn.classList.add('wrong');
+  });
+  const resultEl = document.getElementById('stresult-' + wordId);
+  if (chosenIdx === correct) {
+    resultEl.innerHTML = '<span style="color:var(--hp-green);">🥇 正解！金バッジゲット！</span>';
+    if (!state.storyProgress) state.storyProgress = {};
+    state.storyProgress[wordId] = 'cleared';
+    saveAll();
+    setTimeout(() => buildStoryCards(), 1000);
+  } else {
+    resultEl.innerHTML = '<span style="color:var(--hp-red);">❌ ざんねん！もう一度読んでみよう。</span>';
+  }
+}
+
+function buildQuestCards() { buildStoryCards(); } // 後方互換
+
+// =========================================================
+// =========================================================
+// REVIEW SCHEDULE
+// =========================================================
+const REVIEW_SCHEDULE = [
+  { count: 0, interval: 1,  hp: 7 },  // 翌日
+  { count: 1, interval: 3,  hp: 5 },  // 3日後
+  { count: 2, interval: 7,  hp: 4 },  // 7日後
+  { count: 3, interval: 14, hp: 3 },  // 14日後
+  { count: 4, interval: 30, hp: 3 },  // 30日後（以降ずっと）
+];
+
+function getReviewSchedule(reviewCount) {
+  return REVIEW_SCHEDULE[Math.min(reviewCount, REVIEW_SCHEDULE.length - 1)];
+}
+
+function scheduleNextReview(prog, defeated) {
+  const today = todayStr();
+  const sched = getReviewSchedule(prog.reviewCount);
+  const interval = defeated ? sched.interval : 1; // 倒せなかった場合は翌日
+  if (defeated) prog.reviewCount += 1;
+  const next = new Date(today);
+  next.setDate(next.getDate() + interval);
+  prog.reviewDate = `${next.getFullYear()}-${String(next.getMonth()+1).padStart(2,'0')}-${String(next.getDate()).padStart(2,'0')}`;
+  prog.isReview = false; // 次回まで非アクティブ
+  prog.hp = getReviewSchedule(prog.reviewCount).hp; // 次回のHP
+  prog.actionsToday = [];
+  prog.readCount = 0;
+  // Note: prog.defeated は変更しない（初撃破フラグとして保持）
+}
+
+function checkStreakAndReset() {
+  ensureStateDefaults();
+  if (!state.lastPlayDate) return;
+  const diff = daysDiff(state.lastPlayDate);
+  state.bestStreak = Math.max(state.bestStreak || 0, state.streak || 0);
+  // 2日以上空いたらリセット（1日空きは復活可能なのでリセットしない）
+  if (diff > 2) state.streak = 0;
+}
+
+function resetDailyActions() {
+  const today = todayStr();
+  if (state.lastPlayDate === today) return;
+  Object.values(state.wordProgress).forEach(p => {
+    // 復習語でアクションだけして倒せなかった場合→翌日に再登場
+    if (p.isReview && (p.actionsToday || []).length > 0) {
+      scheduleNextReview(p, false); // 倒せなかった→翌日
+    }
+    p.actionsToday = [];
+    p.readCount = 0;
+  });
+  checkStreakAndReset();
+}
+
+// =========================================================
+function buildReviewSchedule() {
+  const schedule = document.getElementById('reviewSchedule');
+  schedule.innerHTML = '';
+  const today = todayStr();
+  const rows = [
+    { label:'今日', offset:0 },
+    { label:'明日', offset:1 },
+    { label:'3日後', offset:3 },
+    { label:'7日後', offset:7 },
+    { label:'14日後', offset:14 },
+  ];
+
+  rows.forEach(row => {
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + row.offset);
+    const targetStr = `${targetDate.getFullYear()}-${String(targetDate.getMonth()+1).padStart(2,'0')}-${String(targetDate.getDate()).padStart(2,'0')}`;
+
+    const scheduled = words.filter(w => {
+      const prog = state.wordProgress[w.id];
+      if (!prog || !prog.defeatedDate) return false;
+      const base = new Date(prog.defeatedDate);
+      const check = new Date(base);
+      check.setDate(base.getDate() + row.offset);
+      const checkStr = `${check.getFullYear()}-${String(check.getMonth()+1).padStart(2,'0')}-${String(check.getDate()).padStart(2,'0')}`;
+      return checkStr === targetStr;
+    });
+
+    const isToday = row.offset === 0;
+    const row_el = document.createElement('div');
+    row_el.className = 'review-day-row';
+    row_el.innerHTML = `
+      <div class="review-day-label ${isToday ? 'today-label' : ''}">${row.label}</div>
+      <div class="review-chips">
+        ${scheduled.length === 0
+          ? `<span class="review-empty">なし</span>`
+          : scheduled.map(w => `<span class="review-chip ${isToday ? 'today-chip' : ''}">${w.kanji}</span>`).join('')
+        }
+      </div>`;
+    schedule.appendChild(row_el);
+  });
+}
+
+// =========================================================
+// DEFEATED WALL
+// =========================================================
+function buildDefeatedGrid() {
+  const grid = document.getElementById('defeatedGrid');
+  grid.innerHTML = '';
+  if (state.defeatedWords.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">まだ語モンスターをたおしていないよ！<br>バトルにいどもう ⚔️</div>`;
+    return;
+  }
+  state.defeatedWords.forEach(dw => {
+    const word = words.find(w => w.id === dw.id);
+    if (!word) return;
+    const chip = document.createElement('div');
+    chip.className = 'defeated-chip';
+    const sp = (state.storyProgress||{})[word.id];
+    const storyBadge = word.story ? (sp === 'cleared' ? '🥇' : sp === 'read' ? '🥈' : '') : '';
+    chip.innerHTML = `<div class="defeated-emoji">${word.emoji}</div><div class="defeated-word">${word.kanji}</div>${storyBadge ? `<div style="font-size:13px;">${storyBadge}</div>` : ''}<div class="defeated-date">${dw.date}</div>`;
+    grid.appendChild(chip);
+  });
+}
+
+// =========================================================
+// CSV IMPORT / EXPORT
+// =========================================================
+
+// CSVテキストをパースしてwords配列にマージする共通処理
+// 戻り値: マージした語数（エラー時は -1）
+function parseAndMergeCSV(raw) {
+  try {
+    const lines = raw.split('\n').filter(l => l.trim() && !l.startsWith('id,'));
+    if (lines.length === 0) return 0;
+
+    const newWords = lines.map(line => {
+      const cols = line.split(',');
+      if (cols.length < 24) throw new Error(`列が足りない行: ${line.substring(0,30)}...`);
+      return {
+        id: cols[0].trim(),
+        kanji: cols[1].trim(),
+        reading: cols[2].trim(),
+        english: cols[3].trim(),
+        type: cols[4].trim(),
+        emoji: cols[5].trim(),
+        maxHp: parseInt(cols[6]) || 10,
+        meaning: cols[7].trim(),
+        synonyms: [
+          { word: cols[8].trim(), reading: cols[9].trim() },
+          { word: cols[10].trim(), reading: cols[11].trim() },
+        ].filter(s => s.word),
+        contexts: [
+          { source: cols[12].trim(), text: cols[13].trim() },
+          { source: cols[14].trim(), text: cols[15].trim() },
+          { source: cols[16].trim(), text: cols[17].trim() },
+        ],
+        quiz: {
+          question: cols[18].trim(),
+          options: [cols[19].trim(), cols[20].trim(), cols[21].trim(), cols[22].trim()],
+          correct: (parseInt(cols[23]) || 1) - 1,
+        },
+        variants: cols[24] ? cols[24].trim().split('|').map(v => v.trim()).filter(Boolean) : [],
+        story: cols[25] ? cols[25].trim() : '',
+        storyQuiz: cols[26] ? {
+          question: cols[26].trim(),
+          options: [cols[27]?.trim()||'', cols[28]?.trim()||'', cols[29]?.trim()||'', cols[30]?.trim()||''],
+          correct: parseInt(cols[31]) || 0,
+        } : null,
+        yomiQuiz: cols[32] ? {
+          text:    cols[32].trim(),
+          q1:      cols[33]?.trim()||'',
+          q1opts:  [cols[34]?.trim()||'', cols[35]?.trim()||'', cols[36]?.trim()||'', cols[37]?.trim()||''],
+          q1correct: (parseInt(cols[38]) || 1) - 1,
+          q2:      cols[39]?.trim()||'',
+          q2opts:  [cols[40]?.trim()||'', cols[41]?.trim()||'', cols[42]?.trim()||'', cols[43]?.trim()||''],
+          q2correct: (parseInt(cols[44]) || 1) - 1,
+        } : null,
+      };
+    });
+
+    newWords.forEach(nw => {
+      const idx = words.findIndex(w => w.id === nw.id);
+      if (idx >= 0) {
+        words[idx] = nw;
+        const prog = state.wordProgress[nw.id];
+        if (prog && !prog.defeated) {
+          prog.hp = Math.min(prog.hp, nw.maxHp);
+        }
+      } else {
+        words.push(nw);
+        state.wordProgress[nw.id] = { hp: nw.maxHp, contextIdx:0, actionsToday:[], readCount:0, defeated:false, defeatedDate:null };
+      }
+    });
+
+    return newWords.length;
+  } catch(e) {
+    console.error('[CSV merge error]', e);
+    return -1;
+  }
+}
+
+// 起動時に vocab-words.csv を fetch してマージする
+async function fetchAndMergeCSV() {
+  try {
+    const res = await fetch('./vocab-words.csv', { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const raw = await res.text();
+    const count = parseAndMergeCSV(raw);
+    if (count > 0) {
+      await saveAll();
+      console.log(`[CSV auto-load] ${count}語をマージしました`);
+    }
+  } catch(e) {
+    // fetch失敗（オフライン・ファイル未配置など）はサイレントにスキップ
+    console.warn('[CSV auto-load] スキップ:', e.message);
+  }
+}
+
+// 管理タブから手動インポートする場合はparseAndMergeCSVを呼び出す
+function importCSV() {
+  const raw = document.getElementById('csvInput').value.trim();
+  const status = document.getElementById('csvStatus');
+  if (!raw) { showStatus(status, 'CSVが空だよ！', 'err'); return; }
+
+  const count = parseAndMergeCSV(raw);
+  if (count < 0) {
+    showStatus(status, '❌ エラー：CSVの形式を確認してね', 'err');
+  } else if (count === 0) {
+    showStatus(status, '有効(ゆうこう)な行がないよ！', 'err');
+  } else {
+    saveAll();
+    buildBattleCards();
+    showStatus(status, `✅ ${count}語を読み込んだよ！`, 'ok');
+  }
+}
+
+
+function exportCSV() {
+  const header = 'id,kanji,reading,english,type,emoji,maxHp,meaning,syn1_word,syn1_reading,syn2_word,syn2_reading,c1_source,c1_text,c2_source,c2_text,c3_source,c3_text,quiz_q,quiz_a1,quiz_a2,quiz_a3,quiz_a4,quiz_correct,variants,story,story_q,story_a1,story_a2,story_a3,story_a4,story_correct,yomi_text,yomi_q1,yomi_q1_a1,yomi_q1_a2,yomi_q1_a3,yomi_q1_a4,yomi_q1_correct,yomi_q2,yomi_q2_a1,yomi_q2_a2,yomi_q2_a3,yomi_q2_a4,yomi_q2_correct';
+  const rows = words.map(originalWord => {
+    const w = depersonalizeDeep(originalWord);
+    const s = w.synonyms || [];
+    return [
+      w.id, w.kanji, w.reading, w.english, w.type, w.emoji, w.maxHp, w.meaning,
+      s[0]?.word||'', s[0]?.reading||'', s[1]?.word||'', s[1]?.reading||'',
+      w.contexts[0]?.source||'', w.contexts[0]?.text||'',
+      w.contexts[1]?.source||'', w.contexts[1]?.text||'',
+      w.contexts[2]?.source||'', w.contexts[2]?.text||'',
+      w.quiz.question, ...w.quiz.options, w.quiz.correct,
+      (w.variants||[]).join('|'),
+      w.story||'',
+      w.storyQuiz?.question||'', ...(w.storyQuiz?.options||['','','',' ']), w.storyQuiz?.correct??'',
+      w.yomiQuiz?.text||'',
+      w.yomiQuiz?.q1||'', ...(w.yomiQuiz?.q1opts||['','','',' ']), w.yomiQuiz ? (w.yomiQuiz.q1correct+1) : '',
+      w.yomiQuiz?.q2||'', ...(w.yomiQuiz?.q2opts||['','','',' ']), w.yomiQuiz ? (w.yomiQuiz.q2correct+1) : ''
+    ].join(',');
+  });
+  document.getElementById('csvInput').value = [header, ...rows].join('\n');
+  document.getElementById('csvStatus').className = 'admin-status ok';
+  document.getElementById('csvStatus').textContent = '✅ CSVに書き出したよ！コピーして使ってね。';
+  document.getElementById('csvStatus').style.display = 'block';
+}
+
+// =========================================================
+// SAVE BACKUP
+// =========================================================
+function exportSave() {
+  const data = JSON.stringify({ state, words: depersonalizeDeep(words), quests: depersonalizeDeep(quests) }, null, 2);
+  const area = document.getElementById('saveDataArea');
+  area.value = data;
+  area.select();
+  showStatus(document.getElementById('saveStatus'), '✅ JSONが表示されたよ！コピーして保存してね。', 'ok');
+}
+
+async function importSave() {
+  const area = document.getElementById('saveDataArea');
+  const text = area.value.trim();
+  const status = document.getElementById('saveStatus');
+  if (!text) {
+    showStatus(status, '⚠️ テキストエリアにJSONを貼り付けてからボタンを押してね。', 'err');
+    return;
+  }
+  try {
+    const data = JSON.parse(text);
+    if (data.state) state = data.state;
+    if (data.words) words = data.words;
+    if (data.quests) quests = data.quests;
+    await saveAll();
+    initWordProgress();
+    updateStatusUI();
+    buildBattleCards();
+    area.value = '';
+    showStatus(status, '✅ セーブデータをインポートしたよ！', 'ok');
+  } catch(e) {
+    showStatus(status, '❌ JSONが正しくないよ。もう一度確認してね。', 'err');
+  }
+}
+
+function confirmReset() {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML = '<div style="background:#221e3a;border:2px solid #f87171;border-radius:16px;padding:24px;max-width:300px;text-align:center;">'
+    + '<div style="font-size:18px;font-weight:bold;margin-bottom:12px;">⚠️ リセット確認</div>'
+    + '<div style="font-size:13px;color:#9b96c0;margin-bottom:20px;">セーブデータが全部消えます！<br>本当によいですか？</div>'
+    + '<div style="display:flex;gap:10px;justify-content:center;">'
+    + '<button id="resetYes" style="padding:10px 20px;background:#f87171;color:white;border:none;border-radius:8px;font-size:14px;cursor:pointer;">削除する</button>'
+    + '<button id="resetNo" style="padding:10px 20px;background:#3d3760;color:white;border:none;border-radius:8px;font-size:14px;cursor:pointer;">キャンセル</button>'
+    + '</div></div>';
+  document.body.appendChild(overlay);
+  document.getElementById('resetNo').onclick = () => document.body.removeChild(overlay);
+  document.getElementById('resetYes').onclick = async () => {
+    document.body.removeChild(overlay);
+    state = { xp:0, level:1, streak:0, lastPlayDate:null,
+      defeatedWords:[], wordProgress:{}, questProgress:{}, storyProgress:{}, yomiProgress:{}, longVacationMode:false, unlockedGuardians:[],
+      todaySet:[], todaySetDate:null, submitLog:[], playLog:{} };
+    words = [...DEFAULT_WORDS];
+    quests = [...DEFAULT_QUESTS];
+    await saveAll();
+    initWordProgress();
+    buildTodaySet();
+    updateStatusUI();
+    buildBattleCards();
+    showStatus(document.getElementById('saveStatus'), '🔄 リセット完了！', 'ok');
+  };
+}
+
+function showStatus(el, msg, type) {
+  el.textContent = msg;
+  el.className = `admin-status ${type}`;
+  setTimeout(() => { el.className = 'admin-status'; }, 4000);
+}
+
+// =========================================================
+// TABS
+// =========================================================
+function switchTab(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`panel-${name}`).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (name === 'quest') buildQuestCards();
+  if (name === 'review') buildReviewSchedule();
+  if (name === 'wall') { buildDefeatedGrid(); buildGuardianGrid(); }
+  if (name === 'quest') buildStoryCards();
+  if (name === 'battle') updateBonusLink();
+  if (name === 'admin') buildSubmitLog();
+}
+
+// =========================================================
+// CALENDAR
+// =========================================================
+function showCalendar() {
+  buildCalendar();
+  document.getElementById('calendarModal').classList.add('show');
+}
+
+function closeCalendar() {
+  document.getElementById('calendarModal').classList.remove('show');
+}
+
+function buildCalendar() {
+  const log = state.playLog || {};
+  const today = new Date();
+  const title = document.getElementById('calendarTitle');
+  const body = document.getElementById('calendarBody');
+
+  // 過去8週 + 今週（最大56日）を表示
+  const days = 56;
+  const dates = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    dates.push(d);
+  }
+
+  // 月ごとにグループ化して表示
+  // カレンダーグリッド形式（月〜日）
+  const weeks = [];
+  // 最初の日の曜日に合わせてパディング
+  let week = [];
+  const firstDay = dates[0].getDay(); // 0=日
+  // 月曜始まりに調整
+  const padStart = (firstDay === 0) ? 6 : firstDay - 1;
+  for (let i = 0; i < padStart; i++) week.push(null);
+  dates.forEach(d => {
+    week.push(d);
+    if (week.length === 7) { weeks.push(week); week = []; }
+  });
+  if (week.length > 0) {
+    while (week.length < 7) week.push(null);
+    weeks.push(week);
+  }
+
+  const dayLabels = ['月','火','水','木','金','土','日'];
+  let html = '<div style="font-size:11px;color:var(--text-sub);margin-bottom:6px;text-align:center;">🌸 全撃破　○ バトルあり　⚡ 復活可能だった日</div>';
+  html += '<table style="width:100%;border-collapse:collapse;text-align:center;">';
+  html += '<tr>' + dayLabels.map(l => '<th style="font-size:11px;color:var(--text-sub);padding:3px;">' + l + '</th>').join('') + '</tr>';
+
+  weeks.forEach(wk => {
+    html += '<tr>';
+    wk.forEach((d, wi) => {
+      if (!d) { html += '<td></td>'; return; }
+      const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      const isToday = ds === todayStr();
+      const isFuture = d > today && !isToday;
+      const logVal = log[ds];
+
+      // ⚡判定：前日と翌日両方に○があり自分は空白
+      let isFreeze = false;
+      if (!logVal && !isFuture) {
+        const prev = new Date(d); prev.setDate(d.getDate() - 1);
+        const next = new Date(d); next.setDate(d.getDate() + 1);
+        const prevDs = prev.getFullYear() + '-' + String(prev.getMonth()+1).padStart(2,'0') + '-' + String(prev.getDate()).padStart(2,'0');
+        const nextDs = next.getFullYear() + '-' + String(next.getMonth()+1).padStart(2,'0') + '-' + String(next.getDate()).padStart(2,'0');
+        if (log[prevDs] && log[nextDs]) isFreeze = true;
+      }
+
+      let mark = '';
+      let bg = 'transparent';
+      if (isFuture) { mark = ''; }
+      else if (logVal === 'all') { mark = '🌸'; bg = 'rgba(245,200,66,0.15)'; }
+      else if (logVal === 'battle') { mark = '<span style="font-size:16px;color:var(--accent-teal);">○</span>'; bg = 'rgba(62,207,207,0.1)'; }
+      else if (isFreeze) { mark = '⚡'; bg = 'rgba(168,85,247,0.1)'; }
+
+      const todayBorder = isToday ? 'border:2px solid var(--accent-gold);' : '';
+      const dayNum = d.getDate();
+      const isSun = wi === 6;
+      const isSat = wi === 5;
+      const dayColor = isSun ? 'color:#f87171;' : isSat ? 'color:#60a5fa;' : '';
+
+      html += '<td style="padding:2px;"><div style="' + todayBorder + 'border-radius:8px;background:' + bg + ';min-height:42px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;">'
+        + '<span style="font-size:9px;' + dayColor + '">' + dayNum + '</span>'
+        + '<span style="font-size:14px;line-height:1;">' + mark + '</span>'
+        + '</div></td>';
+    });
+    html += '</tr>';
+  });
+
+  html += '</table>';
+  html += '<div style="margin-top:12px;text-align:center;font-size:13px;">🔥 <strong style="color:var(--accent-pink);">' + state.streak + '</strong> 日連続中！</div>';
+
+  title.textContent = '📅 連続記録';
+  body.innerHTML = html;
+}
+
+function buildSubmitLog() {
+  const list = document.getElementById('submitLogList');
+  const countEl = document.getElementById('submitLogCount');
+  if (!list) return;
+  const logs = state.submitLog || [];
+  countEl.textContent = logs.length + '件';
+  if (logs.length === 0) {
+    list.innerHTML = '<div style="color:var(--text-sub);font-size:13px;padding:8px;">まだ提出がないよ</div>';
+    return;
+  }
+  // 新しい順に表示
+  const rows = [...logs].reverse().map((l, i) => {
+    const badge = l.passed
+      ? '<span style="color:var(--hp-green);font-size:11px;">✅ クリア</span>'
+      : '<span style="color:var(--hp-red);font-size:11px;">❌ NG</span>';
+    const typeBadge = l.type === 'quest'
+      ? '<span style="font-size:10px;color:var(--accent-purple);">📖ストーリー</span>'
+      : l.type === 'explain'
+      ? '<span style="font-size:10px;color:var(--accent-gold);">✨精霊</span>'
+      : '<span style="font-size:10px;color:var(--accent-teal);">⚔️バトル</span>';
+    return '<div style="border-bottom:1px solid var(--border);padding:8px 4px;font-size:12px;">'
+      + '<div style="display:flex;gap:6px;align-items:center;margin-bottom:3px;">'
+      + '<span style="color:var(--text-sub);">' + l.date + '</span>'
+      + '<span style="color:var(--accent-gold);font-weight:bold;">「' + l.kanji + '」</span>'
+      + typeBadge + badge
+      + '</div>'
+      + '<div style="color:var(--text-main);line-height:1.4;">' + l.text + '</div>'
+      + '</div>';
+  }).join('');
+  list.innerHTML = rows;
+}
+
+function clearSubmitLog() {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML = '<div style="background:#221e3a;border:2px solid #f87171;border-radius:16px;padding:24px;max-width:300px;text-align:center;">'
+    + '<div style="font-size:18px;font-weight:bold;margin-bottom:12px;">🗑️ ログ削除確認</div>'
+    + '<div style="font-size:13px;color:#9b96c0;margin-bottom:20px;">提出ログを全件削除します。<br>本当によいですか？</div>'
+    + '<div style="display:flex;gap:10px;justify-content:center;">'
+    + '<button id="logYes" style="padding:10px 20px;background:#f87171;color:white;border:none;border-radius:8px;font-size:14px;cursor:pointer;">削除する</button>'
+    + '<button id="logNo" style="padding:10px 20px;background:#3d3760;color:white;border:none;border-radius:8px;font-size:14px;cursor:pointer;">キャンセル</button>'
+    + '</div></div>';
+  document.body.appendChild(overlay);
+  document.getElementById('logNo').onclick = () => document.body.removeChild(overlay);
+  document.getElementById('logYes').onclick = async () => {
+    document.body.removeChild(overlay);
+    state.submitLog = [];
+    await saveAll();
+    buildSubmitLog();
+  };
+}
+
+// =========================================================
+// GUARDIAN GALLERY
+// =========================================================
+function buildGuardianGrid() {
+  const grid = document.getElementById('guardianGrid');
+  if (!grid) return;
+  const unlocked = state.unlockedGuardians || [];
+  const currentLv = getLevel(state.xp).level;
+
+  const nextGuardian = GUARDIANS
+    .filter(g => g.unlockLv > currentLv)
+    .sort((a, b) => a.unlockLv - b.unlockLv)[0];
+  const nextText = document.getElementById('guardianNextText');
+  if (nextText) {
+    if (nextGuardian) {
+      nextText.textContent = `解放済み：${unlocked.length} / ${GUARDIANS.length}人　次の仲間まで あと${nextGuardian.unlockLv - currentLv}レベル`;
+    } else {
+      nextText.textContent = `解放済み：${unlocked.length} / ${GUARDIANS.length}人　すべての仲間を解放したよ！`;
+    }
+  }
+
+  grid.innerHTML = GUARDIANS.map(g => {
+    const isUnlocked = unlocked.includes(g.id);
+    return `<div class="guardian-card${isUnlocked ? '' : ' locked'}"
+      onclick="${isUnlocked ? `openGuardianModal('${g.id}')` : ''}">
+      <div class="guardian-emoji">${g.emoji}</div>
+      <div class="guardian-name">${isUnlocked ? g.name : '???'}</div>
+      <div class="guardian-subject">${isUnlocked ? '📚 ' + g.subject : ''}</div>
+      <div class="guardian-lock-lv">${isUnlocked ? '' : 'Lv' + g.unlockLv + 'で解放'}</div>
+    </div>`;
+  }).join('');
+}
+
+function openGuardianModal(id) {
+  const g = GUARDIANS.find(g => g.id === id);
+  if (!g) return;
+  document.getElementById('gModalEmoji').textContent   = g.emoji;
+  document.getElementById('gModalName').textContent    = g.name;
+  document.getElementById('gModalSubject').textContent = '📚 ' + g.subject;
+  document.getElementById('gModalDesc').textContent    = g.desc;
+  document.getElementById('gModalFact').textContent    = g.fact;
+  document.getElementById('guardianModal').classList.add('show');
+}
+
+function closeGuardianModal() {
+  document.getElementById('guardianModal').classList.remove('show');
+}
+
+function buildDefeatedGrid() {
+  const grid = document.getElementById('defeatedGrid');
+  grid.innerHTML = '';
+  if (state.defeatedWords.length === 0) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">まだ語モンスターをたおしていないよ！<br>バトルにいどもう ⚔️</div>`;
+    return;
+  }
+  state.defeatedWords.forEach(dw => {
+    const word = words.find(w => w.id === dw.id);
+    if (!word) return;
+    const chip = document.createElement('div');
+    chip.className = 'defeated-chip';
+    const sp = (state.storyProgress||{})[word.id];
+    const storyBadge = word.story ? (sp === 'cleared' ? '🥇' : sp === 'read' ? '🥈' : '') : '';
+    chip.innerHTML = `<div class="defeated-emoji">${word.emoji}</div><div class="defeated-word">${word.kanji}</div>${storyBadge ? `<div style="font-size:13px;">${storyBadge}</div>` : ''}<div class="defeated-date">${dw.date}</div>`;
+    grid.appendChild(chip);
+  });
+}
+
+function exportCSV() {
+  const header = 'id,kanji,reading,english,type,emoji,maxHp,meaning,syn1_word,syn1_reading,syn2_word,syn2_reading,c1_source,c1_text,c2_source,c2_text,c3_source,c3_text,quiz_q,quiz_a1,quiz_a2,quiz_a3,quiz_a4,quiz_correct,variants,story,story_q,story_a1,story_a2,story_a3,story_a4,story_correct,yomi_text,yomi_q1,yomi_q1_a1,yomi_q1_a2,yomi_q1_a3,yomi_q1_a4,yomi_q1_correct,yomi_q2,yomi_q2_a1,yomi_q2_a2,yomi_q2_a3,yomi_q2_a4,yomi_q2_correct';
+  const rows = words.map(w => {
+    const s = w.synonyms || [];
+    return [
+      w.id, w.kanji, w.reading, w.english, w.type, w.emoji, w.maxHp, w.meaning,
+      s[0]?.word||'', s[0]?.reading||'', s[1]?.word||'', s[1]?.reading||'',
+      w.contexts[0]?.source||'', w.contexts[0]?.text||'',
+      w.contexts[1]?.source||'', w.contexts[1]?.text||'',
+      w.contexts[2]?.source||'', w.contexts[2]?.text||'',
+      w.quiz.question, ...w.quiz.options, w.quiz.correct,
+      (w.variants||[]).join('|'),
+      w.story||'',
+      w.storyQuiz?.question||'', ...(w.storyQuiz?.options||['','','',' ']), w.storyQuiz?.correct??'',
+      w.yomiQuiz?.text||'',
+      w.yomiQuiz?.q1||'', ...(w.yomiQuiz?.q1opts||['','','',' ']), w.yomiQuiz ? (w.yomiQuiz.q1correct+1) : '',
+      w.yomiQuiz?.q2||'', ...(w.yomiQuiz?.q2opts||['','','',' ']), w.yomiQuiz ? (w.yomiQuiz.q2correct+1) : ''
+    ].join(',');
+  });
+  document.getElementById('csvInput').value = [header, ...rows].join('\n');
+  document.getElementById('csvStatus').className = 'admin-status ok';
+  document.getElementById('csvStatus').textContent = '✅ CSVに書き出したよ！コピーして使ってね。';
+  document.getElementById('csvStatus').style.display = 'block';
+}
+
+// =========================================================
+// SAVE BACKUP
+// =========================================================
+function exportSave() {
+  const data = JSON.stringify({ state, words, quests }, null, 2);
+  const area = document.getElementById('saveDataArea');
+  area.value = data;
+  area.select();
+  showStatus(document.getElementById('saveStatus'), '✅ JSONが表示されたよ！コピーして保存してね。', 'ok');
+}
+
+async function importSave() {
+  const area = document.getElementById('saveDataArea');
+  const text = area.value.trim();
+  const status = document.getElementById('saveStatus');
+  if (!text) {
+    showStatus(status, '⚠️ テキストエリアにJSONを貼り付けてからボタンを押してね。', 'err');
+    return;
+  }
+  try {
+    const data = JSON.parse(text);
+    if (data.state) state = data.state;
+    if (data.words) words = data.words;
+    if (data.quests) quests = data.quests;
+    await saveAll();
+    initWordProgress();
+    updateStatusUI();
+    buildBattleCards();
+    area.value = '';
+    showStatus(status, '✅ セーブデータをインポートしたよ！', 'ok');
+  } catch(e) {
+    showStatus(status, '❌ JSONが正しくないよ。もう一度確認してね。', 'err');
+  }
+}
+
+function confirmReset() {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML = '<div style="background:#221e3a;border:2px solid #f87171;border-radius:16px;padding:24px;max-width:300px;text-align:center;">'
+    + '<div style="font-size:18px;font-weight:bold;margin-bottom:12px;">⚠️ リセット確認</div>'
+    + '<div style="font-size:13px;color:#9b96c0;margin-bottom:20px;">セーブデータが全部消えます！<br>本当によいですか？</div>'
+    + '<div style="display:flex;gap:10px;justify-content:center;">'
+    + '<button id="resetYes" style="padding:10px 20px;background:#f87171;color:white;border:none;border-radius:8px;font-size:14px;cursor:pointer;">削除する</button>'
+    + '<button id="resetNo" style="padding:10px 20px;background:#3d3760;color:white;border:none;border-radius:8px;font-size:14px;cursor:pointer;">キャンセル</button>'
+    + '</div></div>';
+  document.body.appendChild(overlay);
+  document.getElementById('resetNo').onclick = () => document.body.removeChild(overlay);
+  document.getElementById('resetYes').onclick = async () => {
+    document.body.removeChild(overlay);
+    state = { xp:0, level:1, streak:0, lastPlayDate:null,
+      defeatedWords:[], wordProgress:{}, questProgress:{}, storyProgress:{}, yomiProgress:{}, longVacationMode:false, unlockedGuardians:[],
+      todaySet:[], todaySetDate:null, submitLog:[], playLog:{} };
+    words = [...DEFAULT_WORDS];
+    quests = [...DEFAULT_QUESTS];
+    await saveAll();
+    initWordProgress();
+    buildTodaySet();
+    updateStatusUI();
+    buildBattleCards();
+    showStatus(document.getElementById('saveStatus'), '🔄 リセット完了！', 'ok');
+  };
+}
+
+function showStatus(el, msg, type) {
+  el.textContent = msg;
+  el.className = `admin-status ${type}`;
+  setTimeout(() => { el.className = 'admin-status'; }, 4000);
+}
+
+
+// =========================================================
+// CALENDAR
+// =========================================================
+function showCalendar() {
+  buildCalendar();
+  document.getElementById('calendarModal').classList.add('show');
+}
+
+function closeCalendar() {
+  document.getElementById('calendarModal').classList.remove('show');
+}
+
+function buildCalendar() {
+  const log = state.playLog || {};
+  const today = new Date();
+  const title = document.getElementById('calendarTitle');
+  const body = document.getElementById('calendarBody');
+
+  // 過去8週 + 今週（最大56日）を表示
+  const days = 56;
+  const dates = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    dates.push(d);
+  }
+
+  // 月ごとにグループ化して表示
+  // カレンダーグリッド形式（月〜日）
+  const weeks = [];
+  // 最初の日の曜日に合わせてパディング
+  let week = [];
+  const firstDay = dates[0].getDay(); // 0=日
+  // 月曜始まりに調整
+  const padStart = (firstDay === 0) ? 6 : firstDay - 1;
+  for (let i = 0; i < padStart; i++) week.push(null);
+  dates.forEach(d => {
+    week.push(d);
+    if (week.length === 7) { weeks.push(week); week = []; }
+  });
+  if (week.length > 0) {
+    while (week.length < 7) week.push(null);
+    weeks.push(week);
+  }
+
+  const dayLabels = ['月','火','水','木','金','土','日'];
+  let html = '<div style="font-size:11px;color:var(--text-sub);margin-bottom:6px;text-align:center;">🌸 全撃破　○ バトルあり　⚡ 復活可能だった日</div>';
+  html += '<table style="width:100%;border-collapse:collapse;text-align:center;">';
+  html += '<tr>' + dayLabels.map(l => '<th style="font-size:11px;color:var(--text-sub);padding:3px;">' + l + '</th>').join('') + '</tr>';
+
+  weeks.forEach(wk => {
+    html += '<tr>';
+    wk.forEach((d, wi) => {
+      if (!d) { html += '<td></td>'; return; }
+      const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      const isToday = ds === todayStr();
+      const isFuture = d > today && !isToday;
+      const logVal = log[ds];
+
+      // ⚡判定：前日と翌日両方に○があり自分は空白
+      let isFreeze = false;
+      if (!logVal && !isFuture) {
+        const prev = new Date(d); prev.setDate(d.getDate() - 1);
+        const next = new Date(d); next.setDate(d.getDate() + 1);
+        const prevDs = prev.getFullYear() + '-' + String(prev.getMonth()+1).padStart(2,'0') + '-' + String(prev.getDate()).padStart(2,'0');
+        const nextDs = next.getFullYear() + '-' + String(next.getMonth()+1).padStart(2,'0') + '-' + String(next.getDate()).padStart(2,'0');
+        if (log[prevDs] && log[nextDs]) isFreeze = true;
+      }
+
+      let mark = '';
+      let bg = 'transparent';
+      if (isFuture) { mark = ''; }
+      else if (logVal === 'all') { mark = '🌸'; bg = 'rgba(245,200,66,0.15)'; }
+      else if (logVal === 'battle') { mark = '<span style="font-size:16px;color:var(--accent-teal);">○</span>'; bg = 'rgba(62,207,207,0.1)'; }
+      else if (isFreeze) { mark = '⚡'; bg = 'rgba(168,85,247,0.1)'; }
+
+      const todayBorder = isToday ? 'border:2px solid var(--accent-gold);' : '';
+      const dayNum = d.getDate();
+      const isSun = wi === 6;
+      const isSat = wi === 5;
+      const dayColor = isSun ? 'color:#f87171;' : isSat ? 'color:#60a5fa;' : '';
+
+      html += '<td style="padding:2px;"><div style="' + todayBorder + 'border-radius:8px;background:' + bg + ';min-height:42px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;">'
+        + '<span style="font-size:9px;' + dayColor + '">' + dayNum + '</span>'
+        + '<span style="font-size:14px;line-height:1;">' + mark + '</span>'
+        + '</div></td>';
+    });
+    html += '</tr>';
+  });
+
+  html += '</table>';
+  html += '<div style="margin-top:12px;text-align:center;font-size:13px;">🔥 <strong style="color:var(--accent-pink);">' + state.streak + '</strong> 日連続中！</div>';
+
+  title.textContent = '📅 連続記録';
+  body.innerHTML = html;
+}
+
+// =========================================================
+// ALL CLEAR ANIMATION
+// =========================================================
+const ALL_CLEAR_MESSAGES = [
+  '千里の道も一歩から',
+  '<ruby>塵<rt>ちり</rt></ruby>も積もれば山となる',
+  '<ruby>継続<rt>けいぞく</rt></ruby>は力なり',
+  '<ruby>雨垂<rt>あまだ</rt></ruby>れ石を<ruby>穿<rt>うが</rt></ruby>つ',
+  'ローマは一日にして成らず',
+  '石の上にも三年',
+  '習うより慣れよ',
+  '努力に勝る天才なし',
+  '汗は<ruby>裏切<rt>うらぎ</rt></ruby>らない',
+  '実るほど頭を<ruby>垂<rt>た</rt></ruby>れる<ruby>稲穂<rt>いなほ</rt></ruby>かな',
+  '七転び八起き',
+  '苦あれば楽あり',
+  '負けるが勝ち',
+  '花は咲く前が一番美しい',
+  '明日は明日の風が吹く',
+  '笑う<ruby>門<rt>かど</rt></ruby>には福来たる',
+  '前向きな心が道を開く',
+  '今日の一歩が明日の百歩になる',
+  'やればできる、できるまでやる',
+  '小さな積み重ねが大きな夢をかなえる',
+];
+
+function showAllClear() {
+  const el = document.getElementById('allClearAnim');
+  // ランダムメッセージ（前回と被らないように）
+  const prev = parseInt(el.dataset.last ?? '-1');
+  let idx;
+  do { idx = Math.floor(Math.random() * ALL_CLEAR_MESSAGES.length); } while (idx === prev);
+  el.dataset.last = idx;
+  const yomiRequired = isBonusDay(todayStr());
+  const hasTicket = hasPicrossDailyTicketToday();
+  document.getElementById('allClearMsg').innerHTML = yomiRequired && !hasTicket
+    ? 'すごい！全部のモンスターをたおしたよ！<br>次はよみときミッションに挑戦しよう ✨'
+    : ALL_CLEAR_MESSAGES[idx];
+
+  // 花びらを生成
+  const petals = document.getElementById('allClearPetals');
+  petals.innerHTML = '';
+  const emojis = ['🌸','🌼','✨','💮','🌺'];
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+    p.style.animationDelay = (Math.random() * 1.5) + 's';
+    p.style.fontSize = (20 + Math.random() * 20) + 'px';
+    petals.appendChild(p);
+  }
+
+  el.classList.remove('show');
+  void el.offsetWidth;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+function closeAllClear() {
+  document.getElementById('allClearAnim').classList.remove('show');
+}
+
+// =========================================================
+// STREAK ANIMATION
+// =========================================================
+function showStreakAnim(streak) {
+  const el = document.getElementById('streakAnim');
+  document.getElementById('streakAnimNum').textContent = streak;
+  el.classList.remove('show');
+  void el.offsetWidth; // reflow to restart animation
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// =========================================================
+// STORAGE DIAGNOSTICS
+// =========================================================
+function updateDebugDate() {
+  const el = document.getElementById('debugDateLabel');
+  if (!el) return;
+  const offset = _dateOffsetDays;
+  const label = offset === 0 ? `今日（${todayStr()}）` : `${todayStr()}（${offset > 0 ? '+' : ''}${offset}日）`;
+  el.textContent = label;
+}
+
+function shiftDate(delta) {
+  _dateOffsetDays += delta;
+  updateDebugDate();
+  // lastPlayDateをクリアしてresetDailyActionsが必ず走るようにする
+  state.lastPlayDate = null;
+  state.todaySetDate = null;
+  resetDailyActions();
+  buildTodaySet();
+  buildBattleCards();
+  buildReviewSchedule();
+  updateBonusLink();
+  saveAll();
+}
+
+function updateVacToggleUI() {
+  const btn = document.getElementById('vacToggleBtn');
+  const status = document.getElementById('vacStatus');
+  if (!btn || !status) return;
+  if (state.longVacationMode) {
+    btn.textContent = '✅ ON';
+    btn.style.background = 'rgba(62,207,207,0.15)';
+    btn.style.borderColor = 'rgba(62,207,207,0.5)';
+    btn.style.color = 'var(--accent-teal)';
+    status.textContent = '現在：長期休みモード（よみときミッション表示中）';
+    status.style.color = 'var(--accent-teal)';
+  } else {
+    btn.textContent = '⬜ OFF';
+    btn.style.background = 'var(--bg-card)';
+    btn.style.borderColor = 'var(--border)';
+    btn.style.color = 'var(--text-sub)';
+    status.textContent = '現在：通常モード';
+    status.style.color = 'var(--text-sub)';
+  }
+}
+
+function toggleLongVacation() {
+  state.longVacationMode = !state.longVacationMode;
+  saveAll();
+  updateVacToggleUI();
+  updateBonusLink();
+}
+
+async function diagStorage() {
+  const el = document.getElementById('diagResult');
+  el.style.display = 'block';
+  el.textContent = '診断中...';
+
+  const lines = [];
+
+  // 1. window.storage availability
+  lines.push('=== window.storage ===');
+  lines.push('利用可能: ' + (window.storage ? 'YES' : 'NO'));
+
+  // 2. localStorage availability
+  lines.push('\n=== localStorage ===');
+  try {
+    localStorage.setItem('_test', '1');
+    localStorage.removeItem('_test');
+    lines.push('利用可能: YES');
+  } catch(e) {
+    lines.push('利用可能: NO (' + e.message + ')');
+  }
+
+  // 3. Current storage keys
+  lines.push('\n=== 保存済みキー ===');
+  try {
+    if (window.storage) {
+      const keys = await window.storage.list('vq_');
+      lines.push('window.storage keys: ' + JSON.stringify(keys));
+    }
+  } catch(e) {
+    lines.push('window.storage list error: ' + e.message);
+  }
+  try {
+    const lsKeys = Object.keys(localStorage).filter(k => k.startsWith('vq_'));
+    lines.push('localStorage keys: ' + JSON.stringify(lsKeys));
+    lsKeys.forEach(k => {
+      const v = localStorage.getItem(k);
+      lines.push('  ' + k + ': ' + (v ? v.substring(0, 80) + '...' : 'null'));
+    });
+  } catch(e) {
+    lines.push('localStorage read error: ' + e.message);
+  }
+
+  // 4. Current state summary
+  lines.push('\n=== 現在のstate ===');
+  lines.push('words数: ' + words.length);
+  lines.push('wordProgress数: ' + Object.keys(state.wordProgress).length);
+  lines.push('todaySet: ' + JSON.stringify(state.todaySet));
+  lines.push('todaySetDate: ' + state.todaySetDate);
+
+  // 5. Test write/read
+  lines.push('\n=== 書き込みテスト ===');
+  try {
+    await storageSave('vq_diagtest', { ok: true, ts: Date.now() });
+    const r = await storageLoad('vq_diagtest');
+    lines.push('書き込み→読み込み: ' + (r && r.ok ? 'OK' : 'FAIL: ' + JSON.stringify(r)));
+  } catch(e) {
+    lines.push('エラー: ' + e.message);
+  }
+
+  el.textContent = lines.join('\n');
+}
+
+
+// =========================================================
+// EXPLAIN SHEET（ことばの精霊・意味説明アウトプット）
+// =========================================================
+let _explainWord = null;
+
+function openExplainSheet(word) {
+  _explainWord = word;
+  const input = document.getElementById('explainInput');
+  const fb = document.getElementById('explainFeedback');
+  const btn = document.getElementById('explainSubmitBtn');
+  const desc = document.getElementById('explainDesc');
+  if (input) input.value = '';
+  if (fb)    fb.style.display = 'none';
+  if (btn)   btn.disabled = false;
+  if (desc)  desc.textContent = '「' + word.kanji + '」って、どういう意味か説明できる？';
+  document.getElementById('explainOverlay').classList.add('show');
+  document.getElementById('explainSheet').classList.add('show');
+}
+
+function closeExplainSheet() {
+  document.getElementById('explainOverlay').classList.remove('show');
+  document.getElementById('explainSheet').classList.remove('show');
+  _explainWord = null;
+}
+
+function submitExplain() {
+  const input = document.getElementById('explainInput');
+  const text = input ? input.value.trim() : '';
+  if (!text) { skipExplain(); return; }
+
+  // ログに保存
+  if (!state.submitLog) state.submitLog = [];
+  state.submitLog.push({
+    date: todayStr(),
+    kanji: _explainWord ? _explainWord.kanji : '',
+    text: text,
+    passed: true,
+    type: 'explain'
+  });
+  saveAll();
+
+  // フィードバック表示
+  const fb = document.getElementById('explainFeedback');
+  const btn = document.getElementById('explainSubmitBtn');
+  if (fb)  fb.style.display = 'block';
+  if (btn) btn.disabled = true;
+
+  // 1.8秒後に自動クローズ
+  setTimeout(closeExplainSheet, 1800);
+}
+
+function skipExplain() {
+  closeExplainSheet();
+}
+
+// =========================================================
+// BONUS LINK (週末・祝日・長期休み)
+// =========================================================
+
+const JP_HOLIDAYS = new Set([
+  '2025-01-01','2025-01-13','2025-02-11','2025-02-23','2025-02-24',
+  '2025-03-20','2025-04-29','2025-05-03','2025-05-04','2025-05-05','2025-05-06',
+  '2025-07-21','2025-08-11','2025-09-15','2025-09-22','2025-09-23',
+  '2025-10-13','2025-11-03','2025-11-23','2025-11-24',
+  '2026-01-01','2026-01-12','2026-02-11','2026-02-23',
+  '2026-03-20','2026-04-29','2026-05-03','2026-05-04','2026-05-05','2026-05-06',
+  '2026-07-20','2026-08-11','2026-09-21','2026-09-22','2026-09-23',
+  '2026-10-12','2026-11-03','2026-11-23',
+  '2027-01-01','2027-01-11','2027-02-11','2027-02-23',
+  '2027-03-22','2027-04-29','2027-05-03','2027-05-04','2027-05-05',
+  '2027-07-19','2027-08-11','2027-09-20','2027-09-23',
+  '2027-10-11','2027-11-03','2027-11-23',
+]);
+
+function isBonusDay(dateStr) {
+  const d = new Date(dateStr);
+  const dow = d.getDay();
+  if (dow === 0 || dow === 6) return true;
+  if (JP_HOLIDAYS.has(dateStr)) return true;
+  if (state.longVacationMode) return true;  // 管理タブの手動フラグ
+  return false;
+}
+
+function updateBonusLink() {
+  const el = document.getElementById('bonusLink');
+  if (!el) return;
+  const today = todayStr();
+  const battleComplete = state.playLog && state.playLog[today] === 'all';
+  // バトル中は入口として表示。バトル完了後は完了バナー側で導線を出すので二重表示しない。
+  el.style.display = (isBonusDay(today) && !battleComplete) ? 'block' : 'none';
+}
+
+function updateVacToggleUI() {
+  const btn = document.getElementById('vacToggleBtn');
+  const status = document.getElementById('vacStatus');
+  if (!btn || !status) return;
+  if (state.longVacationMode) {
+    btn.textContent = '✅ ON';
+    btn.style.background = 'rgba(62,207,207,0.15)';
+    btn.style.borderColor = 'rgba(62,207,207,0.5)';
+    btn.style.color = 'var(--accent-teal)';
+    status.textContent = '現在：長期休みモード（よみときミッション表示中）';
+    status.style.color = 'var(--accent-teal)';
+  } else {
+    btn.textContent = '⬜ OFF';
+    btn.style.background = 'var(--bg-card)';
+    btn.style.borderColor = 'var(--border)';
+    btn.style.color = 'var(--text-sub)';
+    status.textContent = '現在：通常モード';
+    status.style.color = 'var(--text-sub)';
+  }
+}
+
+function toggleLongVacation() {
+  state.longVacationMode = !state.longVacationMode;
+  saveAll();
+  updateVacToggleUI();
+  updateBonusLink();
+}
+
+
+
+
+
+// =========================================================
+// CSV REPAIR OVERRIDES 2026-04-29
+// ここより上に古いCSV関数があっても、この下の定義が最後に有効になる。
+// =========================================================
+const CSV_COLUMNS = [
+  'id','kanji','reading','english','type','emoji','maxHp','meaning',
+  'syn1_word','syn1_reading','syn2_word','syn2_reading',
+  'c1_source','c1_text','c2_source','c2_text','c3_source','c3_text',
+  'quiz_q','quiz_a1','quiz_a2','quiz_a3','quiz_a4','quiz_correct',
+  'variants',
+  'story','story_q','story_a1','story_a2','story_a3','story_a4','story_correct',
+  'yomi_text',
+  'yomi_q1','yomi_q1_a1','yomi_q1_a2','yomi_q1_a3','yomi_q1_a4','yomi_q1_correct',
+  'yomi_q2','yomi_q2_a1','yomi_q2_a2','yomi_q2_a3','yomi_q2_a4','yomi_q2_correct'
+];
+
+function freshInitialState(keepLongVacation=false) {
+  return {
+    xp:0, level:1, streak:0, lastPlayDate:null,
+    defeatedWords:[], wordProgress:{}, questProgress:{}, storyProgress:{}, yomiProgress:{},
+    longVacationMode: keepLongVacation && state ? !!state.longVacationMode : false,
+    unlockedGuardians:[], todaySet:[], todaySetDate:null, submitLog:[], playLog:{}
+  };
+}
+
+async function storageRemove(key) {
+  try {
+    if (window.storage && typeof window.storage.delete === 'function') await window.storage.delete(key);
+  } catch(e) {}
+  try { localStorage.removeItem(key); } catch(e) {}
+}
+
+function normalizeWholeLineQuotedCSV(raw) {
+  raw = String(raw || '')
+    .replace(/^\uFEFF/, '')
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .trim();
+
+  const lines = raw.split('\n').filter(l => l.trim());
+  const wholeLineQuoted = lines.length > 1 && lines.every(line => {
+    const t = line.trim();
+    return t.startsWith('"') && t.endsWith('"') && t.includes(',');
+  });
+
+  if (!wholeLineQuoted) return raw;
+  return lines.map(line => {
+    const t = line.trim();
+    return t.slice(1, -1).replace(/""/g, '"');
+  }).join('\n');
+}
+
+function parseCSV(raw) {
+  const text = normalizeWholeLineQuotedCSV(raw);
+  const rows = [];
+  let row = [];
+  let cell = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    const next = text[i + 1];
+
+    if (inQuotes) {
+      if (ch === '"' && next === '"') { cell += '"'; i++; }
+      else if (ch === '"') { inQuotes = false; }
+      else { cell += ch; }
+      continue;
+    }
+
+    if (ch === '"') inQuotes = true;
+    else if (ch === ',') { row.push(cell); cell = ''; }
+    else if (ch === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; }
+    else cell += ch;
+  }
+
+  row.push(cell);
+  if (row.some(v => String(v).trim() !== '')) rows.push(row);
+  return rows;
+}
+
+function csvEscape(value) {
+  const s = String(value ?? '');
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
+function toInt(value, fallback=0) {
+  const n = parseInt(value, 10);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function makeWordFromCols(cols) {
+  if (!cols || cols.length < 45) throw new Error(`列が足りない行: ${(cols && cols[0]) || '(idなし)'} / ${cols ? cols.length : 0}列`);
+  const id = String(cols[0] || '').trim().replace(/^"|"$/g, '');
+  if (!/^w\d+$/.test(id)) throw new Error(`不正なid: ${id}`);
+
+  return {
+    id,
+    kanji: String(cols[1] || '').trim(),
+    reading: String(cols[2] || '').trim(),
+    english: String(cols[3] || '').trim(),
+    type: String(cols[4] || '').trim(),
+    emoji: String(cols[5] || '').trim(),
+    maxHp: toInt(cols[6], 10),
+    meaning: String(cols[7] || '').trim(),
+    synonyms: [
+      { word: String(cols[8] || '').trim(), reading: String(cols[9] || '').trim() },
+      { word: String(cols[10] || '').trim(), reading: String(cols[11] || '').trim() },
+    ].filter(s => s.word),
+    contexts: [
+      { source: String(cols[12] || '').trim(), text: String(cols[13] || '').trim() },
+      { source: String(cols[14] || '').trim(), text: String(cols[15] || '').trim() },
+      { source: String(cols[16] || '').trim(), text: String(cols[17] || '').trim() },
+    ],
+    quiz: {
+      question: String(cols[18] || '').trim(),
+      options: [String(cols[19] || '').trim(), String(cols[20] || '').trim(), String(cols[21] || '').trim(), String(cols[22] || '').trim()],
+      correct: Math.max(0, Math.min(3, toInt(cols[23], 0) - 1))
+    },
+    variants: cols[24] ? String(cols[24]).trim().split('|').map(v => v.trim()).filter(Boolean) : [],
+    story: String(cols[25] || '').trim(),
+    storyQuiz: cols[26] ? {
+      question: String(cols[26] || '').trim(),
+      options: [String(cols[27] || '').trim(), String(cols[28] || '').trim(), String(cols[29] || '').trim(), String(cols[30] || '').trim()],
+      correct: Math.max(0, Math.min(3, toInt(cols[31], 0) - 1))
+    } : null,
+    yomiQuiz: cols[32] ? {
+      text: String(cols[32] || '').trim(),
+      q1: String(cols[33] || '').trim(),
+      q1opts: [String(cols[34] || '').trim(), String(cols[35] || '').trim(), String(cols[36] || '').trim(), String(cols[37] || '').trim()],
+      q1correct: Math.max(0, Math.min(3, toInt(cols[38], 1) - 1)),
+      q2: String(cols[39] || '').trim(),
+      q2opts: [String(cols[40] || '').trim(), String(cols[41] || '').trim(), String(cols[42] || '').trim(), String(cols[43] || '').trim()],
+      q2correct: Math.max(0, Math.min(3, toInt(cols[44], 1) - 1))
+    } : null
+  };
+}
+
+function parseWordsFromCSV(raw) {
+  const rows = parseCSV(raw).filter(r => r.length && r.some(c => String(c).trim() !== ''));
+  const out = [];
+  const errors = [];
+
+  rows.forEach((cols, idx) => {
+    const first = String(cols[0] || '').trim().replace(/^"|"$/g, '');
+    if (idx === 0 && first === 'id') return;
+    if (first === 'id' || !first) return;
+    try { out.push(personalizeDeep(makeWordFromCols(cols))); }
+    catch(e) { errors.push(e.message); }
+  });
+
+  if (out.length === 0 && errors.length) throw new Error(errors.slice(0, 3).join(' / '));
+  if (errors.length) console.warn('[CSV parse warnings]', errors.slice(0, 10));
+  return out;
+}
+
+function mergeDefaultAndCSVWords(csvWords) {
+  const map = new Map();
+  (DEFAULT_WORDS || []).forEach(w => map.set(w.id, {...w}));
+  csvWords.forEach(w => map.set(w.id, w));
+  return Array.from(map.values()).sort((a, b) => {
+    const na = parseInt(String(a.id).replace(/^w/, ''), 10) || 0;
+    const nb = parseInt(String(b.id).replace(/^w/, ''), 10) || 0;
+    return na - nb;
+  });
+}
+
+function syncWordsFromCSVList(csvWords, options={}) {
+  const nextWords = mergeDefaultAndCSVWords(csvWords);
+  const validIds = new Set(nextWords.map(w => w.id));
+  const oldProgress = state.wordProgress || {};
+  const nextProgress = {};
+
+  nextWords.forEach(w => {
+    const old = oldProgress[w.id];
+    nextProgress[w.id] = old ? {
+      ...old,
+      hp: old.defeated ? old.hp : Math.min(old.hp ?? w.maxHp, w.maxHp)
+    } : {
+      hp: w.maxHp,
+      contextIdx: 0,
+      actionsToday: [],
+      readCount: 0,
+      defeated: false,
+      defeatedDate: null,
+      reviewCount: 0,
+      reviewDate: null,
+      isReview: false
+    };
+  });
+
+  words = nextWords;
+  state.wordProgress = nextProgress;
+  state.defeatedWords = (state.defeatedWords || []).filter(dw => validIds.has(dw.id));
+  Object.keys(state.storyProgress || {}).forEach(id => { if (!validIds.has(id)) delete state.storyProgress[id]; });
+  Object.keys(state.yomiProgress || {}).forEach(id => { if (!validIds.has(id)) delete state.yomiProgress[id]; });
+
+  return nextWords.length;
+}
+
+function parseAndMergeCSV(raw) {
+  try {
+    const csvWords = parseWordsFromCSV(raw);
+    return syncWordsFromCSVList(csvWords);
+  } catch(e) {
+    console.error('[CSV merge error]', e);
+    return -1;
+  }
+}
+
+async function fetchAndMergeCSV() {
+  try {
+    const url = './vocab-words.csv?v=' + Date.now();
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const raw = await res.text();
+    const csvWords = parseWordsFromCSV(raw);
+    const count = syncWordsFromCSVList(csvWords);
+    await saveAll();
+    console.log(`[CSV auto-sync] ${count}語に同期しました`);
+    return count;
+  } catch(e) {
+    console.warn('[CSV auto-sync] スキップ:', e.message);
+    return 0;
+  }
+}
+
+function importCSV() {
+  const raw = document.getElementById('csvInput').value.trim();
+  const status = document.getElementById('csvStatus');
+  if (!raw) { showStatus(status, 'CSVが空だよ！', 'err'); return; }
+
+  const count = parseAndMergeCSV(raw);
+  if (count < 0) showStatus(status, '❌ エラー：CSVの形式を確認してね', 'err');
+  else if (count === 0) showStatus(status, '有効(ゆうこう)な行がないよ！', 'err');
+  else {
+    saveAll();
+    initWordProgress();
+    buildTodaySet();
+    updateStatusUI();
+    buildBattleCards();
+    buildReviewSchedule();
+    buildGuardianGrid();
+    showStatus(status, `✅ ${count}語に同期したよ！壊れた行は取り除いたよ。`, 'ok');
+  }
+}
+
+function exportCSV() {
+  const rows = words
+    .filter(w => /^w\d+$/.test(String(w.id || '')))
+    .map(w => {
+      const s = w.synonyms || [];
+      const c = w.contexts || [];
+      const qOpts = w.quiz?.options || ['', '', '', ''];
+      const sqOpts = w.storyQuiz?.options || ['', '', '', ''];
+      const yq1Opts = w.yomiQuiz?.q1opts || ['', '', '', ''];
+      const yq2Opts = w.yomiQuiz?.q2opts || ['', '', '', ''];
+      return [
+        w.id, w.kanji, w.reading, w.english, w.type, w.emoji, w.maxHp, w.meaning,
+        s[0]?.word || '', s[0]?.reading || '', s[1]?.word || '', s[1]?.reading || '',
+        c[0]?.source || '', c[0]?.text || '', c[1]?.source || '', c[1]?.text || '', c[2]?.source || '', c[2]?.text || '',
+        w.quiz?.question || '', ...qOpts, w.quiz?.correct ?? 0,
+        (w.variants || []).join('|'),
+        w.story || '', w.storyQuiz?.question || '', ...sqOpts, w.storyQuiz?.correct ?? '',
+        w.yomiQuiz?.text || '', w.yomiQuiz?.q1 || '', ...yq1Opts, w.yomiQuiz ? w.yomiQuiz.q1correct + 1 : '',
+        w.yomiQuiz?.q2 || '', ...yq2Opts, w.yomiQuiz ? w.yomiQuiz.q2correct + 1 : ''
+      ].map(csvEscape).join(',');
+    });
+
+  document.getElementById('csvInput').value = [CSV_COLUMNS.join(','), ...rows].join('\n');
+  document.getElementById('csvStatus').className = 'admin-status ok';
+  document.getElementById('csvStatus').textContent = '✅ CSVに書き出したよ！コピーして使ってね。';
+  document.getElementById('csvStatus').style.display = 'block';
+}
+
+async function repairFromCSV(options={resetProgress:false}) {
+  const keepLongVacation = state ? !!state.longVacationMode : false;
+  if (options.resetProgress) {
+    await storageRemove('vq_state');
+    await storageRemove('vq_words');
+    await storageRemove('vq_quests');
+    state = freshInitialState(keepLongVacation);
+    words = [...DEFAULT_WORDS];
+    quests = [...DEFAULT_QUESTS];
+  }
+  const count = await fetchAndMergeCSV();
+  initWordProgress();
+  buildTodaySet();
+  resetDailyActions();
+  updateStatusUI();
+  buildBattleCards();
+  buildReviewSchedule();
+  updateBonusLink();
+  updateVacToggleUI();
+  buildGuardianGrid();
+  await saveAll();
+  return count;
+}
+
+function confirmReset() {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML = '<div style="background:#221e3a;border:2px solid #f87171;border-radius:16px;padding:24px;max-width:330px;text-align:center;">'
+    + '<div style="font-size:18px;font-weight:bold;margin-bottom:12px;">⚠️ リセット確認</div>'
+    + '<div style="font-size:13px;color:#9b96c0;margin-bottom:20px;line-height:1.8;">iPadで表示が壊れた時の修復にも使えます。<br>レベル・撃破記録も初期化して、vocab-words.csvから読み直します。</div>'
+    + '<div style="display:flex;gap:10px;justify-content:center;">'
+    + '<button id="resetYes" style="padding:10px 20px;background:#f87171;color:white;border:none;border-radius:8px;font-size:14px;cursor:pointer;">修復する</button>'
+    + '<button id="resetNo" style="padding:10px 20px;background:#3d3760;color:white;border:none;border-radius:8px;font-size:14px;cursor:pointer;">キャンセル</button>'
+    + '</div></div>';
+  document.body.appendChild(overlay);
+  document.getElementById('resetNo').onclick = () => document.body.removeChild(overlay);
+  document.getElementById('resetYes').onclick = async () => {
+    document.body.removeChild(overlay);
+    const count = await repairFromCSV({resetProgress:true});
+    showStatus(document.getElementById('saveStatus'), `🔄 修復完了！${count || words.length}語を読み直したよ`, 'ok');
+  };
+}
+
+// =========================================================
+// BOOT
+// =========================================================
+async function boot() {
+  applyPlayerNameToStaticUI();
+  document.getElementById('dateBadge').textContent = '📅 ' + new Date().toLocaleDateString('ja-JP', { month:'numeric', day:'numeric', weekday:'short' });
+  await loadAll();
+
+  const params = new URLSearchParams(location.search);
+  if (params.get('repair') === '1' || params.get('reset') === '1') {
+    await storageRemove('vq_state');
+    await storageRemove('vq_words');
+    await storageRemove('vq_quests');
+    state = freshInitialState(false);
+    words = [...DEFAULT_WORDS];
+    quests = [...DEFAULT_QUESTS];
+  }
+
+  await fetchAndMergeCSV();  // vocab-words.csv を毎回 fetch して、壊れた保存語を除去しながら同期
+  initWordProgress();
+  resetDailyActions();
+  updateStatusUI();
+  buildBattleCards();
+  buildReviewSchedule();
+  updateBonusLink();
+  updateVacToggleUI();
+  buildGuardianGrid();
+}
+
+boot();
+</script>
+</body>
+</html>
