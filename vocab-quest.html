@@ -1350,10 +1350,17 @@ function renderWordText(text, word) {
   const escapedText = escapeHtml(personalizeText(text || ''));
   const baseWord = escapeHtml(word?.kanji || '');
 
-  return escapedText.replace(/&lt;WORD(?::([^&<>]*))?&gt;/g, (_, display) => {
-    const shown = display && display.trim() ? display : baseWord;
-    return `<span class="highlight-word">${shown}</span>`;
-  });
+  return escapedText
+    // 半角 <WORD> / <WORD:...> 互換対応
+    .replace(/&lt;WORD(?::([^&<>]*))?&gt;/g, (_, display) => {
+      const shown = display && display.trim() ? display : baseWord;
+      return `<span class="highlight-word">${shown}</span>`;
+    })
+    // 全角 ＜WORD＞ / ＜WORD:...＞ 標準対応
+    .replace(/＜WORD(?::([^＜＞]*))?＞/g, (_, display) => {
+      const shown = display && display.trim() ? escapeHtml(display) : baseWord;
+      return `<span class="highlight-word">${shown}</span>`;
+    });
 }
 
 function applyPlayerNameToStaticUI() {
