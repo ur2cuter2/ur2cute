@@ -2467,6 +2467,7 @@ function doRead(wordId) {
     const today = todayStr();
     recordDailyStreak();
     saveAll();
+    updateStatusUI();
     buildBattleCards();
   }
 }
@@ -3085,7 +3086,8 @@ function parseAndMergeCSV(raw) {
 // 起動時に vocab-words.csv を fetch してマージする
 async function fetchAndMergeCSV() {
   try {
-    const res = await fetch('./vocab-words.csv', { cache: 'no-store' });
+    const csvUrl = `./vocab-words.csv?v=${Date.now()}`;
+    const res = await fetch(csvUrl, { cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const raw = await res.text();
     const count = parseAndMergeCSV(raw);
@@ -3116,6 +3118,7 @@ function importCSV() {
     initWordProgress();
     buildTodaySet();
     saveAll();
+    updateStatusUI();
     buildBattleCards();
     showStatus(status, `✅ ${count}語を読み込んだよ！`, 'ok');
   }
@@ -4183,9 +4186,11 @@ async function fetchAndMergeCSV() {
     if (count > 0) {
       initWordProgress();
       buildTodaySet();
+      await saveAll();
+      updateStatusUI();
+      buildBattleCards();
+      console.log(`[CSV auto-sync] ${count}語に同期しました`);
     }
-    await saveAll();
-    console.log(`[CSV auto-sync] ${count}語に同期しました`);
     return count;
   } catch(e) {
     console.warn('[CSV auto-sync] スキップ:', e.message);
