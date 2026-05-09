@@ -4183,14 +4183,14 @@ async function fetchAndMergeCSV() {
     const raw = await res.text();
     const csvWords = parseWordsFromCSV(raw);
     const count = syncWordsFromCSVList(csvWords);
-    if (count > 0) {
-      initWordProgress();
-      buildTodaySet();
-      await saveAll();
-      updateStatusUI();
-      buildBattleCards();
-      console.log(`[CSV auto-sync] ${count}語に同期しました`);
-    }
+    if (count <= 0) return count;
+
+    initWordProgress();
+    buildTodaySet();
+    await saveAll();
+    updateStatusUI();
+    buildBattleCards();
+    console.log(`[CSV auto-sync] ${count}語に同期しました`);
     return count;
   } catch(e) {
     console.warn('[CSV auto-sync] スキップ:', e.message);
