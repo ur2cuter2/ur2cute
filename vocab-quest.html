@@ -2200,30 +2200,36 @@ function resetDailyActions() {
 // =========================================================
 // TODAY SET MANAGEMENT
 // =========================================================
+function activateReviewForToday(prog) {
+  prog.isReview = true;
+  prog.hp = getReviewSchedule(prog.reviewCount).hp;
+  prog.actionsToday = [];
+  prog.readCount = 0;
+}
+
 function buildTodaySet() {
   const today = todayStr();
   const todaySet = Array.isArray(state.todaySet) ? state.todaySet : [];
   const isSameDay = state.todaySetDate === today;
 
-  const carriedNew = isSameDay ? todaySet.filter(id => {
+  const carriedNew = (isSameDay ? todaySet.filter(id => {
     const word = words.find(w => w.id === id);
     const prog = state.wordProgress[id];
     if (!word || !prog) return false;
     return !prog.defeated && !prog.isReview && !prog.reviewDate;
-  }) : [];
+  }) : []).slice(0, 3);
 
-  const carriedReview = isSameDay ? todaySet.filter(id => {
+  const carriedReview = (isSameDay ? todaySet.filter(id => {
     const word = words.find(w => w.id === id);
     const prog = state.wordProgress[id];
     if (!word || !prog) return false;
     return !prog.defeated && !!prog.isReview;
-  }) : [];
+  }) : []).slice(0, 2);
 
-  // ---- 新語枠（最大3枚）----
-  const newSlots = Math.max(0, 3 - carriedNew.length);
   const alreadyIn = new Set([...carriedNew, ...carriedReview]);
-  const newIds = [];
 
+  const newSlots = Math.max(0, 3 - carriedNew.length);
+  const newIds = [];
   for (const w of words) {
     if (newIds.length >= newSlots) break;
     const prog = state.wordProgress[w.id];
@@ -2236,31 +2242,27 @@ function buildTodaySet() {
       prog.hp === w.maxHp &&
       (prog.actionsToday || []).length === 0 &&
       (prog.readCount || 0) === 0
-    ) {
-      newIds.push(w.id);
-    }
+    ) newIds.push(w.id);
   }
-  const newWordIds = [...carriedNew, ...newIds];
+  const newWordIds = [...carriedNew, ...newIds].slice(0, 3);
 
-  // ---- 復習枠（最大2枚）----
   const reviewSlots = Math.max(0, 2 - carriedReview.length);
   const reviewIds = [];
-
   for (const w of words) {
     if (reviewIds.length >= reviewSlots) break;
     const prog = state.wordProgress[w.id];
     if (!prog) continue;
     if (alreadyIn.has(w.id)) continue;
     if (newWordIds.includes(w.id)) continue;
-    if (!prog.reviewDate) continue;
-    if (prog.reviewDate > today) continue;
+    if (!prog.reviewDate || prog.reviewDate > today) continue;
     if (prog.defeated && prog.isReview) continue;
 
     reviewIds.push(w.id);
-    prog.isReview = true;
+    activateReviewForToday(prog);
   }
 
-  const nextTodaySet = [...newWordIds, ...carriedReview, ...reviewIds];
+  const reviewWordIds = [...carriedReview, ...reviewIds].slice(0, 2);
+  const nextTodaySet = [...newWordIds, ...reviewWordIds].slice(0, 5);
   state.todaySet = nextTodaySet;
   state.todaySetDate = today;
 
@@ -2271,7 +2273,8 @@ function buildTodaySet() {
 
 function getTodayWords() {
   buildTodaySet();
-  return state.todaySet
+
+  const picked = state.todaySet
     .map(id => words.find(w => w.id === id))
     .filter(Boolean)
     .filter(w => {
@@ -2280,6 +2283,20 @@ function getTodayWords() {
       if (prog.isReview) return true;
       return !prog.defeated;
     });
+
+  const todayNew = [];
+  const todayReview = [];
+  for (const w of picked) {
+    const prog = state.wordProgress[w.id];
+    if (!prog) continue;
+    if (prog.isReview) {
+      if (todayReview.length < 2) todayReview.push(w);
+    } else if (todayNew.length < 3) {
+      todayNew.push(w);
+    }
+    if (todayNew.length + todayReview.length >= 5) break;
+  }
+  return [...todayNew, ...todayReview].slice(0, 5);
 }
 
 // =========================================================
@@ -3824,8 +3841,15 @@ async function diagStorage() {
   lines.push('\n=== 現在のstate ===');
   lines.push('words数: ' + words.length);
   lines.push('wordProgress数: ' + Object.keys(state.wordProgress).length);
-  lines.push('todaySet: ' + JSON.stringify(state.todaySet));
   lines.push('todaySetDate: ' + state.todaySetDate);
+  lines.push('todaySet IDs: ' + JSON.stringify(state.todaySet));
+  lines.push('todaySet件数: ' + ((state.todaySet || []).length));
+  const todaySetWords = (state.todaySet || []).map(id => words.find(w => w.id === id)).filter(Boolean);
+  const todaySetNewCount = todaySetWords.filter(w => { const p = state.wordProgress[w.id]; return p && !p.isReview; }).length;
+  const todaySetReviewCount = todaySetWords.filter(w => { const p = state.wordProgress[w.id]; return p && p.isReview; }).length;
+  lines.push('todaySet 新語件数: ' + todaySetNewCount);
+  lines.push('todaySet 復習件数: ' + todaySetReviewCount);
+  lines.push('今日の表示対象語数: ' + getTodayWords().length);
 
   // 5. Test write/read
   lines.push('\n=== 書き込みテスト ===');
