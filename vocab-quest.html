@@ -2892,8 +2892,19 @@ function buildStoryCards() {
     return;
   }
 
-  storyWords.forEach(word => {
-    const prog = state.storyProgress || {};
+  const prog = state.storyProgress || {};
+  const sortedStoryWords = [...storyWords].sort((a, b) => {
+    const aSp = prog[a.id];
+    const bSp = prog[b.id];
+    const aDefeated = !!state.wordProgress[a.id]?.defeated;
+    const bDefeated = !!state.wordProgress[b.id]?.defeated;
+    const aRank = (aDefeated && !aSp) ? 0 : (!aDefeated ? 1 : 2);
+    const bRank = (bDefeated && !bSp) ? 0 : (!bDefeated ? 1 : 2);
+    if (aRank !== bRank) return aRank - bRank;
+    return String(a.id).localeCompare(String(b.id), undefined, { numeric: true });
+  });
+
+  sortedStoryWords.forEach(word => {
     const sp = prog[word.id];
     const isDefeated = state.wordProgress[word.id]?.defeated;
     const badge = sp === 'cleared' ? '🥇' : sp === 'read' ? '🥈' : '📖';
