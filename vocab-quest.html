@@ -2202,41 +2202,71 @@ function resetDailyActions() {
 // =========================================================
 function buildTodaySet() {
   const today = todayStr();
-  if (state.todaySetDate === today && state.todaySet && state.todaySet.length > 0) return;
+  const todaySet = Array.isArray(state.todaySet) ? state.todaySet : [];
+  const isSameDay = state.todaySetDate === today;
+
+  const carriedNew = isSameDay ? todaySet.filter(id => {
+    const word = words.find(w => w.id === id);
+    const prog = state.wordProgress[id];
+    if (!word || !prog) return false;
+    return !prog.defeated && !prog.isReview && !prog.reviewDate;
+  }) : [];
+
+  const carriedReview = isSameDay ? todaySet.filter(id => {
+    const word = words.find(w => w.id === id);
+    const prog = state.wordProgress[id];
+    if (!word || !prog) return false;
+    return !prog.defeated && !!prog.isReview;
+  }) : [];
 
   // ---- 新語枠（最大3枚）----
-  const carriedNew = (state.todaySet || []).filter(id => {
-    const prog = state.wordProgress[id];
-    return prog && !prog.defeated && !prog.isReview && !prog.reviewDate;
-  });
-  const newSlots = 3 - carriedNew.length;
-  const alreadyIn = new Set(carriedNew);
+  const newSlots = Math.max(0, 3 - carriedNew.length);
+  const alreadyIn = new Set([...carriedNew, ...carriedReview]);
   const newIds = [];
+
   for (const w of words) {
     if (newIds.length >= newSlots) break;
     const prog = state.wordProgress[w.id];
-    if (!prog || prog.defeated || prog.reviewDate) continue;
+    if (!prog) continue;
     if (alreadyIn.has(w.id)) continue;
-    if (!prog.defeatedDate && !prog.defeated &&
-        prog.hp === w.maxHp && (prog.actionsToday || []).length === 0 && (prog.readCount || 0) === 0) {
+    if (prog.reviewDate) continue;
+    if (
+      !prog.defeated &&
+      !prog.defeatedDate &&
+      prog.hp === w.maxHp &&
+      (prog.actionsToday || []).length === 0 &&
+      (prog.readCount || 0) === 0
+    ) {
       newIds.push(w.id);
     }
   }
   const newWordIds = [...carriedNew, ...newIds];
 
   // ---- 復習枠（最大2枚）----
+  const reviewSlots = Math.max(0, 2 - carriedReview.length);
   const reviewIds = [];
+
   for (const w of words) {
-    if (reviewIds.length >= 2) break;
+    if (reviewIds.length >= reviewSlots) break;
     const prog = state.wordProgress[w.id];
-    if (!prog || !prog.reviewDate) continue;
+    if (!prog) continue;
+    if (alreadyIn.has(w.id)) continue;
+    if (newWordIds.includes(w.id)) continue;
+    if (!prog.reviewDate) continue;
     if (prog.reviewDate > today) continue;
+    if (prog.defeated && prog.isReview) continue;
+
     reviewIds.push(w.id);
     prog.isReview = true;
   }
 
-  state.todaySet = [...newWordIds, ...reviewIds];
+  const nextTodaySet = [...newWordIds, ...carriedReview, ...reviewIds];
+  state.todaySet = nextTodaySet;
   state.todaySetDate = today;
+
+  if (nextTodaySet.length > 0 && state.playLog && state.playLog[today] === 'all') {
+    delete state.playLog[today];
+  }
 }
 
 function getTodayWords() {
@@ -3060,6 +3090,8 @@ async function fetchAndMergeCSV() {
     const raw = await res.text();
     const count = parseAndMergeCSV(raw);
     if (count > 0) {
+      initWordProgress();
+      buildTodaySet();
       await saveAll();
       console.log(`[CSV auto-load] ${count}語をマージしました`);
     }
@@ -3081,6 +3113,8 @@ function importCSV() {
   } else if (count === 0) {
     showStatus(status, '有効(ゆうこう)な行がないよ！', 'err');
   } else {
+    initWordProgress();
+    buildTodaySet();
     saveAll();
     buildBattleCards();
     showStatus(status, `✅ ${count}語を読み込んだよ！`, 'ok');
@@ -4146,6 +4180,10 @@ async function fetchAndMergeCSV() {
     const raw = await res.text();
     const csvWords = parseWordsFromCSV(raw);
     const count = syncWordsFromCSVList(csvWords);
+    if (count > 0) {
+      initWordProgress();
+      buildTodaySet();
+    }
     await saveAll();
     console.log(`[CSV auto-sync] ${count}語に同期しました`);
     return count;
@@ -4164,9 +4202,9 @@ function importCSV() {
   if (count < 0) showStatus(status, '❌ エラー：CSVの形式を確認してね', 'err');
   else if (count === 0) showStatus(status, '有効(ゆうこう)な行がないよ！', 'err');
   else {
-    saveAll();
     initWordProgress();
     buildTodaySet();
+    saveAll();
     updateStatusUI();
     buildBattleCards();
     buildReviewSchedule();
