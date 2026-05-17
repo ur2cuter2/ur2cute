@@ -578,7 +578,7 @@ async function storageSave(key, value) {
 
 // =========================================================
 // ごほうびピクロス チケット連携
-// - 通常よみときミッションを完全クリアした時だけ通常チケットを発行
+// - 通常よみときミッションを1日1回プレイした時に通常チケットを発行
 // - ふっかつミッションは対象外
 // - 連続記録が5の倍数なら、ボーナスチケットを1枚発行
 // =========================================================
@@ -636,8 +636,8 @@ function getCurrentStreakCount() {
   return 0;
 }
 
-function grantPicrossRewardFromYomi(perfect) {
-  if (isRevivalMode || !perfect) {
+function grantPicrossRewardFromYomi() {
+  if (isRevivalMode) {
     updatePicrossRewardResultUI(false, false, 0);
     return;
   }
@@ -681,9 +681,9 @@ function updatePicrossRewardResultUI(ticketGranted, bonusGranted, bonusTickets) 
   }
 
   if (bonusGranted) {
-    note.textContent = `🎁 よみとき完全クリア！ピクロスチケットを発行したよ。さらに連続記録ボーナスで、持ち越しチケットも1枚ゲット！ 現在 ${bonusTickets} 枚`;
+    note.textContent = `🎁 よみときミッションをプレイしたので、ピクロスチケットを発行したよ。さらに連続記録ボーナスで、持ち越しチケットも1枚ゲット！ 現在 ${bonusTickets} 枚`;
   } else {
-    note.textContent = '🎁 よみとき完全クリア！ごほうびピクロスが遊べるようになったよ。';
+    note.textContent = '🎁 よみときミッションをプレイしたので、ごほうびピクロスが遊べるようになったよ。';
   }
   note.classList.add('show');
 }
@@ -1253,8 +1253,8 @@ function showResult() {
 
   if (perfect) triggerStars();
 
-  // 通常よみときミッションを完全クリアしたときだけ、ピクロスチケットを発行する
-  grantPicrossRewardFromYomi(perfect);
+  // 通常よみときミッションは、1日1回プレイでピクロスチケットを発行する
+  grantPicrossRewardFromYomi();
 
   document.getElementById('hdRight').textContent='';
   // ふっかつラベルを非表示に戻す
