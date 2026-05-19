@@ -2309,16 +2309,22 @@ function buildTodaySet() {
   } else {
     const alreadyIn = new Set(state.todaySet);
 
-    const newShownSet = new Set(state.todayNewWordIdsShown);
-    const reviewShownSet = new Set(state.todayReviewWordIdsShown);
-    for (const id of state.todaySet) {
-      const prog = state.wordProgress[id];
-      if (!prog) continue;
-      if (prog.isReview) reviewShownSet.add(id);
-      else newShownSet.add(id);
+    // 表示済みカウントは「当日どちらの枠で表示したか」を保持する。
+    // isReview は撃破後に false へ戻るため、現在値で再分類すると復習枠が過少カウントされる。
+    state.todayNewWordIdsShown = [...new Set(state.todayNewWordIdsShown)];
+    state.todayReviewWordIdsShown = [...new Set(state.todayReviewWordIdsShown)];
+
+    // 旧データからの当日移行直後のみ、未記録の表示枠を todaySet から一度だけ推定する
+    if (state.todayNewWordIdsShown.length === 0 && state.todayReviewWordIdsShown.length === 0 && state.todaySet.length > 0) {
+      for (const id of state.todaySet) {
+        const prog = state.wordProgress[id];
+        if (!prog) continue;
+        if (prog.isReview) state.todayReviewWordIdsShown.push(id);
+        else state.todayNewWordIdsShown.push(id);
+      }
+      state.todayNewWordIdsShown = [...new Set(state.todayNewWordIdsShown)];
+      state.todayReviewWordIdsShown = [...new Set(state.todayReviewWordIdsShown)];
     }
-    state.todayNewWordIdsShown = [...newShownSet];
-    state.todayReviewWordIdsShown = [...reviewShownSet];
 
     let needNew = Math.max(0, 3 - state.todayNewWordIdsShown.length);
     if (needNew > 0) {
