@@ -1154,6 +1154,7 @@ body::before {
     <div class="admin-card">
       <div class="admin-label">🔬 ストレージ診断</div>
       <button class="admin-btn btn-teal" onclick="diagStorage()">診断を実行</button>
+      <button class="admin-btn btn-gold" style="margin-top:8px;" onclick="runTodayRefillRegressionTest()">🧪 新語補充テスト</button>
       <pre id="diagResult" style="margin-top:10px;font-size:11px;color:var(--text-sub);background:rgba(255,255,255,0.03);border-radius:8px;padding:10px;white-space:pre-wrap;word-break:break-all;display:none;"></pre>
     </div>
 
@@ -1850,6 +1851,8 @@ let state = {
   todaySetDate: null,
   todayInitialNewCount: 0,
   todayInitialReviewCount: 0,
+  todayNewWordIdsShown: [],
+  todayReviewWordIdsShown: [],
   submitLog: [],          // [{date, kanji, text, passed, type}] type: 'battle'|'quest'
   playLog: {},            // {dateStr: 'battle'|'all'} 'all'=全撃破, 'battle'=バトルのみ
 };
@@ -1958,6 +1961,8 @@ function initWordProgress() {
   if (!state.todaySetDate) state.todaySetDate = null;
   if (state.todayInitialNewCount === undefined) state.todayInitialNewCount = 0;
   if (state.todayInitialReviewCount === undefined) state.todayInitialReviewCount = 0;
+  if (!Array.isArray(state.todayNewWordIdsShown)) state.todayNewWordIdsShown = [];
+  if (!Array.isArray(state.todayReviewWordIdsShown)) state.todayReviewWordIdsShown = [];
   if (!state.submitLog) state.submitLog = [];
   if (!state.playLog) state.playLog = {};
   if (state.longVacationMode === undefined) state.longVacationMode = false;
@@ -2215,6 +2220,10 @@ function buildTodaySet() {
   const today = todayStr();
   const isSameDay = state.todaySetDate === today;
 
+  if (!Array.isArray(state.todaySet)) state.todaySet = [];
+  if (!Array.isArray(state.todayNewWordIdsShown)) state.todayNewWordIdsShown = [];
+  if (!Array.isArray(state.todayReviewWordIdsShown)) state.todayReviewWordIdsShown = [];
+
   if (!isSameDay) {
     const newWordIds = [];
     for (const w of words) {
@@ -2247,43 +2256,63 @@ function buildTodaySet() {
     state.todaySetDate = today;
     state.todayInitialNewCount = newWordIds.length;
     state.todayInitialReviewCount = reviewWordIds.length;
+    state.todayNewWordIdsShown = [...newWordIds];
+    state.todayReviewWordIdsShown = [...reviewWordIds];
   } else {
-    if (!Array.isArray(state.todaySet)) state.todaySet = [];
+    const alreadyIn = new Set(state.todaySet);
 
-    // 同日に補充できるのは「初回選定時に不足していた新語枠」だけ
-    const initialNew = Math.min(3, Math.max(0, Number(state.todayInitialNewCount || 0)));
-    const canFillNew = Math.max(0, 3 - initialNew);
+    const newShownSet = new Set(state.todayNewWordIdsShown);
+    const reviewShownSet = new Set(state.todayReviewWordIdsShown);
+    for (const id of state.todaySet) {
+      const prog = state.wordProgress[id];
+      if (!prog) continue;
+      if (prog.isReview) reviewShownSet.add(id);
+      else newShownSet.add(id);
+    }
+    state.todayNewWordIdsShown = [...newShownSet];
+    state.todayReviewWordIdsShown = [...reviewShownSet];
 
-    if (canFillNew > 0) {
-      const currentNewInSet = state.todaySet.filter(id => {
-        const prog = state.wordProgress[id];
-        return prog && !prog.isReview;
-      }).length;
-      const toAdd = Math.max(0, canFillNew - Math.max(0, currentNewInSet - initialNew));
-      if (toAdd > 0) {
-        const alreadyIn = new Set(state.todaySet);
-        for (const w of words) {
-          if (state.todaySet.filter(id => {
-            const prog = state.wordProgress[id];
-            return prog && !prog.isReview;
-          }).length >= initialNew + canFillNew) break;
-          const prog = state.wordProgress[w.id];
-          if (!prog) continue;
-          if (alreadyIn.has(w.id)) continue;
-          if (prog.reviewDate) continue;
-          if (
-            !prog.defeated &&
-            !prog.defeatedDate &&
-            prog.hp === w.maxHp &&
-            (prog.actionsToday || []).length === 0 &&
-            (prog.readCount || 0) === 0
-          ) {
-            state.todaySet.push(w.id);
-            alreadyIn.add(w.id);
-          }
+    let needNew = Math.max(0, 3 - state.todayNewWordIdsShown.length);
+    if (needNew > 0) {
+      for (const w of words) {
+        if (needNew <= 0) break;
+        const prog = state.wordProgress[w.id];
+        if (!prog) continue;
+        if (alreadyIn.has(w.id)) continue;
+        if (prog.reviewDate) continue;
+        if (
+          !prog.defeated &&
+          !prog.defeatedDate &&
+          prog.hp === w.maxHp &&
+          (prog.actionsToday || []).length === 0 &&
+          (prog.readCount || 0) === 0
+        ) {
+          state.todaySet.push(w.id);
+          state.todayNewWordIdsShown.push(w.id);
+          alreadyIn.add(w.id);
+          needNew -= 1;
         }
       }
     }
+
+    let needReview = Math.max(0, 2 - state.todayReviewWordIdsShown.length);
+    if (needReview > 0) {
+      for (const w of words) {
+        if (needReview <= 0) break;
+        const prog = state.wordProgress[w.id];
+        if (!prog) continue;
+        if (alreadyIn.has(w.id)) continue;
+        if (!prog.reviewDate || prog.reviewDate > today) continue;
+        if (prog.defeated && prog.isReview) continue;
+        state.todaySet.push(w.id);
+        state.todayReviewWordIdsShown.push(w.id);
+        alreadyIn.add(w.id);
+        activateReviewForToday(prog);
+        needReview -= 1;
+      }
+    }
+
+    state.todaySet = state.todaySet.slice(0, 5);
   }
 
   if (state.todaySet.length > 0 && state.playLog && state.playLog[today] === 'all') {
@@ -3256,7 +3285,7 @@ function confirmReset() {
     document.body.removeChild(overlay);
     state = { xp:0, level:1, streak:0, lastPlayDate:null,
       defeatedWords:[], wordProgress:{}, questProgress:{}, storyProgress:{}, yomiProgress:{}, longVacationMode:false, unlockedGuardians:[],
-      todaySet:[], todaySetDate:null, todayInitialNewCount:0, todayInitialReviewCount:0, submitLog:[], playLog:{} };
+      todaySet:[], todaySetDate:null, todayInitialNewCount:0, todayInitialReviewCount:0, todayNewWordIdsShown:[], todayReviewWordIdsShown:[], submitLog:[], playLog:{} };
     words = [...DEFAULT_WORDS];
     quests = [...DEFAULT_QUESTS];
     await saveAll();
@@ -3582,7 +3611,7 @@ function confirmReset() {
     document.body.removeChild(overlay);
     state = { xp:0, level:1, streak:0, lastPlayDate:null,
       defeatedWords:[], wordProgress:{}, questProgress:{}, storyProgress:{}, yomiProgress:{}, longVacationMode:false, unlockedGuardians:[],
-      todaySet:[], todaySetDate:null, todayInitialNewCount:0, todayInitialReviewCount:0, submitLog:[], playLog:{} };
+      todaySet:[], todaySetDate:null, todayInitialNewCount:0, todayInitialReviewCount:0, todayNewWordIdsShown:[], todayReviewWordIdsShown:[], submitLog:[], playLog:{} };
     words = [...DEFAULT_WORDS];
     quests = [...DEFAULT_QUESTS];
     await saveAll();
@@ -3827,6 +3856,43 @@ function toggleLongVacation() {
   updateBonusLink();
 }
 
+
+function runTodayRefillRegressionTest() {
+  const backupState = JSON.parse(JSON.stringify(state));
+  const backupWords = words.slice();
+  const today = todayStr();
+  try {
+    words = [
+      { id:'n1', maxHp:3 }, { id:'n2', maxHp:3 }, { id:'n3', maxHp:3 },
+      { id:'n4', maxHp:3 }, { id:'n5', maxHp:3 }, { id:'n6', maxHp:3 },
+      { id:'r1', maxHp:3 }, { id:'r2', maxHp:3 }
+    ];
+    state.todaySet = ['r1','r2'];
+    state.todaySetDate = today;
+    state.todayNewWordIdsShown = [];
+    state.todayReviewWordIdsShown = ['r1','r2'];
+    state.wordProgress = {
+      r1:{ hp:3, defeated:true, defeatedDate:today, reviewDate:today, isReview:true, actionsToday:[], readCount:0, reviewCount:1 },
+      r2:{ hp:3, defeated:true, defeatedDate:today, reviewDate:today, isReview:true, actionsToday:[], readCount:0, reviewCount:1 },
+      n1:{ hp:3, defeated:false, defeatedDate:null, reviewDate:null, isReview:false, actionsToday:[], readCount:0, reviewCount:0 },
+      n2:{ hp:3, defeated:false, defeatedDate:null, reviewDate:null, isReview:false, actionsToday:[], readCount:0, reviewCount:0 },
+      n3:{ hp:3, defeated:false, defeatedDate:null, reviewDate:null, isReview:false, actionsToday:[], readCount:0, reviewCount:0 },
+      n4:{ hp:3, defeated:false, defeatedDate:null, reviewDate:null, isReview:false, actionsToday:[], readCount:0, reviewCount:0 },
+      n5:{ hp:3, defeated:false, defeatedDate:null, reviewDate:null, isReview:false, actionsToday:[], readCount:0, reviewCount:0 },
+      n6:{ hp:3, defeated:false, defeatedDate:null, reviewDate:null, isReview:false, actionsToday:[], readCount:0, reviewCount:0 }
+    };
+    buildTodaySet();
+    const newCount = state.todaySet.filter(id => id.startsWith('n')).length;
+    const pass = newCount === 3;
+    alert((pass ? '✅' : '❌') + ' 新語補充テスト: 新語' + newCount + '枚（期待3枚）');
+    return pass;
+  } finally {
+    state = backupState;
+    words = backupWords;
+    buildBattleCards();
+  }
+}
+
 async function diagStorage() {
   const el = document.getElementById('diagResult');
   el.style.display = 'block';
@@ -4042,7 +4108,7 @@ function freshInitialState(keepLongVacation=false) {
     xp:0, level:1, streak:0, lastPlayDate:null,
     defeatedWords:[], wordProgress:{}, questProgress:{}, storyProgress:{}, yomiProgress:{},
     longVacationMode: keepLongVacation && state ? !!state.longVacationMode : false,
-    unlockedGuardians:[], todaySet:[], todaySetDate:null, todayInitialNewCount:0, todayInitialReviewCount:0, submitLog:[], playLog:{}
+    unlockedGuardians:[], todaySet:[], todaySetDate:null, todayInitialNewCount:0, todayInitialReviewCount:0, todayNewWordIdsShown:[], todayReviewWordIdsShown:[], submitLog:[], playLog:{}
   };
 }
 
