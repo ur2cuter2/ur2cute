@@ -1970,7 +1970,11 @@ function migrateToCurrentState(raw) {
 
   if (raw.v === 2 && raw.w) {
     const migrated = {
-      xp: 0, level: 1, streak: 0, bestStreak: 0, lastPlayDate: null,
+      xp: Number.isFinite(raw.xp) ? raw.xp : 0,
+      level: Number.isFinite(raw.level) ? raw.level : (Number.isFinite(raw.lv) ? raw.lv : 1),
+      streak: Number.isFinite(raw.streak) ? raw.streak : (Number.isFinite(raw.st) ? raw.st : 0),
+      bestStreak: Number.isFinite(raw.bestStreak) ? raw.bestStreak : (Number.isFinite(raw.best) ? raw.best : 0),
+      lastPlayDate: raw.lastPlayDate || raw.last || null,
       defeatedWords: [], wordProgress: {}, questProgress: {}, storyProgress: {}, unlockedGuardians: [], yomiProgress: {}, longVacationMode: false,
       todaySet: [], todaySetDate: null, todayInitialNewCount: 0, todayInitialReviewCount: 0, todayNewWordIdsShown: [], todayReviewWordIdsShown: [],
       submitLog: [], playLog: {},
@@ -2014,7 +2018,16 @@ function migrateToCurrentState(raw) {
 }
 
 function buildCompactSaveData() {
-  const data = { v: 2, w: {}, day: { date: state.todaySetDate || null, n: state.todayNewWordIdsShown || [], rv: state.todayReviewWordIdsShown || [] } };
+  const data = {
+    v: 2,
+    xp: Number.isFinite(state.xp) ? state.xp : 0,
+    lv: Number.isFinite(state.level) ? state.level : 1,
+    st: Number.isFinite(state.streak) ? state.streak : 0,
+    best: Number.isFinite(state.bestStreak) ? state.bestStreak : 0,
+    last: state.lastPlayDate || null,
+    w: {},
+    day: { date: state.todaySetDate || null, n: state.todayNewWordIdsShown || [], rv: state.todayReviewWordIdsShown || [] }
+  };
   for (const w of words) {
     const id = w.id;
     const p = state.wordProgress[id] || {};
