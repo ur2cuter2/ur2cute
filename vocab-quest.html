@@ -3409,6 +3409,28 @@ function exportSave() {
   showStatus(document.getElementById('saveStatus'), '✅ JSONが表示されたよ！コピーして保存してね。', 'ok');
 }
 
+function makeTimestampForBackupKey() {
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+}
+
+async function createStateBackup() {
+  const current = await storageLoad(STORAGE_KEYS.state);
+  if (!current) return null;
+  const backupKey = `${STORAGE_KEYS.state}_backup_${makeTimestampForBackupKey()}`;
+  await storageSave(backupKey, current);
+  return backupKey;
+}
+
+function isLikelySaveDataFormat(data) {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return false;
+  const isCompactV2 = data.v === 2 && (data.w !== undefined || data.pl !== undefined);
+  const isLegacy = data.state !== undefined || data.words !== undefined || data.quests !== undefined;
+  const isStateOnly = data.wordProgress !== undefined || data.w !== undefined;
+  return isCompactV2 || isLegacy || isStateOnly;
+}
+
 async function importSave() {
   const area = document.getElementById('saveDataArea');
   const text = area.value.trim();
@@ -3417,24 +3439,76 @@ async function importSave() {
     showStatus(status, '⚠️ テキストエリアにJSONを貼り付けてからボタンを押してね。', 'err');
     return;
   }
+
+  let data;
   try {
-    const data = JSON.parse(text);
-    if (data.state || data.words || data.quests) {
-      if (data.state) state = migrateToCurrentState(data.state);
-      if (data.words) words = data.words;
-      if (data.quests) quests = data.quests;
-    } else {
-      state = migrateToCurrentState(data);
-    }
-    await saveAll();
-    initWordProgress();
-    updateStatusUI();
-    buildBattleCards();
-    area.value = '';
-    showStatus(status, '✅ セーブデータをインポートしたよ！', 'ok');
+    data = JSON.parse(text);
   } catch(e) {
+    alert('JSONの解析に失敗しました。現在のデータは変更していません。');
     showStatus(status, '❌ JSONが正しくないよ。もう一度確認してね。', 'err');
+    return;
   }
+
+  if (!isLikelySaveDataFormat(data)) {
+    alert('セーブデータの形式が正しくありません。現在のデータは変更していません。');
+    showStatus(status, '❌ セーブデータ形式エラー。現在データは維持しました。', 'err');
+    return;
+  }
+
+  let pendingState;
+  let pendingWords = words;
+  let pendingQuests = quests;
+  try {
+    if (data.state || data.words || data.quests) {
+      pendingState = data.state ? migrateToCurrentState(data.state) : state;
+      if (data.words !== undefined) pendingWords = data.words;
+      if (data.quests !== undefined) pendingQuests = data.quests;
+    } else {
+      pendingState = migrateToCurrentState(data);
+    }
+  } catch(e) {
+    alert('セーブデータの読み込みに失敗しました。現在のデータは変更していません。');
+    showStatus(status, '❌ セーブデータを読み込めなかったよ。', 'err');
+    return;
+  }
+
+  if (!pendingState || typeof pendingState !== 'object' || Array.isArray(pendingState)) {
+    alert('セーブデータの形式が正しくありません。現在のデータは変更していません。');
+    showStatus(status, '❌ セーブデータ形式エラー。現在データは維持しました。', 'err');
+    return;
+  }
+  if (!Array.isArray(pendingWords) || !Array.isArray(pendingQuests)) {
+    alert('セーブデータの形式が正しくありません。現在のデータは変更していません。');
+    showStatus(status, '❌ セーブデータ形式エラー。現在データは維持しました。', 'err');
+    return;
+  }
+
+  let backupKey;
+  try {
+    backupKey = await createStateBackup();
+  } catch(e) {
+    alert('バックアップの作成に失敗したため、インポートを中止しました。現在のデータは変更していません。');
+    showStatus(status, '❌ バックアップ作成失敗。インポートを中止しました。', 'err');
+    return;
+  }
+  if (!backupKey) {
+    alert('バックアップキーを作成できなかったため、インポートを中止しました。現在のデータは変更していません。');
+    showStatus(status, '❌ バックアップ作成失敗。インポートを中止しました。', 'err');
+    return;
+  }
+
+  state = pendingState;
+  words = pendingWords;
+  quests = pendingQuests;
+  await saveAll();
+  initWordProgress();
+  updateStatusUI();
+  buildBattleCards();
+  area.value = '';
+
+  const successMessage = `セーブデータを復元しました。\nインポート前のデータは ${backupKey} にバックアップしました。`;
+  alert(successMessage);
+  showStatus(status, `✅ セーブデータをインポートしたよ！(${backupKey})`, 'ok');
 }
 
 function confirmReset() {
@@ -3739,6 +3813,28 @@ function exportSave() {
   showStatus(document.getElementById('saveStatus'), '✅ JSONが表示されたよ！コピーして保存してね。', 'ok');
 }
 
+function makeTimestampForBackupKey() {
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+}
+
+async function createStateBackup() {
+  const current = await storageLoad(STORAGE_KEYS.state);
+  if (!current) return null;
+  const backupKey = `${STORAGE_KEYS.state}_backup_${makeTimestampForBackupKey()}`;
+  await storageSave(backupKey, current);
+  return backupKey;
+}
+
+function isLikelySaveDataFormat(data) {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return false;
+  const isCompactV2 = data.v === 2 && (data.w !== undefined || data.pl !== undefined);
+  const isLegacy = data.state !== undefined || data.words !== undefined || data.quests !== undefined;
+  const isStateOnly = data.wordProgress !== undefined || data.w !== undefined;
+  return isCompactV2 || isLegacy || isStateOnly;
+}
+
 async function importSave() {
   const area = document.getElementById('saveDataArea');
   const text = area.value.trim();
@@ -3747,24 +3843,76 @@ async function importSave() {
     showStatus(status, '⚠️ テキストエリアにJSONを貼り付けてからボタンを押してね。', 'err');
     return;
   }
+
+  let data;
   try {
-    const data = JSON.parse(text);
-    if (data.state || data.words || data.quests) {
-      if (data.state) state = migrateToCurrentState(data.state);
-      if (data.words) words = data.words;
-      if (data.quests) quests = data.quests;
-    } else {
-      state = migrateToCurrentState(data);
-    }
-    await saveAll();
-    initWordProgress();
-    updateStatusUI();
-    buildBattleCards();
-    area.value = '';
-    showStatus(status, '✅ セーブデータをインポートしたよ！', 'ok');
+    data = JSON.parse(text);
   } catch(e) {
+    alert('JSONの解析に失敗しました。現在のデータは変更していません。');
     showStatus(status, '❌ JSONが正しくないよ。もう一度確認してね。', 'err');
+    return;
   }
+
+  if (!isLikelySaveDataFormat(data)) {
+    alert('セーブデータの形式が正しくありません。現在のデータは変更していません。');
+    showStatus(status, '❌ セーブデータ形式エラー。現在データは維持しました。', 'err');
+    return;
+  }
+
+  let pendingState;
+  let pendingWords = words;
+  let pendingQuests = quests;
+  try {
+    if (data.state || data.words || data.quests) {
+      pendingState = data.state ? migrateToCurrentState(data.state) : state;
+      if (data.words !== undefined) pendingWords = data.words;
+      if (data.quests !== undefined) pendingQuests = data.quests;
+    } else {
+      pendingState = migrateToCurrentState(data);
+    }
+  } catch(e) {
+    alert('セーブデータの読み込みに失敗しました。現在のデータは変更していません。');
+    showStatus(status, '❌ セーブデータを読み込めなかったよ。', 'err');
+    return;
+  }
+
+  if (!pendingState || typeof pendingState !== 'object' || Array.isArray(pendingState)) {
+    alert('セーブデータの形式が正しくありません。現在のデータは変更していません。');
+    showStatus(status, '❌ セーブデータ形式エラー。現在データは維持しました。', 'err');
+    return;
+  }
+  if (!Array.isArray(pendingWords) || !Array.isArray(pendingQuests)) {
+    alert('セーブデータの形式が正しくありません。現在のデータは変更していません。');
+    showStatus(status, '❌ セーブデータ形式エラー。現在データは維持しました。', 'err');
+    return;
+  }
+
+  let backupKey;
+  try {
+    backupKey = await createStateBackup();
+  } catch(e) {
+    alert('バックアップの作成に失敗したため、インポートを中止しました。現在のデータは変更していません。');
+    showStatus(status, '❌ バックアップ作成失敗。インポートを中止しました。', 'err');
+    return;
+  }
+  if (!backupKey) {
+    alert('バックアップキーを作成できなかったため、インポートを中止しました。現在のデータは変更していません。');
+    showStatus(status, '❌ バックアップ作成失敗。インポートを中止しました。', 'err');
+    return;
+  }
+
+  state = pendingState;
+  words = pendingWords;
+  quests = pendingQuests;
+  await saveAll();
+  initWordProgress();
+  updateStatusUI();
+  buildBattleCards();
+  area.value = '';
+
+  const successMessage = `セーブデータを復元しました。\nインポート前のデータは ${backupKey} にバックアップしました。`;
+  alert(successMessage);
+  showStatus(status, `✅ セーブデータをインポートしたよ！(${backupKey})`, 'ok');
 }
 
 function confirmReset() {
