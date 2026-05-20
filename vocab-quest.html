@@ -1913,8 +1913,62 @@ async function loadAll() {
   ensureStateDefaults();
 }
 
+function normalizeWordProgressEntry(compact = {}, fallback = {}) {
+  const merged = { ...fallback, ...compact };
+  const defeated = merged.defeated !== undefined ? !!merged.defeated : !!merged.d;
+  const storyRead = merged.storyRead !== undefined ? !!merged.storyRead : !!merged.s;
+  const yomitokiDone = merged.yomitokiDone !== undefined ? !!merged.yomitokiDone : !!merged.y;
+  const defeatedDate = merged.defeatedDate || merged.dd || null;
+  const reviewCount = Number.isFinite(merged.reviewCount) ? merged.reviewCount : (Number.isFinite(merged.r) ? merged.r : 0);
+  const lastReviewedDate = merged.lastReviewedDate || merged.last || null;
+  const nextReviewDate = merged.nextReviewDate || merged.reviewDate || merged.next || null;
+  return {
+    hp: merged.hp ?? 3,
+    contextIdx: merged.contextIdx ?? 0,
+    actionsToday: Array.isArray(merged.actionsToday) ? merged.actionsToday : [],
+    readCount: merged.readCount ?? 0,
+    isReview: !!merged.isReview,
+    defeated,
+    storyRead,
+    yomitokiDone,
+    defeatedDate,
+    reviewCount,
+    lastReviewedDate,
+    nextReviewDate,
+    reviewDate: nextReviewDate,
+  };
+}
+
+function rebuildDerivedProgressState(target) {
+  target.wordProgress = target.wordProgress || {};
+  target.defeatedWords = [];
+  target.storyProgress = {};
+  target.yomiProgress = {};
+  let totalReviews = 0;
+
+  for (const [id, p] of Object.entries(target.wordProgress)) {
+    const normalized = normalizeWordProgressEntry(p, p);
+    target.wordProgress[id] = normalized;
+    if (normalized.defeated) target.defeatedWords.push({ id, defeatedDate: normalized.defeatedDate || null, date: normalized.defeatedDate || null });
+    if (normalized.storyRead) target.storyProgress[id] = 'read';
+    if (normalized.yomitokiDone) target.yomiProgress[id] = 'cleared';
+    totalReviews += normalized.reviewCount || 0;
+  }
+
+  // XP仕様確認:
+  // 実運用XPは主に「バトル与ダメージ(Math.ceil(damage/2))」と「クエスト報酬(xpReward)」で加算される。
+  // defeated/story/yomi/review だけでは厳密再計算できないため、既存XPを優先し、
+  // 欠損・破損時のみ進捗由来の下限値で復旧する（不当な減少を防ぐ）。
+  const progressXpFloor = target.defeatedWords.length + totalReviews;
+  const currentXp = Number.isFinite(target.xp) ? target.xp : 0;
+  target.xp = Math.max(currentXp, progressXpFloor);
+  target.level = getLevel(target.xp).level;
+}
+
 function migrateToCurrentState(raw) {
-  if (raw && raw.v === 2 && raw.w) {
+  if (!raw || typeof raw !== 'object') return {};
+
+  if (raw.v === 2 && raw.w) {
     const migrated = {
       xp: 0, level: 1, streak: 0, bestStreak: 0, lastPlayDate: null,
       defeatedWords: [], wordProgress: {}, questProgress: {}, storyProgress: {}, unlockedGuardians: [], yomiProgress: {}, longVacationMode: false,
@@ -1922,22 +1976,41 @@ function migrateToCurrentState(raw) {
       submitLog: [], playLog: {},
     };
     for (const [id, p] of Object.entries(raw.w || {})) {
-      migrated.wordProgress[id] = {
-        hp: 3, contextIdx: 0, actionsToday: [], readCount: 0, isReview: false,
-        defeated: !!p.d, storyRead: !!p.s, yomitokiDone: !!p.y,
-        defeatedDate: p.dd || null, reviewCount: p.r || 0, lastReviewedDate: p.last || null, nextReviewDate: p.next || null, reviewDate: p.next || null,
-      };
-      if (p.d) migrated.defeatedWords.push({ id, defeatedDate: p.dd || null, date: p.dd || null });
-      if (p.s) migrated.storyProgress[id] = 'read';
-      if (p.y) migrated.yomiProgress[id] = 'cleared';
+      migrated.wordProgress[id] = normalizeWordProgressEntry(p);
     }
-    migrated.todaySetDate = raw.day?.date || null;
-    migrated.todayNewWordIdsShown = Array.isArray(raw.day?.n) ? raw.day.n : [];
-    migrated.todayReviewWordIdsShown = Array.isArray(raw.day?.rv) ? raw.day.rv : [];
-    migrated.todaySet = [...migrated.todayNewWordIdsShown, ...migrated.todayReviewWordIdsShown].slice(0, 5);
+
+    const daily = raw.daily || raw.day || {};
+    migrated.todaySetDate = daily.date || null;
+    migrated.todayNewWordIdsShown = Array.isArray(daily.newShownIds) ? daily.newShownIds : (Array.isArray(daily.n) ? daily.n : []);
+    migrated.todayReviewWordIdsShown = Array.isArray(daily.reviewShownIds) ? daily.reviewShownIds : (Array.isArray(daily.rv) ? daily.rv : []);
+    migrated.todaySet = [...new Set([...migrated.todayNewWordIdsShown, ...migrated.todayReviewWordIdsShown])];
+
+    rebuildDerivedProgressState(migrated);
     return migrated;
   }
-  return raw || {};
+
+  const migrated = { ...raw };
+  if (migrated.w && !migrated.wordProgress) {
+    migrated.wordProgress = {};
+    for (const [id, p] of Object.entries(migrated.w || {})) {
+      migrated.wordProgress[id] = normalizeWordProgressEntry(p);
+    }
+  }
+  if (migrated.day && !migrated.daily) {
+    migrated.todaySetDate = migrated.day.date || migrated.todaySetDate || null;
+    migrated.todayNewWordIdsShown = Array.isArray(migrated.day.n) ? migrated.day.n : (migrated.todayNewWordIdsShown || []);
+    migrated.todayReviewWordIdsShown = Array.isArray(migrated.day.rv) ? migrated.day.rv : (migrated.todayReviewWordIdsShown || []);
+    migrated.todaySet = [...new Set([...(migrated.todayNewWordIdsShown || []), ...(migrated.todayReviewWordIdsShown || [])])];
+  }
+  if (migrated.daily) {
+    migrated.todaySetDate = migrated.daily.date || migrated.todaySetDate || null;
+    migrated.todayNewWordIdsShown = Array.isArray(migrated.daily.newShownIds) ? migrated.daily.newShownIds : (migrated.todayNewWordIdsShown || []);
+    migrated.todayReviewWordIdsShown = Array.isArray(migrated.daily.reviewShownIds) ? migrated.daily.reviewShownIds : (migrated.todayReviewWordIdsShown || []);
+    migrated.todaySet = [...new Set([...(migrated.todayNewWordIdsShown || []), ...(migrated.todayReviewWordIdsShown || [])])];
+  }
+
+  rebuildDerivedProgressState(migrated);
+  return migrated;
 }
 
 function buildCompactSaveData() {
