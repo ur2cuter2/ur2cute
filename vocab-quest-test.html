@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>語彙クエスト ⚔️</title>
+<title>語彙クエスト ⚔️ [TEST]</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=M+PLUS+Rounded+1c:wght@400;700;800&display=swap');
 
@@ -969,7 +969,7 @@ body::before {
     <div>
       <a class="hq-link" href="./QuestHQ.html">← QUEST HQ</a>
       <div class="header-title">⚔️ 語彙クエスト</div>
-      <div class="header-sub"><span id="playerNameDisplay">[プレイヤー名]</span>の言葉のモンスターを倒そう！</div>
+      <div class="header-sub">🧪 TEST環境 ｜ <span id="playerNameDisplay">[プレイヤー名]</span>の言葉のモンスターを倒そう！</div>
     </div>
     <div class="date-badge" id="dateBadge">📅 …</div>
   </div>
@@ -1251,7 +1251,7 @@ body::before {
 // PLAYER NAME PERSONALIZATION
 // =========================================================
 const PLAYER_NAME_STORAGE_KEY = 'vocabQuestPlayerName';
-const STORAGE_KEYS = { state: 'vq_state', words: 'vq_words', quests: 'vq_quests' };
+const STORAGE_KEYS = { state: 'vq_state_test', words: 'vq_words_test', quests: 'vq_quests_test' };
 const PLAYER_NAME_PLACEHOLDER = '[プレイヤー名]';
 
 let _cachedPlayerName = null;
@@ -1860,6 +1860,7 @@ let state = {
 
 // =========================================================
 // STORAGE (window.storage with localStorage fallback)
+// NOTE: テスト環境は本番データ破壊防止のため STORAGE_KEYS を _test 系で分離。
 // =========================================================
 async function storageSave(key, value) {
   try {
