@@ -1968,7 +1968,7 @@ function rebuildDerivedProgressState(target) {
 function migrateToCurrentState(raw) {
   if (!raw || typeof raw !== 'object') return {};
 
-  if (raw.v === 2 && raw.w) {
+  if (raw.v === 2) {
     const migrated = {
       xp: Number.isFinite(raw.xp) ? raw.xp : 0,
       level: Number.isFinite(raw.level) ? raw.level : (Number.isFinite(raw.lv) ? raw.lv : 1),
@@ -1977,7 +1977,8 @@ function migrateToCurrentState(raw) {
       lastPlayDate: raw.lastPlayDate || raw.last || null,
       defeatedWords: [], wordProgress: {}, questProgress: {}, storyProgress: {}, unlockedGuardians: [], yomiProgress: {}, longVacationMode: false,
       todaySet: [], todaySetDate: null, todayInitialNewCount: 0, todayInitialReviewCount: 0, todayNewWordIdsShown: [], todayReviewWordIdsShown: [],
-      submitLog: [], playLog: {},
+      submitLog: Array.isArray(raw.submitLog) ? raw.submitLog : (Array.isArray(raw.sl) ? raw.sl : []),
+      playLog: (raw.playLog && typeof raw.playLog === 'object') ? raw.playLog : ((raw.pl && typeof raw.pl === 'object') ? raw.pl : {}),
     };
     for (const [id, p] of Object.entries(raw.w || {})) {
       migrated.wordProgress[id] = normalizeWordProgressEntry(p);
@@ -1994,6 +1995,24 @@ function migrateToCurrentState(raw) {
   }
 
   const migrated = { ...raw };
+  if (!Number.isFinite(migrated.level) && Number.isFinite(migrated.lv)) {
+    migrated.level = migrated.lv;
+  }
+  if (!Number.isFinite(migrated.streak) && Number.isFinite(migrated.st)) {
+    migrated.streak = migrated.st;
+  }
+  if ((!migrated.playLog || typeof migrated.playLog !== 'object') && migrated.pl && typeof migrated.pl === 'object') {
+    migrated.playLog = migrated.pl;
+  }
+  if (!Array.isArray(migrated.submitLog) && Array.isArray(migrated.sl)) {
+    migrated.submitLog = migrated.sl;
+  }
+  if (!Number.isFinite(migrated.bestStreak) && Number.isFinite(migrated.best)) {
+    migrated.bestStreak = migrated.best;
+  }
+  if (!migrated.lastPlayDate && migrated.last) {
+    migrated.lastPlayDate = migrated.last;
+  }
   if (migrated.w && !migrated.wordProgress) {
     migrated.wordProgress = {};
     for (const [id, p] of Object.entries(migrated.w || {})) {
@@ -2025,6 +2044,8 @@ function buildCompactSaveData() {
     st: Number.isFinite(state.streak) ? state.streak : 0,
     best: Number.isFinite(state.bestStreak) ? state.bestStreak : 0,
     last: state.lastPlayDate || null,
+    pl: (state.playLog && typeof state.playLog === 'object') ? state.playLog : {},
+    sl: Array.isArray(state.submitLog) ? state.submitLog : [],
     w: {},
     day: { date: state.todaySetDate || null, n: state.todayNewWordIdsShown || [], rv: state.todayReviewWordIdsShown || [] }
   };
