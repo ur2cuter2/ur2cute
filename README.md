@@ -17,10 +17,12 @@
   - `vq_state`
   - `vq_words`
   - `vq_quests`
+  - `vq_state_backup_YYYYMMDD_HHMMSS`（インポート前の自動バックアップ）
 - テスト
   - `vq_state_test`
   - `vq_words_test`
   - `vq_quests_test`
+  - `vq_state_test_backup_YYYYMMDD_HHMMSS`（インポート前の自動バックアップ）
 
 `vocab-quest-test.html` は、本番データを触らないためのテスト環境です。  
 `migration`、セーブデータ形式変更、`import/export` 変更、`daily card logic` 変更は、まずテスト環境で確認してください。
