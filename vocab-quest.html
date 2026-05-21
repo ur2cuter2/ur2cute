@@ -2372,6 +2372,19 @@ function activateReviewForToday(prog) {
   prog.readCount = 0;
 }
 
+function reactivateTodayReviewSlots(today) {
+  if (!Array.isArray(state.todayReviewWordIdsShown)) return;
+  for (const id of state.todayReviewWordIdsShown) {
+    const prog = state.wordProgress[id];
+    if (!prog) continue;
+    const due = prog.nextReviewDate || prog.reviewDate;
+    if (!due || due > today) continue;
+    if (prog.isReview) continue;
+    if ((prog.actionsToday || []).length > 0 && prog.defeated && prog.defeatedDate === today) continue;
+    activateReviewForToday(prog);
+  }
+}
+
 function buildTodaySet() {
   const today = todayStr();
   const isSameDay = state.todaySetDate === today;
@@ -2421,6 +2434,7 @@ function buildTodaySet() {
     // isReview は撃破後に false へ戻るため、現在値で再分類すると復習枠が過少カウントされる。
     state.todayNewWordIdsShown = [...new Set(state.todayNewWordIdsShown)];
     state.todayReviewWordIdsShown = [...new Set(state.todayReviewWordIdsShown)];
+    reactivateTodayReviewSlots(today);
 
     // 旧データからの当日移行直後のみ、未記録の表示枠を todaySet から一度だけ推定する
     if (state.todayNewWordIdsShown.length === 0 && state.todayReviewWordIdsShown.length === 0 && state.todaySet.length > 0) {

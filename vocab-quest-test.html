@@ -2373,6 +2373,19 @@ function activateReviewForToday(prog) {
   prog.readCount = 0;
 }
 
+function reactivateTodayReviewSlots(today) {
+  if (!Array.isArray(state.todayReviewWordIdsShown)) return;
+  for (const id of state.todayReviewWordIdsShown) {
+    const prog = state.wordProgress[id];
+    if (!prog) continue;
+    const due = prog.nextReviewDate || prog.reviewDate;
+    if (!due || due > today) continue;
+    if (prog.isReview) continue;
+    if ((prog.actionsToday || []).length > 0 && prog.defeated && prog.defeatedDate === today) continue;
+    activateReviewForToday(prog);
+  }
+}
+
 function buildTodaySet() {
   const today = todayStr();
   const isSameDay = state.todaySetDate === today;
@@ -2422,6 +2435,7 @@ function buildTodaySet() {
     // isReview は撃破後に false へ戻るため、現在値で再分類すると復習枠が過少カウントされる。
     state.todayNewWordIdsShown = [...new Set(state.todayNewWordIdsShown)];
     state.todayReviewWordIdsShown = [...new Set(state.todayReviewWordIdsShown)];
+    reactivateTodayReviewSlots(today);
 
     // 旧データからの当日移行直後のみ、未記録の表示枠を todaySet から一度だけ推定する
     if (state.todayNewWordIdsShown.length === 0 && state.todayReviewWordIdsShown.length === 0 && state.todaySet.length > 0) {
@@ -3537,6 +3551,59 @@ function confirmReset() {
     buildBattleCards();
     showStatus(document.getElementById('saveStatus'), '🔄 リセット完了！', 'ok');
   };
+}
+
+function runCompactV2ReviewRegressionTest() {
+  const fixture = {
+    v:2, xp:417, lv:10, last:'2026-05-21',
+    w:{
+      w7:{d:1,s:1,dd:'2026-03-09',r:5,next:'2026-05-09'},
+      w8:{d:1,s:1,dd:'2026-03-09',r:5,next:'2026-05-09'},
+      w149:{d:1,dd:'2026-05-21',r:1,last:'2026-05-21',next:'2026-05-22'},
+      w150:{d:1,dd:'2026-05-21',r:1,last:'2026-05-21',next:'2026-05-22'},
+      w151:{d:1,dd:'2026-05-21',r:1,last:'2026-05-21',next:'2026-05-22'}
+    },
+    day:{date:'2026-05-21',n:['w149','w150','w151'],rv:['w7','w8']}
+  };
+
+  const requiredIds = ['w149','w150','w151','w7','w8'];
+  const originalState = state;
+  const originalWords = words;
+  const originalTodayStr = todayStr;
+  const originalBuildBattleCards = buildBattleCards;
+
+  try {
+    todayStr = () => '2026-05-21';
+    state = migrateToCurrentState(fixture);
+    words = requiredIds.map(id => ({ id, maxHp: 3, kanji: id, reading: id, english: id }));
+    initWordProgress();
+    buildTodaySet();
+    const todaySet1 = [...state.todaySet];
+    const todayWords1 = getTodayWords().map(w => w.id);
+
+    const snapshot = JSON.parse(JSON.stringify(state));
+    state = migrateToCurrentState(snapshot);
+    initWordProgress();
+    buildTodaySet();
+    const todaySet2 = [...state.todaySet];
+    const todayWords2 = getTodayWords().map(w => w.id);
+
+    const hasAll = ids => requiredIds.every(id => ids.includes(id));
+    const ok = (
+      JSON.stringify(state.todayNewWordIdsShown) === JSON.stringify(['w149','w150','w151']) &&
+      JSON.stringify(state.todayReviewWordIdsShown) === JSON.stringify(['w7','w8']) &&
+      hasAll(todaySet1) &&
+      hasAll(todaySet2) &&
+      state.wordProgress.w7?.isReview === true &&
+      state.wordProgress.w8?.isReview === true
+    );
+    return { ok, todaySet1, todaySet2, todayWords1, todayWords2, newShown: state.todayNewWordIdsShown, reviewShown: state.todayReviewWordIdsShown };
+  } finally {
+    state = originalState;
+    words = originalWords;
+    todayStr = originalTodayStr;
+    buildBattleCards = originalBuildBattleCards;
+  }
 }
 
 function showStatus(el, msg, type) {
