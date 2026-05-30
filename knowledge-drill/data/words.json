@@ -1,0 +1,102 @@
+[
+  {
+    "id": "001",
+    "word": "一目散",
+    "reading": "いちもくさん",
+    "category": "三字熟語",
+    "planned_date": "",
+    "lesson_group": "",
+    "display_order": 1,
+    "answer_note": "2:イ\n3:イ\n4:全部「一目散」\n6:イ"
+  },
+  {
+    "id": "002",
+    "word": "銀世界",
+    "reading": "ぎんせかい",
+    "category": "三字熟語",
+    "planned_date": "",
+    "lesson_group": "",
+    "display_order": 2,
+    "answer_note": "2:ア　3:ウ　4:全部「銀世界」　6:イ"
+  },
+  {
+    "id": "003",
+    "word": "紅一点",
+    "reading": "こういってん",
+    "category": "三字熟語",
+    "planned_date": "",
+    "lesson_group": "",
+    "display_order": 3,
+    "answer_note": "2:ウ　3:ア　4:全部「紅一点」　6:イ"
+  },
+  {
+    "id": "004",
+    "word": "先入観",
+    "reading": "せんにゅうかん",
+    "category": "三字熟語",
+    "planned_date": "",
+    "lesson_group": "",
+    "display_order": 4,
+    "answer_note": "2:イ　3:ウ　4:全部「先入観」　6:ア"
+  },
+  {
+    "id": "005",
+    "word": "第三者",
+    "reading": "だいさんしゃ",
+    "category": "三字熟語",
+    "planned_date": "",
+    "lesson_group": "",
+    "display_order": 5,
+    "answer_note": "2:ア　3:イ　4:全部「第三者」　6:ウ"
+  },
+  {
+    "id": "006",
+    "word": "異口同音",
+    "reading": "いくどうおん",
+    "category": "四字熟語",
+    "planned_date": "",
+    "lesson_group": "",
+    "display_order": 6,
+    "answer_note": "2:イ　3:ア　4:全部「異口同音」　6:ウ"
+  },
+  {
+    "id": "007",
+    "word": "一石二鳥",
+    "reading": "いっせきにちょう",
+    "category": "四字熟語",
+    "planned_date": "",
+    "lesson_group": "",
+    "display_order": 7,
+    "answer_note": "2:ウ　3:イ　4:全部「一石二鳥」　6:ア"
+  },
+  {
+    "id": "008",
+    "word": "一進一退",
+    "reading": "いっしんいったい",
+    "category": "四字熟語",
+    "planned_date": "",
+    "lesson_group": "",
+    "display_order": 8,
+    "answer_note": "2:イ　3:ウ　4:全部「一進一退」　6:ア"
+  },
+  {
+    "id": "009",
+    "word": "一長一短",
+    "reading": "いっちょういったん",
+    "category": "四字熟語",
+    "planned_date": "",
+    "lesson_group": "",
+    "display_order": 9,
+    "answer_note": "2:ア　3:イ　4:全部「一長一短」　6:ウ"
+  },
+  {
+    "id": "010",
+    "word": "急転直下",
+    "reading": "きゅうてんちょっか",
+    "category": "四字熟語",
+    "planned_date": "",
+    "lesson_group": "",
+    "display_order": 10,
+    "answer_note": "2:ウ　3:ア　4:全部「急転直下」　6:イ"
+  }
+]

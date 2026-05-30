@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>語句ドリル 学習記録</title>
+  <style>
+    :root {
+      --bg: #f7f5ef;
+      --panel: #fffdf8;
+      --ink: #1f2933;
+      --muted: #5b6470;
+      --line: #d9d3c7;
+      --accent: #2f6f73;
+      --accent-soft: #e3f0ef;
+      --review: #a4550b;
+      --review-soft: #fff1cf;
+      --done: #2f6f4e;
+      --done-soft: #e2f3e9;
+      --none: #626b76;
+      --none-soft: #eef0f2;
+      --danger: #9f2f2f;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    button, input, select { font: inherit; }
+
+    .app {
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+    }
+
+    header {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 5vw, 42px);
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .top-bar, .toolbar, .summary {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(31, 41, 51, 0.06);
+    }
+
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: end;
+      padding: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      min-width: min(100%, 210px);
+    }
+
+    label { font-weight: 700; }
+
+    input[type="date"], input[type="search"], select {
+      min-height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 8px 12px;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .summary-item {
+      display: grid;
+      gap: 2px;
+      background: #fff;
+      padding: 13px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .summary-item span {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .summary-item strong {
+      font-size: 30px;
+      line-height: 1.2;
+    }
+
+    .toolbar {
+      display: grid;
+      gap: 14px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+
+    .filter-row, .download-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .filter-button, .download-button, .reset-button {
+      min-height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      padding: 9px 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .filter-button[aria-pressed="true"] {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .download-button {
+      background: var(--accent-soft);
+      border-color: #b7d8d5;
+    }
+
+    .reset-button {
+      margin-left: auto;
+      color: var(--danger);
+      border-color: #e2b8b8;
+      background: #fff8f8;
+    }
+
+    .result-line {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+      align-items: start;
+    }
+
+    .word-card {
+      display: grid;
+      gap: 12px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(31, 41, 51, 0.06);
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .word-title {
+      margin: 0;
+      font-size: 26px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    .word-title small {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .meta {
+      display: grid;
+      gap: 3px;
+      margin: 0;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .meta div {
+      display: flex;
+      gap: 8px;
+    }
+
+    .status-label {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 15px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .status-not_started { color: var(--none); background: var(--none-soft); }
+    .status-review { color: var(--review); background: var(--review-soft); }
+    .status-completed { color: var(--done); background: var(--done-soft); }
+
+    .checks {
+      display: grid;
+      gap: 10px;
+    }
+
+    .check-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 50px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      font-size: 20px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .check-option input {
+      width: 28px;
+      height: 28px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .answer-toggle {
+      justify-self: start;
+      min-height: 46px;
+      border: 1px solid #b7d8d5;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      color: var(--ink);
+      padding: 8px 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .answer-box {
+      display: grid;
+      gap: 6px;
+      border: 1px solid #ead9a7;
+      border-radius: 8px;
+      background: #fff9e8;
+      padding: 12px;
+      font-size: 19px;
+      font-weight: 700;
+    }
+
+    .answer-box h3, .answer-box p { margin: 0; }
+    .answer-box h3 { font-size: 20px; line-height: 1.3; }
+    .answer-note { white-space: pre-line; }
+    .answer-help { color: var(--muted); font-size: 16px; font-weight: 700; }
+
+    .empty {
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      padding: 24px;
+      background: #fff;
+      color: var(--muted);
+      text-align: center;
+      font-weight: 700;
+    }
+
+    @media (max-width: 640px) {
+      body { font-size: 17px; }
+      .app { padding: 14px 10px 32px; }
+      .summary { grid-template-columns: 1fr; }
+      .cards { grid-template-columns: 1fr; }
+      .reset-button { margin-left: 0; }
+      .field { width: 100%; }
+      .filter-button, .download-button, .reset-button { flex: 1 1 150px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>語句ドリル 学習記録</h1>
+      <section class="top-bar" aria-label="学習日と検索">
+        <div class="field">
+          <label for="studyDate">日付</label>
+          <input id="studyDate" type="date">
+        </div>
+        <div class="field">
+          <label for="searchText">検索</label>
+          <input id="searchText" type="search" placeholder="語句・読み・カテゴリ">
+        </div>
+        <div class="field">
+          <label for="categoryFilter">カテゴリ</label>
+          <select id="categoryFilter"></select>
+        </div>
+      </section>
+    </header>
+
+    <section class="summary" aria-label="集計">
+      <div class="summary-item"><span>未着手</span><strong id="notStartedCount">0語</strong></div>
+      <div class="summary-item"><span>復習対象</span><strong id="reviewCount">0語</strong></div>
+      <div class="summary-item"><span>完了</span><strong id="completedCount">0語</strong></div>
+    </section>
+
+    <section class="toolbar" aria-label="表示切替とCSV">
+      <div class="filter-row" id="statusFilters"></div>
+      <div class="download-row">
+        <button class="download-button" type="button" id="downloadAll">全ログCSVダウンロード</button>
+        <button class="download-button" type="button" id="downloadReview">復習対象CSVダウンロード</button>
+        <button class="download-button" type="button" id="downloadVisible">表示中CSVダウンロード</button>
+        <button class="reset-button" type="button" id="clearAll">全チェックをクリア</button>
+      </div>
+    </section>
+
+    <p class="result-line" id="resultLine">読み込み中...</p>
+    <section class="cards" id="wordCards" aria-live="polite"></section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "knowledge-drill-learning-log-v1";
+    const DATA_URL = "data/words.json";
+    const FILTERS = [
+      { key: "today", label: "今日" },
+      { key: "all", label: "すべて" },
+      { key: "not_started", label: "未着手" },
+      { key: "review", label: "復習対象" },
+      { key: "completed", label: "完了" }
+    ];
+
+    const state = {
+      words: [],
+      records: loadRecords(),
+      activeFilter: "today",
+      visibleAnswers: new Set(),
+      visibleWords: []
+    };
+
+    const elements = {
+      studyDate: document.getElementById("studyDate"),
+      searchText: document.getElementById("searchText"),
+      categoryFilter: document.getElementById("categoryFilter"),
+      statusFilters: document.getElementById("statusFilters"),
+      cards: document.getElementById("wordCards"),
+      resultLine: document.getElementById("resultLine"),
+      notStartedCount: document.getElementById("notStartedCount"),
+      reviewCount: document.getElementById("reviewCount"),
+      completedCount: document.getElementById("completedCount"),
+      downloadAll: document.getElementById("downloadAll"),
+      downloadReview: document.getElementById("downloadReview"),
+      downloadVisible: document.getElementById("downloadVisible"),
+      clearAll: document.getElementById("clearAll")
+    };
+
+    init();
+
+    async function init() {
+      elements.studyDate.value = getTodayText();
+      setupFilters();
+      bindEvents();
+      await loadWords();
+      setupCategories();
+      render();
+    }
+
+    async function loadWords() {
+      try {
+        const response = await fetch(DATA_URL, { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const words = await response.json();
+        state.words = Array.isArray(words) ? words : [];
+      } catch (error) {
+        console.error("語句データを読み込めませんでした。", error);
+        elements.resultLine.textContent = "語句データを読み込めませんでした。";
+        elements.cards.innerHTML = '<div class="empty">data/words.json を確認してください。</div>';
+      }
+    }
+
+    function bindEvents() {
+      elements.studyDate.addEventListener("change", resetAnswersAndRender);
+      elements.searchText.addEventListener("input", resetAnswersAndRender);
+      elements.categoryFilter.addEventListener("change", resetAnswersAndRender);
+      elements.downloadAll.addEventListener("click", () => downloadCsv(state.words, "learning-log-all.csv"));
+      elements.downloadReview.addEventListener("click", () => {
+        const reviewWords = state.words.filter((word) => getStatus(word.id).key === "review");
+        downloadCsv(reviewWords, "learning-log-review.csv");
+      });
+      elements.downloadVisible.addEventListener("click", () => downloadCsv(state.visibleWords, "learning-log-visible.csv"));
+      elements.clearAll.addEventListener("click", clearAllChecks);
+    }
+
+    function setupFilters() {
+      elements.statusFilters.innerHTML = "";
+      for (const filter of FILTERS) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "filter-button";
+        button.dataset.filter = filter.key;
+        button.textContent = filter.label;
+        button.setAttribute("aria-pressed", filter.key === state.activeFilter ? "true" : "false");
+        button.addEventListener("click", () => {
+          state.activeFilter = filter.key;
+          state.visibleAnswers.clear();
+          updateFilterButtons();
+          render();
+        });
+        elements.statusFilters.appendChild(button);
+      }
+    }
+
+    function updateFilterButtons() {
+      for (const button of elements.statusFilters.querySelectorAll("button")) {
+        button.setAttribute("aria-pressed", button.dataset.filter === state.activeFilter ? "true" : "false");
+      }
+    }
+
+    function setupCategories() {
+      const categories = Array.from(new Set(state.words.map((word) => word.category).filter(Boolean))).sort();
+      elements.categoryFilter.innerHTML = "";
+      const allOption = document.createElement("option");
+      allOption.value = "all";
+      allOption.textContent = "すべて";
+      elements.categoryFilter.appendChild(allOption);
+      for (const category of categories) {
+        const option = document.createElement("option");
+        option.value = category;
+        option.textContent = category;
+        elements.categoryFilter.appendChild(option);
+      }
+    }
+
+    function render() {
+      state.visibleWords = getFilteredWords();
+      renderSummary();
+      renderCards(state.visibleWords);
+      elements.resultLine.textContent = `表示中：${state.visibleWords.length}語`;
+    }
+
+    function resetAnswersAndRender() {
+      state.visibleAnswers.clear();
+      render();
+    }
+
+    function getFilteredWords() {
+      const query = elements.searchText.value.trim().toLowerCase();
+      const selectedCategory = elements.categoryFilter.value;
+      const selectedDate = elements.studyDate.value;
+      const hasPlannedDates = state.words.some((word) => word.planned_date);
+
+      return state.words
+        .filter((word) => {
+          if (state.activeFilter === "today" && hasPlannedDates) return word.planned_date === selectedDate;
+          return true;
+        })
+        .filter((word) => {
+          if (["not_started", "review", "completed"].includes(state.activeFilter)) return getStatus(word.id).key === state.activeFilter;
+          return true;
+        })
+        .filter((word) => selectedCategory === "all" || word.category === selectedCategory)
+        .filter((word) => {
+          if (!query) return true;
+          const target = `${word.word} ${word.reading} ${word.category}`.toLowerCase();
+          return target.includes(query);
+        })
+        .sort((a, b) => {
+          const orderA = Number(a.display_order || a.id);
+          const orderB = Number(b.display_order || b.id);
+          return orderA - orderB || String(a.id).localeCompare(String(b.id));
+        });
+    }
+
+    function renderSummary() {
+      const counts = { not_started: 0, review: 0, completed: 0 };
+      for (const word of state.words) counts[getStatus(word.id).key] += 1;
+      elements.notStartedCount.textContent = `${counts.not_started}語`;
+      elements.reviewCount.textContent = `${counts.review}語`;
+      elements.completedCount.textContent = `${counts.completed}語`;
+    }
+
+    function renderCards(words) {
+      elements.cards.innerHTML = "";
+      if (words.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "表示する語句がありません。";
+        elements.cards.appendChild(empty);
+        return;
+      }
+
+      const fragment = document.createDocumentFragment();
+      for (const word of words) fragment.appendChild(createWordCard(word));
+      elements.cards.appendChild(fragment);
+    }
+
+    function createWordCard(word) {
+      const record = getRecord(word.id);
+      const status = getStatus(word.id);
+      const isAnswerVisible = state.visibleAnswers.has(word.id);
+      const answerId = `answer-${word.id}`;
+      const article = document.createElement("article");
+      article.className = "word-card";
+      article.dataset.wordId = word.id;
+
+      article.innerHTML = `
+        <div class="card-head">
+          <h2 class="word-title"><small>No.${escapeHtml(word.id)}</small>${escapeHtml(word.word)}</h2>
+          <span class="status-label status-${status.key}">${status.label}</span>
+        </div>
+        <dl class="meta">
+          <div><dt>読み：</dt><dd>${escapeHtml(word.reading)}</dd></div>
+          <div><dt>カテゴリ：</dt><dd>${escapeHtml(word.category)}</dd></div>
+        </dl>
+        <button class="answer-toggle" type="button" aria-expanded="${isAnswerVisible ? "true" : "false"}" aria-controls="${answerId}">
+          ${isAnswerVisible ? "答えを隠す" : "答えを見る"}
+        </button>
+        ${isAnswerVisible ? `
+          <section class="answer-box" id="${answerId}">
+            <h3>答え：</h3>
+            <p class="answer-note">${escapeHtml(word.answer_note || "答えデータはまだありません。")}</p>
+            <p class="answer-help">最後のチェックが合っていたら「わかった！」にチェックしよう。</p>
+          </section>
+        ` : ""}
+        <div class="checks">
+          <label class="check-option">
+            <input type="checkbox" data-kind="attempted" ${record.attempted ? "checked" : ""}>
+            <span>やった！</span>
+          </label>
+          <label class="check-option">
+            <input type="checkbox" data-kind="understood" ${record.understood ? "checked" : ""}>
+            <span>わかった！</span>
+          </label>
+        </div>
+      `;
+
+      article.querySelectorAll("input[type='checkbox']").forEach((checkbox) => {
+        checkbox.addEventListener("change", (event) => updateCheck(word.id, event.target.dataset.kind, event.target.checked));
+      });
+      article.querySelector(".answer-toggle").addEventListener("click", () => toggleAnswer(word.id));
+      return article;
+    }
+
+    function toggleAnswer(wordId) {
+      if (state.visibleAnswers.has(wordId)) state.visibleAnswers.delete(wordId);
+      else state.visibleAnswers.add(wordId);
+      render();
+    }
+
+    function updateCheck(wordId, kind, checked) {
+      const next = { ...getRecord(wordId) };
+      if (kind === "understood") {
+        next.understood = checked;
+        if (checked) next.attempted = true;
+      }
+      if (kind === "attempted") {
+        next.attempted = checked;
+        if (!checked) next.understood = false;
+      }
+      next.lastUpdated = elements.studyDate.value || getTodayText();
+      state.records[wordId] = next;
+      saveRecords();
+      render();
+    }
+
+    function getRecord(wordId) {
+      return {
+        attempted: Boolean(state.records[wordId]?.attempted),
+        understood: Boolean(state.records[wordId]?.understood),
+        lastUpdated: state.records[wordId]?.lastUpdated || ""
+      };
+    }
+
+    function getStatus(wordId) {
+      const record = getRecord(wordId);
+      if (record.attempted && record.understood) return { key: "completed", label: "完了" };
+      if (record.attempted && !record.understood) return { key: "review", label: "復習対象" };
+      return { key: "not_started", label: "未着手" };
+    }
+
+    function loadRecords() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        return stored ? JSON.parse(stored) : {};
+      } catch (error) {
+        console.warn("学習記録を読み込めませんでした。", error);
+        return {};
+      }
+    }
+
+    function saveRecords() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.records));
+    }
+
+    function clearAllChecks() {
+      if (!confirm("すべてのチェックをクリアします。よろしいですか？")) return;
+      state.records = {};
+      localStorage.removeItem(STORAGE_KEY);
+      render();
+    }
+
+    function downloadCsv(words, filename) {
+      const csv = buildCsv(words);
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function buildCsv(words) {
+      const rows = [["date", "id", "word", "reading", "category", "planned_date", "lesson_group", "attempted", "understood", "status", "lastUpdated"]];
+      const date = elements.studyDate.value || getTodayText();
+      for (const word of words) {
+        const record = getRecord(word.id);
+        rows.push([
+          date,
+          word.id,
+          word.word,
+          word.reading,
+          word.category,
+          word.planned_date,
+          word.lesson_group,
+          String(record.attempted),
+          String(record.understood),
+          getStatus(word.id).key,
+          record.lastUpdated
+        ]);
+      }
+      return rows.map((row) => row.map(csvEscape).join(",")).join("\r\n");
+    }
+
+    function csvEscape(value) {
+      const text = String(value ?? "");
+      if (/[",\r\n]/.test(text)) return `"${text.replace(/"/g, '""')}"`;
+      return text;
+    }
+
+    function getTodayText() {
+      const now = new Date();
+      const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+      return localDate.toISOString().slice(0, 10);
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
