@@ -1,102 +1,252 @@
 [
   {
     "id": "001",
-    "word": "一目散",
-    "reading": "いちもくさん",
+    "word": "意気地",
+    "reading": "いくじ",
     "category": "三字熟語",
-    "planned_date": "",
-    "lesson_group": "",
+    "planned_date": "2026-06-01",
+    "lesson_group": "keimeikan_p33",
     "display_order": 1,
-    "answer_note": "2:イ\n3:イ\n4:全部「一目散」\n6:イ"
+    "answer_note": "2:イ　3:ア　4:全部「意気地」　6:ウ"
   },
   {
     "id": "002",
-    "word": "銀世界",
-    "reading": "ぎんせかい",
+    "word": "衣食住",
+    "reading": "いしょくじゅう",
     "category": "三字熟語",
-    "planned_date": "",
-    "lesson_group": "",
+    "planned_date": "2026-06-01",
+    "lesson_group": "keimeikan_p33",
     "display_order": 2,
-    "answer_note": "2:ア　3:ウ　4:全部「銀世界」　6:イ"
+    "answer_note": "2:イ　3:ウ　4:全部「衣食住」　6:ア"
   },
   {
     "id": "003",
-    "word": "紅一点",
-    "reading": "こういってん",
+    "word": "一目散",
+    "reading": "いちもくさん",
     "category": "三字熟語",
-    "planned_date": "",
-    "lesson_group": "",
+    "planned_date": "2026-05-31",
+    "lesson_group": "keimeikan_p33",
     "display_order": 3,
-    "answer_note": "2:ウ　3:ア　4:全部「紅一点」　6:イ"
+    "answer_note": "2:ア　3:ウ　4:全部「一目散」　6:イ"
   },
   {
     "id": "004",
-    "word": "先入観",
-    "reading": "せんにゅうかん",
+    "word": "過保護",
+    "reading": "かほご",
     "category": "三字熟語",
-    "planned_date": "",
-    "lesson_group": "",
+    "planned_date": "2026-06-01",
+    "lesson_group": "keimeikan_p33",
     "display_order": 4,
-    "answer_note": "2:イ　3:ウ　4:全部「先入観」　6:ア"
+    "answer_note": "2:イ　3:ア　4:全部「過保護」　6:ウ"
   },
   {
     "id": "005",
-    "word": "第三者",
-    "reading": "だいさんしゃ",
+    "word": "銀世界",
+    "reading": "ぎんせかい",
     "category": "三字熟語",
-    "planned_date": "",
-    "lesson_group": "",
+    "planned_date": "2026-05-31",
+    "lesson_group": "keimeikan_p33",
     "display_order": 5,
-    "answer_note": "2:ア　3:イ　4:全部「第三者」　6:ウ"
+    "answer_note": "2:ウ　3:イ　4:全部「銀世界」　6:ア"
   },
   {
     "id": "006",
-    "word": "異口同音",
-    "reading": "いくどうおん",
-    "category": "四字熟語",
-    "planned_date": "",
-    "lesson_group": "",
+    "word": "紅一点",
+    "reading": "こういってん",
+    "category": "三字熟語",
+    "planned_date": "2026-05-31",
+    "lesson_group": "keimeikan_p33",
     "display_order": 6,
-    "answer_note": "2:イ　3:ア　4:全部「異口同音」　6:ウ"
+    "answer_note": "2:ア　3:ウ　4:全部「紅一点」　6:イ"
   },
   {
     "id": "007",
-    "word": "一石二鳥",
-    "reading": "いっせきにちょう",
-    "category": "四字熟語",
-    "planned_date": "",
-    "lesson_group": "",
+    "word": "先入観",
+    "reading": "せんにゅうかん",
+    "category": "三字熟語",
+    "planned_date": "2026-06-02",
+    "lesson_group": "keimeikan_p33",
     "display_order": 7,
-    "answer_note": "2:ウ　3:イ　4:全部「一石二鳥」　6:ア"
+    "answer_note": "2:イ　3:ア　4:全部「先入観」　6:ウ"
   },
   {
     "id": "008",
-    "word": "一進一退",
-    "reading": "いっしんいったい",
-    "category": "四字熟語",
-    "planned_date": "",
-    "lesson_group": "",
+    "word": "大黒柱",
+    "reading": "だいこくばしら",
+    "category": "三字熟語",
+    "planned_date": "2026-06-02",
+    "lesson_group": "keimeikan_p33",
     "display_order": 8,
-    "answer_note": "2:イ　3:ウ　4:全部「一進一退」　6:ア"
+    "answer_note": "2:ウ　3:イ　4:全部「大黒柱」　6:ア"
   },
   {
     "id": "009",
-    "word": "一長一短",
-    "reading": "いっちょういったん",
-    "category": "四字熟語",
-    "planned_date": "",
-    "lesson_group": "",
+    "word": "第三者",
+    "reading": "だいさんしゃ",
+    "category": "三字熟語",
+    "planned_date": "2026-06-02",
+    "lesson_group": "keimeikan_p33",
     "display_order": 9,
-    "answer_note": "2:ア　3:イ　4:全部「一長一短」　6:ウ"
+    "answer_note": "2:ア　3:ウ　4:全部「第三者」　6:イ"
   },
   {
     "id": "010",
+    "word": "異口同音",
+    "reading": "いくどうおん",
+    "category": "四字熟語",
+    "planned_date": "2026-06-03",
+    "lesson_group": "keimeikan_p33",
+    "display_order": 10,
+    "answer_note": "2:イ　3:ア　4:全部「異口同音」　6:ウ"
+  },
+  {
+    "id": "011",
+    "word": "一日千秋",
+    "reading": "いちじつせんしゅう",
+    "category": "四字熟語",
+    "planned_date": "2026-06-03",
+    "lesson_group": "keimeikan_p33",
+    "display_order": 11,
+    "answer_note": "2:ウ　3:イ　4:全部「一日千秋」　6:ア"
+  },
+  {
+    "id": "012",
+    "word": "一望千里",
+    "reading": "いちぼうせんり",
+    "category": "四字熟語",
+    "planned_date": "2026-06-03",
+    "lesson_group": "keimeikan_p33",
+    "display_order": 12,
+    "answer_note": "2:ア　3:ウ　4:全部「一望千里」　6:イ"
+  },
+  {
+    "id": "013",
+    "word": "一石二鳥",
+    "reading": "いっせきにちょう",
+    "category": "四字熟語",
+    "planned_date": "2026-06-04",
+    "lesson_group": "keimeikan_p33",
+    "display_order": 13,
+    "answer_note": "2:イ　3:ア　4:全部「一石二鳥」　6:ウ"
+  },
+  {
+    "id": "014",
+    "word": "一進一退",
+    "reading": "いっしんいったい",
+    "category": "四字熟語",
+    "planned_date": "2026-06-04",
+    "lesson_group": "keimeikan_p33",
+    "display_order": 14,
+    "answer_note": "2:ウ　3:イ　4:全部「一進一退」　6:ア"
+  },
+  {
+    "id": "015",
+    "word": "一心同体",
+    "reading": "いっしんどうたい",
+    "category": "四字熟語",
+    "planned_date": "2026-06-04",
+    "lesson_group": "keimeikan_p33",
+    "display_order": 15,
+    "answer_note": "2:ア　3:ウ　4:全部「一心同体」　6:イ"
+  },
+  {
+    "id": "016",
+    "word": "一心不乱",
+    "reading": "いっしんふらん",
+    "category": "四字熟語",
+    "planned_date": "2026-06-05",
+    "lesson_group": "keimeikan_p33",
+    "display_order": 16,
+    "answer_note": "2:イ　3:ア　4:全部「一心不乱」　6:ウ"
+  },
+  {
+    "id": "017",
+    "word": "一朝一夕",
+    "reading": "いっちょういっせき",
+    "category": "四字熟語",
+    "planned_date": "2026-06-05",
+    "lesson_group": "keimeikan_p33",
+    "display_order": 17,
+    "answer_note": "2:ウ　3:イ　4:全部「一朝一夕」　6:ア"
+  },
+  {
+    "id": "018",
+    "word": "一長一短",
+    "reading": "いっちょういったん",
+    "category": "四字熟語",
+    "planned_date": "2026-06-05",
+    "lesson_group": "keimeikan_p33",
+    "display_order": 18,
+    "answer_note": "2:ア　3:ウ　4:全部「一長一短」　6:イ"
+  },
+  {
+    "id": "019",
+    "word": "意味深長",
+    "reading": "いみしんちょう",
+    "category": "四字熟語",
+    "planned_date": "2026-06-06",
+    "lesson_group": "keimeikan_p33",
+    "display_order": 19,
+    "answer_note": "2:イ　3:ア　4:全部「意味深長」　6:ウ"
+  },
+  {
+    "id": "020",
+    "word": "海千山千",
+    "reading": "うみせんやません",
+    "category": "四字熟語",
+    "planned_date": "2026-06-06",
+    "lesson_group": "keimeikan_p33",
+    "display_order": 20,
+    "answer_note": "2:ウ　3:イ　4:全部「海千山千」　6:ア"
+  },
+  {
+    "id": "021",
+    "word": "我田引水",
+    "reading": "がでんいんすい",
+    "category": "四字熟語",
+    "planned_date": "2026-06-06",
+    "lesson_group": "keimeikan_p33",
+    "display_order": 21,
+    "answer_note": "2:ア　3:ウ　4:全部「我田引水」　6:イ"
+  },
+  {
+    "id": "022",
+    "word": "完全無欠",
+    "reading": "かんぜんむけつ",
+    "category": "四字熟語",
+    "planned_date": "2026-06-07",
+    "lesson_group": "keimeikan_p33",
+    "display_order": 22,
+    "answer_note": "2:イ　3:ア　4:全部「完全無欠」　6:ウ"
+  },
+  {
+    "id": "023",
     "word": "急転直下",
     "reading": "きゅうてんちょっか",
     "category": "四字熟語",
-    "planned_date": "",
-    "lesson_group": "",
-    "display_order": 10,
-    "answer_note": "2:ウ　3:ア　4:全部「急転直下」　6:イ"
+    "planned_date": "2026-06-07",
+    "lesson_group": "keimeikan_p33",
+    "display_order": 23,
+    "answer_note": "2:ウ　3:イ　4:全部「急転直下」　6:ア"
+  },
+  {
+    "id": "024",
+    "word": "空前絶後",
+    "reading": "くうぜんぜつご",
+    "category": "四字熟語",
+    "planned_date": "2026-06-07",
+    "lesson_group": "keimeikan_p33",
+    "display_order": 24,
+    "answer_note": "2:ア　3:ウ　4:全部「空前絶後」　6:イ"
+  },
+  {
+    "id": "025",
+    "word": "公平無私",
+    "reading": "こうへいむし",
+    "category": "四字熟語",
+    "planned_date": "2026-06-08",
+    "lesson_group": "keimeikan_p33",
+    "display_order": 25,
+    "answer_note": "2:イ　3:ア　4:全部「公平無私」　6:ウ"
   }
 ]
