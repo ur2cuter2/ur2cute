@@ -10,6 +10,16 @@
     "answer_note": "2:イ　3:ア　4:全部「意気地」　6:ウ"
   },
   {
+    "id": "026",
+    "word": "口車に乗る",
+    "reading": "くちぐるまにのる",
+    "category": "慣用句",
+    "planned_date": "2026-06-08",
+    "lesson_group": "kakushu_20260531",
+    "display_order": 1,
+    "answer_note": "2:ア　3:ア　4:全部「口車に乗る」　6:イ"
+  },
+  {
     "id": "002",
     "word": "衣食住",
     "reading": "いしょくじゅう",
@@ -18,6 +28,16 @@
     "lesson_group": "keimeikan_p33",
     "display_order": 2,
     "answer_note": "2:イ　3:ウ　4:全部「衣食住」　6:ア"
+  },
+  {
+    "id": "027",
+    "word": "横車を押す",
+    "reading": "よこぐるまをおす",
+    "category": "慣用句",
+    "planned_date": "2026-06-08",
+    "lesson_group": "kakushu_20260531",
+    "display_order": 2,
+    "answer_note": "2:ウ　3:イ　4:全部「横車を押す」　6:ウ"
   },
   {
     "id": "003",
@@ -30,6 +50,16 @@
     "answer_note": "2:ア　3:ウ　4:全部「一目散」　6:イ"
   },
   {
+    "id": "028",
+    "word": "虫の息",
+    "reading": "むしのいき",
+    "category": "慣用句",
+    "planned_date": "2026-06-09",
+    "lesson_group": "kakushu_20260531",
+    "display_order": 3,
+    "answer_note": "2:イ　3:イ　4:全部「虫の息」　6:ウ"
+  },
+  {
     "id": "004",
     "word": "過保護",
     "reading": "かほご",
@@ -38,6 +68,16 @@
     "lesson_group": "keimeikan_p33",
     "display_order": 4,
     "answer_note": "2:イ　3:ア　4:全部「過保護」　6:ウ"
+  },
+  {
+    "id": "029",
+    "word": "虫が知らせる",
+    "reading": "むしがしらせる",
+    "category": "慣用句",
+    "planned_date": "2026-06-09",
+    "lesson_group": "kakushu_20260531",
+    "display_order": 4,
+    "answer_note": "2:ア　3:イ　4:全部「虫が知らせる」　6:ウ"
   },
   {
     "id": "005",
@@ -50,6 +90,16 @@
     "answer_note": "2:ウ　3:イ　4:全部「銀世界」　6:ア"
   },
   {
+    "id": "030",
+    "word": "油を絞る",
+    "reading": "あぶらをしぼる",
+    "category": "慣用句",
+    "planned_date": "2026-06-09",
+    "lesson_group": "kakushu_20260531",
+    "display_order": 5,
+    "answer_note": "2:イ　3:ア　4:全部「油を絞る」　6:ウ"
+  },
+  {
     "id": "006",
     "word": "紅一点",
     "reading": "こういってん",
@@ -58,6 +108,16 @@
     "lesson_group": "keimeikan_p33",
     "display_order": 6,
     "answer_note": "2:ア　3:ウ　4:全部「紅一点」　6:イ"
+  },
+  {
+    "id": "031",
+    "word": "二の足を踏む",
+    "reading": "にのあしをふむ",
+    "category": "慣用句",
+    "planned_date": "2026-06-10",
+    "lesson_group": "kakushu_20260531",
+    "display_order": 6,
+    "answer_note": "2:イ　3:ア　4:全部「二の足を踏む」　6:ウ"
   },
   {
     "id": "007",
@@ -70,6 +130,16 @@
     "answer_note": "2:イ　3:ア　4:全部「先入観」　6:ウ"
   },
   {
+    "id": "032",
+    "word": "木で鼻をくくる",
+    "reading": "きではなをくくる",
+    "category": "慣用句",
+    "planned_date": "2026-06-10",
+    "lesson_group": "kakushu_20260531",
+    "display_order": 7,
+    "answer_note": "2:ウ　3:ア　4:全部「木で鼻をくくる」　6:イ"
+  },
+  {
     "id": "008",
     "word": "大黒柱",
     "reading": "だいこくばしら",
@@ -78,6 +148,16 @@
     "lesson_group": "keimeikan_p33",
     "display_order": 8,
     "answer_note": "2:ウ　3:イ　4:全部「大黒柱」　6:ア"
+  },
+  {
+    "id": "033",
+    "word": "竹を割ったような",
+    "reading": "たけをわったような",
+    "category": "慣用句",
+    "planned_date": "2026-06-10",
+    "lesson_group": "kakushu_20260531",
+    "display_order": 8,
+    "answer_note": "2:イ　3:ア　4:全部「竹を割ったような」　6:ウ"
   },
   {
     "id": "009",
@@ -90,6 +170,16 @@
     "answer_note": "2:ア　3:ウ　4:全部「第三者」　6:イ"
   },
   {
+    "id": "034",
+    "word": "おくびにも出さない",
+    "reading": "おくびにもださない",
+    "category": "慣用句",
+    "planned_date": "2026-06-11",
+    "lesson_group": "kakushu_20260531",
+    "display_order": 9,
+    "answer_note": "2:ウ　3:ア　4:全部「おくびにも出さない」　6:ウ"
+  },
+  {
     "id": "010",
     "word": "異口同音",
     "reading": "いくどうおん",
@@ -98,6 +188,16 @@
     "lesson_group": "keimeikan_p33",
     "display_order": 10,
     "answer_note": "2:イ　3:ア　4:全部「異口同音」　6:ウ"
+  },
+  {
+    "id": "035",
+    "word": "高をくくる",
+    "reading": "たかをくくる",
+    "category": "慣用句",
+    "planned_date": "2026-06-11",
+    "lesson_group": "kakushu_20260531",
+    "display_order": 10,
+    "answer_note": "2:ア　3:ア　4:全部「高をくくる」　6:イ"
   },
   {
     "id": "011",
@@ -110,6 +210,16 @@
     "answer_note": "2:ウ　3:イ　4:全部「一日千秋」　6:ア"
   },
   {
+    "id": "036",
+    "word": "襟を正す",
+    "reading": "えりをただす",
+    "category": "慣用句",
+    "planned_date": "2026-06-11",
+    "lesson_group": "kakushu_20260531",
+    "display_order": 11,
+    "answer_note": "2:イ　3:ウ　4:全部「襟を正す」　6:イ"
+  },
+  {
     "id": "012",
     "word": "一望千里",
     "reading": "いちぼうせんり",
@@ -118,6 +228,16 @@
     "lesson_group": "keimeikan_p33",
     "display_order": 12,
     "answer_note": "2:ア　3:ウ　4:全部「一望千里」　6:イ"
+  },
+  {
+    "id": "037",
+    "word": "固唾をのむ",
+    "reading": "かたずをのむ",
+    "category": "慣用句",
+    "planned_date": "2026-06-12",
+    "lesson_group": "kakushu_20260531",
+    "display_order": 12,
+    "answer_note": "2:ア　3:ア　4:全部「固唾をのむ」　6:ウ"
   },
   {
     "id": "013",
@@ -130,6 +250,16 @@
     "answer_note": "2:イ　3:ア　4:全部「一石二鳥」　6:ウ"
   },
   {
+    "id": "038",
+    "word": "音を上げる",
+    "reading": "ねをあげる",
+    "category": "慣用句",
+    "planned_date": "2026-06-12",
+    "lesson_group": "kakushu_20260531",
+    "display_order": 13,
+    "answer_note": "2:ウ　3:ア　4:全部「音を上げる」　6:ウ"
+  },
+  {
     "id": "014",
     "word": "一進一退",
     "reading": "いっしんいったい",
@@ -138,6 +268,16 @@
     "lesson_group": "keimeikan_p33",
     "display_order": 14,
     "answer_note": "2:ウ　3:イ　4:全部「一進一退」　6:ア"
+  },
+  {
+    "id": "039",
+    "word": "らちが明かない",
+    "reading": "らちがあかない",
+    "category": "慣用句",
+    "planned_date": "2026-06-12",
+    "lesson_group": "kakushu_20260531",
+    "display_order": 14,
+    "answer_note": "2:ウ　3:イ　4:全部「らちが明かない」　6:ア"
   },
   {
     "id": "015",
@@ -150,6 +290,16 @@
     "answer_note": "2:ア　3:ウ　4:全部「一心同体」　6:イ"
   },
   {
+    "id": "040",
+    "word": "棚に上げる",
+    "reading": "たなにあげる",
+    "category": "慣用句",
+    "planned_date": "2026-06-13",
+    "lesson_group": "kakushu_20260531",
+    "display_order": 15,
+    "answer_note": "2:イ　3:ア　4:全部「棚に上げる」　6:ウ"
+  },
+  {
     "id": "016",
     "word": "一心不乱",
     "reading": "いっしんふらん",
@@ -160,6 +310,16 @@
     "answer_note": "2:イ　3:ア　4:全部「一心不乱」　6:ウ"
   },
   {
+    "id": "041",
+    "word": "日進月歩",
+    "reading": "にっしんげっぽ",
+    "category": "四字熟語",
+    "planned_date": "2026-06-13",
+    "lesson_group": "kakushu_20260531",
+    "display_order": 16,
+    "answer_note": "2:イ　3:イ　4:全部「日進月歩」　6:ウ"
+  },
+  {
     "id": "017",
     "word": "一朝一夕",
     "reading": "いっちょういっせき",
@@ -168,6 +328,16 @@
     "lesson_group": "keimeikan_p33",
     "display_order": 17,
     "answer_note": "2:ウ　3:イ　4:全部「一朝一夕」　6:ア"
+  },
+  {
+    "id": "042",
+    "word": "温故知新",
+    "reading": "おんこちしん",
+    "category": "四字熟語",
+    "planned_date": "2026-06-13",
+    "lesson_group": "kakushu_20260531",
+    "display_order": 17,
+    "answer_note": "2:ア　3:ア　4:全部「温故知新」　6:イ"
   },
   {
     "id": "018",
