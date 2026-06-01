@@ -347,6 +347,7 @@
     const DATA_URL = "data/words.json";
     const FILTERS = [
       { key: "today", label: "今日" },
+      { key: "due_today", label: "今日やる" },
       { key: "all", label: "すべて" },
       { key: "not_started", label: "未着手" },
       { key: "review", label: "復習対象" },
@@ -475,6 +476,7 @@
       return state.words
         .filter((word) => {
           if (state.activeFilter === "today" && hasPlannedDates) return word.planned_date === selectedDate;
+          if (state.activeFilter === "due_today") return isDueToday(word, selectedDate);
           return true;
         })
         .filter((word) => {
@@ -488,10 +490,24 @@
           return target.includes(query);
         })
         .sort((a, b) => {
+          if (state.activeFilter === "due_today") return compareDueToday(a, b);
           const orderA = Number(a.display_order || a.id);
           const orderB = Number(b.display_order || b.id);
           return orderA - orderB || String(a.id).localeCompare(String(b.id));
         });
+    }
+
+    function isDueToday(word, selectedDate) {
+      return Boolean(word.planned_date)
+        && word.planned_date <= selectedDate
+        && !getRecord(word.id).attempted;
+    }
+
+    function compareDueToday(a, b) {
+      return String(a.planned_date || "").localeCompare(String(b.planned_date || ""))
+        || String(a.lesson_group || "").localeCompare(String(b.lesson_group || ""), "ja", { numeric: true })
+        || Number(a.display_order || a.id) - Number(b.display_order || b.id)
+        || String(a.id).localeCompare(String(b.id), "ja", { numeric: true });
     }
 
     function renderSummary() {
