@@ -558,7 +558,7 @@
           <section class="answer-box" id="${answerId}">
             <h3>答え：</h3>
             <p class="answer-note">${escapeHtml(word.answer_note || "答えデータはまだありません。")}</p>
-            <p class="answer-help">最後のチェックが合っていたら「わかった！」にチェックしよう。</p>
+            <p class="answer-help">意味を覚えたら「意味を覚えた！」にチェックしよう。</p>
           </section>
         ` : ""}
         <div class="checks">
@@ -568,7 +568,7 @@
           </label>
           <label class="check-option">
             <input type="checkbox" data-kind="understood" ${record.understood ? "checked" : ""}>
-            <span>わかった！</span>
+            <span>意味を覚えた！</span>
           </label>
         </div>
       `;
