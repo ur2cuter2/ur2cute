@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>監査リスクシナリオ・ガチャ</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #17151f;
+    --panel: #252033;
+    --panel-light: #322a43;
+    --gold: #f0c766;
+    --gold-dark: #9d7434;
+    --text: #f8f1dc;
+    --muted: #cbbfa3;
+    --accent: #7bd3ff;
+    --danger: #ff8c7a;
+    --shadow: rgba(0, 0, 0, 0.45);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Hiragino Sans", "Yu Gothic", "Yu Gothic UI", Meiryo, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(circle at top, rgba(123, 211, 255, 0.16), transparent 36rem),
+      linear-gradient(135deg, #12101a 0%, var(--bg) 48%, #21192a 100%);
+    line-height: 1.7;
+  }
+
+  .app {
+    width: min(1120px, calc(100% - 32px));
+    margin: 0 auto;
+    padding: 32px 0 48px;
+  }
+
+  header {
+    position: relative;
+    overflow: hidden;
+    padding: 28px;
+    border: 3px solid var(--gold-dark);
+    border-radius: 18px;
+    background: linear-gradient(145deg, rgba(50, 42, 67, 0.96), rgba(28, 23, 38, 0.96));
+    box-shadow: 0 18px 40px var(--shadow), inset 0 0 0 2px rgba(240, 199, 102, 0.18);
+  }
+
+  header::after {
+    content: "✦";
+    position: absolute;
+    right: 28px;
+    top: 18px;
+    color: rgba(240, 199, 102, 0.32);
+    font-size: 96px;
+    line-height: 1;
+    transform: rotate(12deg);
+  }
+
+  .badge {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 10px;
+    padding: 4px 12px;
+    border: 1px solid rgba(240, 199, 102, 0.55);
+    border-radius: 999px;
+    color: var(--gold);
+    background: rgba(0, 0, 0, 0.18);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 4rem);
+    letter-spacing: 0.04em;
+    text-shadow: 0 3px 0 #4b3620, 0 8px 18px rgba(0, 0, 0, 0.4);
+  }
+
+  .lead {
+    max-width: 760px;
+    margin: 12px 0 0;
+    color: var(--muted);
+    font-size: 1.05rem;
+  }
+
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin: 24px 0;
+  }
+
+  button {
+    appearance: none;
+    border: 0;
+    border-radius: 12px;
+    color: #24170a;
+    background: linear-gradient(180deg, #ffe39a 0%, var(--gold) 58%, #c99037 100%);
+    box-shadow: 0 6px 0 #6f4a22, 0 12px 22px rgba(0, 0, 0, 0.28);
+    cursor: pointer;
+    font: inherit;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    padding: 12px 18px;
+    transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+  }
+
+  button:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+  }
+
+  button:active {
+    box-shadow: 0 2px 0 #6f4a22, 0 8px 16px rgba(0, 0, 0, 0.22);
+    transform: translateY(4px);
+  }
+
+  .copy-button {
+    color: var(--text);
+    background: linear-gradient(180deg, #5d7089 0%, #3c4a61 60%, #263347 100%);
+    box-shadow: 0 6px 0 #172033, 0 12px 22px rgba(0, 0, 0, 0.28);
+  }
+
+  .status {
+    min-height: 1.7em;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  .card {
+    min-height: 240px;
+    padding: 18px;
+    border: 2px solid rgba(240, 199, 102, 0.55);
+    border-radius: 16px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent),
+      var(--panel);
+    box-shadow: 0 14px 28px var(--shadow), inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+
+  .card h2 {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 0 0 12px;
+    color: var(--gold);
+    font-size: 1.05rem;
+  }
+
+  .card .result {
+    margin: 0;
+    font-size: clamp(1.1rem, 2.2vw, 1.45rem);
+    font-weight: 800;
+    line-height: 1.45;
+  }
+
+  .card .hint {
+    margin: 14px 0 0;
+    color: var(--muted);
+    font-size: 0.93rem;
+  }
+
+  .memo-box {
+    margin-top: 18px;
+    padding: 20px;
+    border: 2px solid rgba(123, 211, 255, 0.46);
+    border-radius: 16px;
+    background: rgba(8, 15, 24, 0.66);
+    box-shadow: 0 14px 28px var(--shadow);
+  }
+
+  .memo-box h2 {
+    margin: 0 0 10px;
+    color: var(--accent);
+    font-size: 1.1rem;
+  }
+
+  .memo-text {
+    margin: 0;
+    white-space: pre-wrap;
+  }
+
+  .starter-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 18px;
+  }
+
+  .starter {
+    padding: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.045);
+  }
+
+  .starter strong {
+    color: var(--gold);
+  }
+
+  footer {
+    margin-top: 22px;
+    color: var(--muted);
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .shake {
+    animation: shake 430ms ease;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-5px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(3px); }
+  }
+
+  @media (max-width: 900px) {
+    .cards,
+    .starter-list {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .app {
+      width: min(100% - 20px, 1120px);
+      padding-top: 12px;
+    }
+
+    header {
+      padding: 20px;
+    }
+
+    header::after {
+      display: none;
+    }
+
+    .cards,
+    .starter-list {
+      grid-template-columns: 1fr;
+    }
+
+    button {
+      width: 100%;
+    }
+  }
+</style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <span class="badge">⚔️ Internal Audit Training</span>
+      <h1>監査リスクシナリオ・ガチャ</h1>
+      <p class="lead">4つのカードを組み合わせて、内部監査のリスクシナリオを発想する練習ツールです。監査初心者が「どこを見るか」「何を確かめるか」を考える入口として使えます。</p>
+    </header>
+
+    <section class="controls" aria-label="ガチャ操作">
+      <button id="rollButton" type="button">🎲 ガチャを回す</button>
+      <button id="copyButton" class="copy-button" type="button">📋 結果をコピー</button>
+      <span id="status" class="status" role="status" aria-live="polite"></span>
+    </section>
+
+    <section id="cards" class="cards" aria-label="ガチャ結果">
+      <article class="card">
+        <h2>🏰 プロセス</h2>
+        <p id="processResult" class="result"></p>
+        <p class="hint">業務のどの場面を監査対象にするかを表します。</p>
+      </article>
+      <article class="card">
+        <h2>🐉 リスク</h2>
+        <p id="riskResult" class="result"></p>
+        <p class="hint">発生すると困る事象や影響を想像します。</p>
+      </article>
+      <article class="card">
+        <h2>🛡️ あるべき統制</h2>
+        <p id="controlResult" class="result"></p>
+        <p class="hint">リスクを下げるための仕組みや確認行為です。</p>
+      </article>
+      <article class="card">
+        <h2>🔍 監査手続</h2>
+        <p id="procedureResult" class="result"></p>
+        <p class="hint">統制が有効かを確かめる具体的な監査行動です。</p>
+      </article>
+    </section>
+
+    <section class="memo-box" aria-label="監査メモ用文章">
+      <h2>📝 監査メモ用の文章</h2>
+      <p id="memoText" class="memo-text"></p>
+    </section>
+
+    <section class="starter-list" aria-label="初心者向けの考え方">
+      <div class="starter"><strong>1. 状況を読む</strong><br>表示されたプロセスで、誰が何を入力・承認・記録するかを考えます。</div>
+      <div class="starter"><strong>2. 影響を広げる</strong><br>リスクが起きた場合の金額影響、法令影響、顧客影響を一つ足してみます。</div>
+      <div class="starter"><strong>3. 証拠を探す</strong><br>統制の証跡として、申請書、承認ログ、照合表、例外リストなどを想像します。</div>
+    </section>
+
+    <footer>勇者の装備を選ぶように、監査の視点を組み合わせてみましょう。</footer>
+  </main>
+
+<script>
+  const scenarios = {
+    processes: [
+      "購買依頼から発注までのプロセス",
+      "仕入先登録・変更のプロセス",
+      "請求書受領から支払承認までのプロセス",
+      "売上計上と請求書発行のプロセス",
+      "契約締結・契約更新のプロセス",
+      "在庫入出庫と棚卸のプロセス",
+      "経費精算の申請・承認プロセス",
+      "ユーザーID付与・権限変更のプロセス",
+      "勤怠締めと給与計算のプロセス",
+      "個人情報の取得・保管・廃棄プロセス",
+      "システム変更管理のプロセス",
+      "苦情受付と是正対応のプロセス"
+    ],
+    risks: [
+      "承認されていない取引が処理され、会社に不要な支出が発生する",
+      "架空または重複した仕入先に支払われ、不正支出が発生する",
+      "請求・支払の誤りにより、過払いまたは未回収が発生する",
+      "売上の計上時期を誤り、財務報告の信頼性が低下する",
+      "契約条件を見落とし、違約金や機会損失が発生する",
+      "実在庫と帳簿在庫がずれ、欠品や評価損の判断を誤る",
+      "私的利用や規程外の経費が精算される",
+      "過大なシステム権限により、不正操作や情報漏えいが発生する",
+      "勤怠データの誤りにより、給与の過不足払いが発生する",
+      "個人情報の取扱不備により、漏えいや法令違反が発生する",
+      "未検証のシステム変更により、業務停止やデータ不整合が発生する",
+      "苦情対応が遅れ、顧客離れやブランド毀損につながる"
+    ],
+    controls: [
+      "職務分掌に基づき、申請者とは別の責任者が承認する",
+      "新規登録・変更時に根拠資料と反社・重複チェックを実施する",
+      "発注書、検収記録、請求書を照合してから処理する",
+      "会計方針に沿った計上基準と月次レビューを設ける",
+      "契約台帳で重要条件と更新期限を管理し、期限前に通知する",
+      "定期棚卸を実施し、差異原因を調査して承認を受ける",
+      "経費規程、領収書、上長承認を必須にする",
+      "最小権限の原則に基づき、権限付与と定期棚卸を実施する",
+      "勤怠締め後に本人確認と上長承認を行う",
+      "個人情報へのアクセス制限、保存期限管理、廃棄記録を整備する",
+      "変更申請、テスト結果、承認、リリース記録を残す",
+      "苦情の受付日、担当者、対応期限、再発防止策を管理する"
+    ],
+    procedures: [
+      "サンプル取引を抽出し、申請書と承認記録が規程どおりか確認する",
+      "マスタ変更ログを閲覧し、根拠資料と承認者を突合する",
+      "発注書・検収記録・請求書の三点照合が実施された証跡を確認する",
+      "月末前後の取引を抽出し、計上日と根拠資料の整合性を確認する",
+      "契約台帳を閲覧し、重要条件と更新期限の管理状況を確認する",
+      "棚卸差異リストを閲覧し、原因分析と承認の有無を確認する",
+      "経費精算データを抽出し、規程外項目や同一領収書の重複を確認する",
+      "権限一覧を閲覧し、退職者・異動者・高権限者の妥当性を確認する",
+      "勤怠修正ログを抽出し、本人申請と上長承認の証跡を確認する",
+      "個人情報管理台帳とアクセスログを確認し、不要な閲覧権限がないか確認する",
+      "変更管理チケットを抽出し、テスト結果とリリース承認の証跡を確認する",
+      "苦情管理表を閲覧し、対応期限超過と再発防止策の実施状況を確認する"
+    ]
+  };
+
+  const resultElements = {
+    process: document.getElementById("processResult"),
+    risk: document.getElementById("riskResult"),
+    control: document.getElementById("controlResult"),
+    procedure: document.getElementById("procedureResult")
+  };
+
+  const rollButton = document.getElementById("rollButton");
+  const copyButton = document.getElementById("copyButton");
+  const status = document.getElementById("status");
+  const cards = document.getElementById("cards");
+  const memoText = document.getElementById("memoText");
+  let currentResult = {};
+
+  function pickRandom(items) {
+    return items[Math.floor(Math.random() * items.length)];
+  }
+
+  function buildMemo(result) {
+    return `監査メモ：${result.process}において、${result.risk}リスクが考えられる。あるべき統制として、${result.control}ことが望ましい。監査手続としては、${result.procedure}。必要に応じて、例外取引の原因、影響額、再発防止策の有無を追加で確認する。`;
+  }
+
+  function renderResult(result) {
+    resultElements.process.textContent = result.process;
+    resultElements.risk.textContent = result.risk;
+    resultElements.control.textContent = result.control;
+    resultElements.procedure.textContent = result.procedure;
+    memoText.textContent = buildMemo(result);
+  }
+
+  function rollGacha() {
+    currentResult = {
+      process: pickRandom(scenarios.processes),
+      risk: pickRandom(scenarios.risks),
+      control: pickRandom(scenarios.controls),
+      procedure: pickRandom(scenarios.procedures)
+    };
+    renderResult(currentResult);
+    status.textContent = "新しい監査クエストを引きました。";
+    cards.classList.remove("shake");
+    void cards.offsetWidth;
+    cards.classList.add("shake");
+  }
+
+  async function copyResult() {
+    const text = memoText.textContent.trim();
+    if (!text) {
+      status.textContent = "先にガチャを回してください。";
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      status.textContent = "監査メモ用の文章をコピーしました。";
+    } catch (error) {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      status.textContent = "監査メモ用の文章をコピーしました。";
+    }
+  }
+
+  rollButton.addEventListener("click", rollGacha);
+  copyButton.addEventListener("click", copyResult);
+
+  rollGacha();
+</script>
+</body>
+</html>
