@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>監査リスクシナリオ・ガチャ</title>
+<title>監査リスクシナリオ道場</title>
 <style>
   :root {
     color-scheme: dark;
@@ -266,17 +266,17 @@
   <main class="app">
     <header>
       <span class="badge">⚔️ Internal Audit Training</span>
-      <h1>監査リスクシナリオ・ガチャ</h1>
-      <p class="lead">4つのカードを組み合わせて、内部監査のリスクシナリオを発想する練習ツールです。監査初心者が「どこを見るか」「何を確かめるか」を考える入口として使えます。</p>
+      <h1>監査リスクシナリオ道場</h1>
+      <p class="lead">プロセス・リスク・統制・監査手続が対応したシナリオカードを引き、内部監査で「何を根拠に、どのアサーションを確かめるか」を練習する道場です。</p>
     </header>
 
     <section class="controls" aria-label="ガチャ操作">
-      <button id="rollButton" type="button">🎲 ガチャを回す</button>
+      <button id="rollButton" type="button">🎲 シナリオを引く</button>
       <button id="copyButton" class="copy-button" type="button">📋 結果をコピー</button>
       <span id="status" class="status" role="status" aria-live="polite"></span>
     </section>
 
-    <section id="cards" class="cards" aria-label="ガチャ結果">
+    <section id="cards" class="cards" aria-label="シナリオ結果">
       <article class="card">
         <h2>🏰 プロセス</h2>
         <p id="processResult" class="result"></p>
@@ -285,7 +285,7 @@
       <article class="card">
         <h2>🐉 リスク</h2>
         <p id="riskResult" class="result"></p>
-        <p class="hint">発生すると困る事象や影響を想像します。</p>
+        <p class="hint">発生すると困る事象や影響を確認します。</p>
       </article>
       <article class="card">
         <h2>🛡️ あるべき統制</h2>
@@ -295,7 +295,27 @@
       <article class="card">
         <h2>🔍 監査手続</h2>
         <p id="procedureResult" class="result"></p>
-        <p class="hint">統制が有効かを確かめる具体的な監査行動です。</p>
+        <p class="hint">統制や取引を確かめる具体的な監査行動です。</p>
+      </article>
+      <article class="card">
+        <h2>🎯 アサーション</h2>
+        <p id="assertionResult" class="result"></p>
+        <p class="hint">何を満たしていれば安心できるかを示します。</p>
+      </article>
+      <article class="card">
+        <h2>🧪 テスト種別</h2>
+        <p id="testTypeResult" class="result"></p>
+        <p class="hint">TOD、TOE、実証手続などの手続区分です。</p>
+      </article>
+      <article class="card">
+        <h2>📎 想定証跡</h2>
+        <p id="evidenceResult" class="result"></p>
+        <p class="hint">監査で入手・閲覧する記録やデータです。</p>
+      </article>
+      <article class="card">
+        <h2>📝 監査メモ</h2>
+        <p id="memoResult" class="result"></p>
+        <p class="hint">調書や往査メモに貼り付けやすい要約です。</p>
       </article>
     </section>
 
@@ -305,79 +325,147 @@
     </section>
 
     <section class="starter-list" aria-label="初心者向けの考え方">
-      <div class="starter"><strong>1. 状況を読む</strong><br>表示されたプロセスで、誰が何を入力・承認・記録するかを考えます。</div>
-      <div class="starter"><strong>2. 影響を広げる</strong><br>リスクが起きた場合の金額影響、法令影響、顧客影響を一つ足してみます。</div>
-      <div class="starter"><strong>3. 証拠を探す</strong><br>統制の証跡として、申請書、承認ログ、照合表、例外リストなどを想像します。</div>
+      <div class="starter"><strong>1. 対応関係を見る</strong><br>リスクに対して、統制と監査手続が同じ論点を見ているか確認します。</div>
+      <div class="starter"><strong>2. アサーションを意識</strong><br>正確性、実在性、網羅性、権利義務、期間帰属など、何を確かめる手続かを考えます。</div>
+      <div class="starter"><strong>3. 証跡で裏付ける</strong><br>申請書、承認ログ、照合表、例外リストなど、結論を支える証拠を探します。</div>
     </section>
 
-    <footer>勇者の装備を選ぶように、監査の視点を組み合わせてみましょう。</footer>
+    <footer>シナリオごとに、リスク・統制・手続・証跡のつながりを鍛えましょう。</footer>
   </main>
 
 <script>
-  const scenarios = {
-    processes: [
-      "購買依頼から発注までのプロセス",
-      "仕入先登録・変更のプロセス",
-      "請求書受領から支払承認までのプロセス",
-      "売上計上と請求書発行のプロセス",
-      "契約締結・契約更新のプロセス",
-      "在庫入出庫と棚卸のプロセス",
-      "経費精算の申請・承認プロセス",
-      "ユーザーID付与・権限変更のプロセス",
-      "勤怠締めと給与計算のプロセス",
-      "個人情報の取得・保管・廃棄プロセス",
-      "システム変更管理のプロセス",
-      "苦情受付と是正対応のプロセス"
-    ],
-    risks: [
-      "承認されていない取引が処理され、会社に不要な支出が発生する",
-      "架空または重複した仕入先に支払われ、不正支出が発生する",
-      "請求・支払の誤りにより、過払いまたは未回収が発生する",
-      "売上の計上時期を誤り、財務報告の信頼性が低下する",
-      "契約条件を見落とし、違約金や機会損失が発生する",
-      "実在庫と帳簿在庫がずれ、欠品や評価損の判断を誤る",
-      "私的利用や規程外の経費が精算される",
-      "過大なシステム権限により、不正操作や情報漏えいが発生する",
-      "勤怠データの誤りにより、給与の過不足払いが発生する",
-      "個人情報の取扱不備により、漏えいや法令違反が発生する",
-      "未検証のシステム変更により、業務停止やデータ不整合が発生する",
-      "苦情対応が遅れ、顧客離れやブランド毀損につながる"
-    ],
-    controls: [
-      "職務分掌に基づき、申請者とは別の責任者が承認する",
-      "新規登録・変更時に根拠資料と反社・重複チェックを実施する",
-      "発注書、検収記録、請求書を照合してから処理する",
-      "会計方針に沿った計上基準と月次レビューを設ける",
-      "契約台帳で重要条件と更新期限を管理し、期限前に通知する",
-      "定期棚卸を実施し、差異原因を調査して承認を受ける",
-      "経費規程、領収書、上長承認を必須にする",
-      "最小権限の原則に基づき、権限付与と定期棚卸を実施する",
-      "勤怠締め後に本人確認と上長承認を行う",
-      "個人情報へのアクセス制限、保存期限管理、廃棄記録を整備する",
-      "変更申請、テスト結果、承認、リリース記録を残す",
-      "苦情の受付日、担当者、対応期限、再発防止策を管理する"
-    ],
-    procedures: [
-      "サンプル取引を抽出し、申請書と承認記録が規程どおりか確認する",
-      "マスタ変更ログを閲覧し、根拠資料と承認者を突合する",
-      "発注書・検収記録・請求書の三点照合が実施された証跡を確認する",
-      "月末前後の取引を抽出し、計上日と根拠資料の整合性を確認する",
-      "契約台帳を閲覧し、重要条件と更新期限の管理状況を確認する",
-      "棚卸差異リストを閲覧し、原因分析と承認の有無を確認する",
-      "経費精算データを抽出し、規程外項目や同一領収書の重複を確認する",
-      "権限一覧を閲覧し、退職者・異動者・高権限者の妥当性を確認する",
-      "勤怠修正ログを抽出し、本人申請と上長承認の証跡を確認する",
-      "個人情報管理台帳とアクセスログを確認し、不要な閲覧権限がないか確認する",
-      "変更管理チケットを抽出し、テスト結果とリリース承認の証跡を確認する",
-      "苦情管理表を閲覧し、対応期限超過と再発防止策の実施状況を確認する"
-    ]
-  };
+  const scenarios = [
+    {
+      process: "購買依頼から発注までのプロセス",
+      risk: "承認権限を持たない担当者が発注し、不要または不適切な支出が発生する",
+      control: "購買規程に基づき、金額・品目別の承認権限表に沿って申請者とは別の責任者が発注前に承認する",
+      procedure: "サンプル発注を抽出し、購買依頼書、承認ログ、発注書を突合して、承認者と承認タイミングが規程どおりか確認する",
+      assertion: "承認・正当性",
+      testType: "TOE（承認統制の運用評価）",
+      evidence: "購買依頼書、承認ワークフローログ、承認権限表、発注書",
+      memo: "発注前承認が権限表どおりに実施されているかを検証し、未承認発注や事後承認による不適切支出リスクを評価する。"
+    },
+    {
+      process: "仕入先登録・変更のプロセス",
+      risk: "架空仕入先または重複仕入先が登録され、不正支払や誤支払が発生する",
+      control: "新規登録・変更時に根拠資料、銀行口座確認、重複チェック、反社チェックを実施し、マスタ管理者以外の責任者が承認する",
+      procedure: "期間中の仕入先マスタ登録・変更ログを抽出し、申請資料、重複チェック結果、承認証跡、銀行口座変更理由を突合する",
+      assertion: "実在性・正確性",
+      testType: "TOE（マスタ変更統制の運用評価）",
+      evidence: "仕入先登録申請書、登記・口座確認資料、マスタ変更ログ、重複チェック結果、承認ログ",
+      memo: "仕入先マスタの登録・変更が正当な根拠と独立承認に基づくかを確認し、架空先や不正な口座変更による支払リスクを評価する。"
+    },
+    {
+      process: "請求書受領から支払承認までのプロセス",
+      risk: "発注・検収と一致しない請求が支払われ、過払いまたは二重払いが発生する",
+      control: "支払前に発注書、検収記録、請求書の三点照合を行い、差異がある場合は原因確認と責任者承認を必須にする",
+      procedure: "支払データからサンプルを抽出し、三点照合の証跡、差異処理記録、二重請求チェック結果を確認する",
+      assertion: "正確性・発生事実",
+      testType: "TOE（照合統制の運用評価）",
+      evidence: "発注書、検収記録、請求書、支払申請、差異承認記録、二重支払チェックリスト",
+      memo: "支払前の三点照合と差異承認が有効に機能しているかを確認し、過払い・二重払いリスクの低減状況を評価する。"
+    },
+    {
+      process: "売上計上と請求書発行のプロセス",
+      risk: "出荷・役務提供前に売上を計上し、期間帰属を誤って財務報告の信頼性が低下する",
+      control: "売上計上基準を明文化し、出荷日または検収日などの根拠日付に基づいて計上し、月末前後取引を経理責任者がレビューする",
+      procedure: "月末前後の売上取引を抽出し、請求書、出荷記録、検収書、会計伝票の日付を突合して計上時期の妥当性を確認する",
+      assertion: "期間帰属・発生事実",
+      testType: "実証手続（カットオフテスト）",
+      evidence: "売上伝票、請求書、出荷記録、検収書、月次レビュー資料",
+      memo: "月末前後の売上について根拠日付と会計計上日を照合し、早期計上や遅延計上による期間帰属リスクを評価する。"
+    },
+    {
+      process: "契約締結・契約更新のプロセス",
+      risk: "重要な契約条件や自動更新期限を見落とし、違約金、不要契約の継続、機会損失が発生する",
+      control: "契約台帳で契約期間、更新期限、解約通知期限、重要義務を管理し、期限前アラートと法務・主管部門レビューを実施する",
+      procedure: "契約台帳から重要契約を抽出し、原契約書との一致、期限アラートの設定、更新・解約判断の承認記録を確認する",
+      assertion: "権利義務・網羅性",
+      testType: "TOD / TOE（契約管理統制の設計・運用評価）",
+      evidence: "契約書、契約台帳、期限アラート一覧、更新稟議、法務レビュー記録",
+      memo: "契約台帳が重要条件を網羅し、更新期限前の判断・承認につながっているかを検証し、契約管理漏れリスクを評価する。"
+    },
+    {
+      process: "在庫入出庫と棚卸のプロセス",
+      risk: "実在庫と帳簿在庫が乖離し、欠品、滞留在庫、評価損の判断を誤る",
+      control: "定期棚卸を実施し、棚卸差異について原因分析、帳簿修正、責任者承認を行う。高額・滞留在庫は追加レビューする",
+      procedure: "棚卸差異リストと在庫評価資料を閲覧し、差異原因、修正仕訳、承認証跡、高額・滞留在庫レビューの実施状況を確認する",
+      assertion: "実在性・評価",
+      testType: "TOE＋実証手続（棚卸立会・差異検証）",
+      evidence: "棚卸表、棚卸差異リスト、在庫台帳、修正仕訳、滞留在庫分析表、承認記録",
+      memo: "棚卸差異の把握・原因分析・承認が適切かを確認し、在庫の実在性および評価リスクを評価する。"
+    },
+    {
+      process: "経費精算の申請・承認プロセス",
+      risk: "私的利用、規程外支出、同一領収書の重複申請が精算される",
+      control: "経費規程に基づく入力必須項目、領収書添付、上長承認、重複申請チェックをシステムまたは経理部門で実施する",
+      procedure: "経費精算データを抽出し、休日・高額・同額重複・規程外科目を分析し、領収書と承認ログを確認する",
+      assertion: "発生事実・正確性",
+      testType: "実証手続＋TOE（データ分析と承認統制の運用評価）",
+      evidence: "経費申請データ、領収書画像、経費規程、承認ログ、重複チェック結果",
+      memo: "経費申請の妥当性と承認統制をデータ分析で検証し、私的利用・重複精算・規程外支出リスクを評価する。"
+    },
+    {
+      process: "ユーザーID付与・権限変更のプロセス",
+      risk: "退職者IDや過大権限が残存し、不正操作、職務分掌違反、情報漏えいが発生する",
+      control: "ID付与・変更は申請と承認に基づき実施し、退職・異動時の権限削除と高権限定期レビューを行う",
+      procedure: "ユーザー権限一覧、退職者一覧、異動者一覧を突合し、不要ID、高権限、職務分掌違反の有無とレビュー証跡を確認する",
+      assertion: "アクセス権の正当性・網羅性",
+      testType: "TOE（IT全般統制の運用評価）",
+      evidence: "ID申請書、権限一覧、退職者・異動者リスト、アクセスレビュー記録、権限変更ログ",
+      memo: "権限付与・削除・定期レビューが適切に実施されているかを確認し、不要IDや過大権限による不正操作リスクを評価する。"
+    },
+    {
+      process: "勤怠締めと給与計算のプロセス",
+      risk: "勤怠修正や締め処理の誤りにより、給与の過不足払いが発生する",
+      control: "勤怠締め前に本人確認と上長承認を行い、締め後修正は理由記録と人事・給与担当者の再確認を必須にする",
+      procedure: "勤怠修正ログと給与計算データを抽出し、修正理由、本人申請、上長承認、給与反映結果を確認する",
+      assertion: "正確性・網羅性",
+      testType: "TOE＋実証手続（修正ログ検証・再計算）",
+      evidence: "勤怠データ、勤怠修正ログ、本人申請、上長承認ログ、給与計算結果、再計算資料",
+      memo: "勤怠修正の承認と給与計算への反映を確認し、給与過不足払いリスクを評価する。"
+    },
+    {
+      process: "個人情報の取得・保管・廃棄プロセス",
+      risk: "保存期限超過、不要アクセス、廃棄漏れにより個人情報漏えいや法令違反が発生する",
+      control: "個人情報管理台帳で利用目的、保管場所、保存期限、アクセス権を管理し、期限到来時の廃棄とアクセス権レビューを実施する",
+      procedure: "個人情報管理台帳、アクセスログ、廃棄記録を確認し、保存期限超過データ、不要権限、廃棄承認の有無を検証する",
+      assertion: "コンプライアンス・機密性",
+      testType: "TOD / TOE（情報管理統制の設計・運用評価）",
+      evidence: "個人情報管理台帳、アクセス権限一覧、アクセスログ、廃棄証明、保存期限管理表",
+      memo: "個人情報の保管期限、アクセス制限、廃棄証跡を確認し、漏えいおよび法令違反リスクを評価する。"
+    },
+    {
+      process: "システム変更管理のプロセス",
+      risk: "未検証または未承認のシステム変更が本番反映され、業務停止やデータ不整合が発生する",
+      control: "変更申請、影響分析、テスト、承認、リリース判定をチケットで管理し、開発者とリリース承認者を分離する",
+      procedure: "変更管理チケットをサンプル抽出し、影響分析、テスト結果、承認者、リリース記録、緊急変更時の事後承認を確認する",
+      assertion: "変更の正当性・完全性",
+      testType: "TOE（IT全般統制の運用評価）",
+      evidence: "変更申請チケット、影響分析資料、テスト結果、リリース承認ログ、本番反映記録",
+      memo: "変更管理手続が申請からリリースまで一貫して実施されているかを確認し、未承認変更による障害・データ不整合リスクを評価する。"
+    },
+    {
+      process: "苦情受付と是正対応のプロセス",
+      risk: "苦情の対応遅延や再発防止策の未実施により、顧客離れ、行政指導、ブランド毀損が発生する",
+      control: "苦情管理表で受付日、重要度、担当者、対応期限、原因分析、是正措置を管理し、期限超過と再発案件を管理者がレビューする",
+      procedure: "苦情管理表から期限超過・高重要度案件を抽出し、対応記録、原因分析、是正措置、顧客回答、管理者レビューの証跡を確認する",
+      assertion: "網羅性・適時性",
+      testType: "TOE（業務統制の運用評価）",
+      evidence: "苦情管理表、対応履歴、顧客回答記録、原因分析資料、是正措置管理表、レビュー記録",
+      memo: "苦情の受付から是正対応までが期限内に管理されているかを確認し、対応遅延・再発防止未実施リスクを評価する。"
+    }
+  ];
 
   const resultElements = {
     process: document.getElementById("processResult"),
     risk: document.getElementById("riskResult"),
     control: document.getElementById("controlResult"),
-    procedure: document.getElementById("procedureResult")
+    procedure: document.getElementById("procedureResult"),
+    assertion: document.getElementById("assertionResult"),
+    testType: document.getElementById("testTypeResult"),
+    evidence: document.getElementById("evidenceResult"),
+    memo: document.getElementById("memoResult")
   };
 
   const rollButton = document.getElementById("rollButton");
@@ -392,26 +480,30 @@
   }
 
   function buildMemo(result) {
-    return `監査メモ：${result.process}において、${result.risk}リスクが考えられる。あるべき統制として、${result.control}ことが望ましい。監査手続としては、${result.procedure}。必要に応じて、例外取引の原因、影響額、再発防止策の有無を追加で確認する。`;
+    return [
+      "【監査リスクシナリオ】",
+      `プロセス：${result.process}`,
+      `リスク：${result.risk}`,
+      `あるべき統制：${result.control}`,
+      `監査手続：${result.procedure}`,
+      `アサーション：${result.assertion}`,
+      `テスト種別：${result.testType}`,
+      `想定証跡：${result.evidence}`,
+      `監査メモ：${result.memo}`
+    ].join("\n");
   }
 
   function renderResult(result) {
-    resultElements.process.textContent = result.process;
-    resultElements.risk.textContent = result.risk;
-    resultElements.control.textContent = result.control;
-    resultElements.procedure.textContent = result.procedure;
+    Object.entries(resultElements).forEach(([key, element]) => {
+      element.textContent = result[key];
+    });
     memoText.textContent = buildMemo(result);
   }
 
   function rollGacha() {
-    currentResult = {
-      process: pickRandom(scenarios.processes),
-      risk: pickRandom(scenarios.risks),
-      control: pickRandom(scenarios.controls),
-      procedure: pickRandom(scenarios.procedures)
-    };
+    currentResult = pickRandom(scenarios);
     renderResult(currentResult);
-    status.textContent = "新しい監査クエストを引きました。";
+    status.textContent = "新しい監査シナリオを引きました。";
     cards.classList.remove("shake");
     void cards.offsetWidth;
     cards.classList.add("shake");
