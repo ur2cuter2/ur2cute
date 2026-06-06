@@ -506,6 +506,20 @@ function personalizeText(value) {
   return value.replaceAll(PLAYER_NAME_PLACEHOLDER, getPlayerName());
 }
 
+function getPlayerNameForText() {
+  const name = localStorage.getItem(PLAYER_NAME_STORAGE_KEY);
+  return name && name.trim() ? name.trim() : 'ぼうけんしゃ';
+}
+
+function applyPlayerNamePlaceholder(value) {
+  if (typeof value !== 'string') return value;
+  return value.replaceAll('{{name}}', getPlayerNameForText());
+}
+
+function formatCsvDisplayText(value) {
+  return applyPlayerNamePlaceholder(value);
+}
+
 function personalizeDeep(value) {
   if (typeof value === 'string') return personalizeText(value);
   if (Array.isArray(value)) return value.map(personalizeDeep);
@@ -527,8 +541,12 @@ function escapeHtml(value) {
   }[ch]));
 }
 
+function escapeCsvDisplayText(value) {
+  return escapeHtml(formatCsvDisplayText(value));
+}
+
 function renderWordText(text, word) {
-  const escapedText = escapeHtml(personalizeText(text || ''));
+  const escapedText = escapeHtml(applyPlayerNamePlaceholder(personalizeText(text || '')));
   const baseWord = escapeHtml(word?.kanji || '');
 
   return escapedText
@@ -870,15 +888,15 @@ function openStrengthenModal() {
 
       return `<div class="mistake-item">
         <div class="mistake-word">${escapeHtml(word.kanji)}（${escapeHtml(word.reading)}）</div>
-        <div class="mistake-qtext">${escapeHtml(qText)}</div>
+        <div class="mistake-qtext">${escapeCsvDisplayText(qText)}</div>
         <div class="mistake-answer-row">
           ${wrongText ? `<div class="mistake-answer wrong">
             <div class="mistake-answer-label">えらんだ答え</div>
-            ${escapeHtml(wrongText)}
+            ${escapeCsvDisplayText(wrongText)}
           </div>` : ''}
           <div class="mistake-answer correct">
             <div class="mistake-answer-label">正しい答え</div>
-            ${escapeHtml(corrText)}
+            ${escapeCsvDisplayText(corrText)}
           </div>
         </div>
       </div>`;
@@ -1007,9 +1025,9 @@ function renderQ() {
   const q    = qStep === 0 ? yq.q1    : yq.q2;
   const opts = qStep === 0 ? yq.q1opts : yq.q2opts;
 
-  document.getElementById('bossQ').textContent = q;
+  document.getElementById('bossQ').textContent = formatCsvDisplayText(q);
   document.getElementById('bossOpts').innerHTML = opts.map((opt,i) =>
-    `<button class="opt-btn" onclick="answer(${i})">${escapeHtml(opt)}</button>`
+    `<button class="opt-btn" onclick="answer(${i})">${escapeCsvDisplayText(opt)}</button>`
   ).join('');
 
   const fb = document.getElementById('feedback');
@@ -1044,9 +1062,9 @@ function renderRevivalQ() {
   document.getElementById('bossText').innerHTML = renderWordText(yq.text, word);
   const q    = step === 0 ? yq.q1    : yq.q2;
   const opts = step === 0 ? yq.q1opts : yq.q2opts;
-  document.getElementById('bossQ').textContent = q;
+  document.getElementById('bossQ').textContent = formatCsvDisplayText(q);
   document.getElementById('bossOpts').innerHTML = opts.map((opt,i) =>
-    `<button class="opt-btn" onclick="answer(${i})">${escapeHtml(opt)}</button>`
+    `<button class="opt-btn" onclick="answer(${i})">${escapeCsvDisplayText(opt)}</button>`
   ).join('');
 
   const fb = document.getElementById('feedback');

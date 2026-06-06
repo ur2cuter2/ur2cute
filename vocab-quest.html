@@ -1278,6 +1278,20 @@ function personalizeText(value) {
   return value.replaceAll(PLAYER_NAME_PLACEHOLDER, getPlayerName());
 }
 
+function getPlayerNameForText() {
+  const name = localStorage.getItem(PLAYER_NAME_STORAGE_KEY);
+  return name && name.trim() ? name.trim() : 'ぼうけんしゃ';
+}
+
+function applyPlayerNamePlaceholder(value) {
+  if (typeof value !== 'string') return value;
+  return value.replaceAll('{{name}}', getPlayerNameForText());
+}
+
+function formatCsvDisplayText(value) {
+  return applyPlayerNamePlaceholder(value);
+}
+
 function personalizeDeep(value) {
   if (typeof value === 'string') return personalizeText(value);
 
@@ -1332,6 +1346,10 @@ function escapeHtml(value) {
   }[ch]));
 }
 
+function escapeCsvDisplayText(value) {
+  return escapeHtml(formatCsvDisplayText(value));
+}
+
 function getAcceptedWordForms(word) {
   const forms = [word?.kanji];
 
@@ -1349,7 +1367,7 @@ function getAcceptedWordForms(word) {
 }
 
 function renderWordText(text, word) {
-  const escapedText = escapeHtml(personalizeText(text || ''));
+  const escapedText = escapeHtml(applyPlayerNamePlaceholder(personalizeText(text || '')));
   const baseWord = escapeHtml(word?.kanji || '');
 
   return escapedText
@@ -2648,7 +2666,7 @@ function buildBattleCards() {
         </div>
       </div>
       <div class="context-box">
-        <div class="context-source">${escapeHtml(ctx.source)}</div>
+        <div class="context-source">${escapeCsvDisplayText(ctx.source)}</div>
         ${ctxHtml}
       </div>
       <div class="action-grid">
@@ -2747,7 +2765,7 @@ function showExplainModal(word, damage) {
     : '';
 
   document.getElementById('quizOptions').innerHTML = `
-    <div style="background:rgba(62,207,207,0.1);border:1px solid rgba(62,207,207,0.3);border-radius:12px;padding:12px 14px;font-size:14px;font-weight:700;color:var(--accent-teal);line-height:1.7;">${word.meaning}</div>
+    <div style="background:rgba(62,207,207,0.1);border:1px solid rgba(62,207,207,0.3);border-radius:12px;padding:12px 14px;font-size:14px;font-weight:700;color:var(--accent-teal);line-height:1.7;">${escapeCsvDisplayText(word.meaning)}</div>
     ${synonymHtml}
     <div style="margin-top:8px;font-size:11px;color:var(--text-sub);">声に出してよんでみよう！</div>`;
   document.getElementById('quizResult').style.display = 'none';
@@ -2768,7 +2786,7 @@ function openQuiz(wordId) {
   const word = words.find(w => w.id === wordId);
   const modal = document.getElementById('quizModal');
   document.getElementById('quizModalTitle').textContent = '⚔️ クイズバトル！';
-  document.getElementById('quizQuestion').textContent = word.quiz.question;
+  document.getElementById('quizQuestion').textContent = formatCsvDisplayText(word.quiz.question);
   document.getElementById('quizResult').style.display = 'none';
   document.getElementById('quizCloseBtn').style.display = 'none';
 
@@ -2777,7 +2795,7 @@ function openQuiz(wordId) {
   word.quiz.options.forEach((opt, i) => {
     const btn = document.createElement('button');
     btn.className = 'quiz-option';
-    btn.textContent = opt;
+    btn.textContent = formatCsvDisplayText(opt);
     btn.onclick = () => answerQuiz(i, word);
     optsEl.appendChild(btn);
   });
@@ -3149,9 +3167,9 @@ function buildStoryCards() {
         <div>${renderWordText(word.story, word)}</div>
         ${word.storyQuiz && sp !== 'cleared' ? `
         <div class="story-quiz" id="stquiz-${word.id}">
-          <div class="story-quiz-q">📝 ${escapeHtml(word.storyQuiz.question)}</div>
+          <div class="story-quiz-q">📝 ${escapeCsvDisplayText(word.storyQuiz.question)}</div>
           ${word.storyQuiz.options.map((opt, i) =>
-            `<button class="story-opt" onclick="answerStoryQuiz('${word.id}', ${i})">${escapeHtml(opt)}</button>`
+            `<button class="story-opt" onclick="answerStoryQuiz('${word.id}', ${i})">${escapeCsvDisplayText(opt)}</button>`
           ).join('')}
           <div class="story-result" id="stresult-${word.id}"></div>
         </div>` : sp === 'cleared' ? '<div class="story-result" style="color:var(--hp-green);">🥇 クイズクリア済み！</div>' : ''}
