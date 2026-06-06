@@ -2205,7 +2205,7 @@ function hasPicrossDailyTicketToday() {
 
 function grantPicrossRewardFromBattleComplete() {
   const today = todayStr();
-  const yomiRequired = isBonusDay(today);
+  const yomiRequired = isYomiMissionRequiredForPicross(today);
 
   // よみときミッションがある日は、語彙バトル側ではピクロスチケットを出さない。
   // よみとき完全クリア時に vocab-quest-boss.html 側で発行する。
@@ -2243,7 +2243,7 @@ function grantPicrossRewardFromBattleComplete() {
 
 function getTodayRewardGuidanceHtml() {
   const today = todayStr();
-  const yomiRequired = isBonusDay(today);
+  const yomiRequired = isYomiMissionRequiredForPicross(today);
   const hasTicket = hasPicrossDailyTicketToday();
 
   if (yomiRequired && !hasTicket) {
@@ -4394,6 +4394,10 @@ function isBonusDay(dateStr) {
   if (JP_HOLIDAYS.has(dateStr)) return true;
   if (state.longVacationMode) return true;  // 管理タブの手動フラグ
   return false;
+}
+
+function isYomiMissionRequiredForPicross(dateStr) {
+  return isBonusDay(dateStr);
 }
 
 function updateBonusLink() {
