@@ -20,6 +20,16 @@
     "answer_note": "2:ア　3:ア　4:全部「口車に乗る」　6:イ"
   },
   {
+    "id": "043",
+    "word": "公明正大",
+    "reading": "こうめいせいだい",
+    "category": "四字熟語",
+    "planned_date": "2026-06-14",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 1,
+    "answer_note": "2:ア\n3:イ\n4:全部「公明正大」\n6:ウ"
+  },
+  {
     "id": "002",
     "word": "衣食住",
     "reading": "いしょくじゅう",
@@ -38,6 +48,16 @@
     "lesson_group": "kakushu_20260531",
     "display_order": 2,
     "answer_note": "2:ウ　3:イ　4:全部「横車を押す」　6:ウ"
+  },
+  {
+    "id": "044",
+    "word": "古今東西",
+    "reading": "ここんとうざい",
+    "category": "四字熟語",
+    "planned_date": "2026-06-14",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 2,
+    "answer_note": "2:ア\n3:イ\n4:全部「古今東西」\n6:ウ"
   },
   {
     "id": "003",
@@ -60,6 +80,16 @@
     "answer_note": "2:イ　3:イ　4:全部「虫の息」　6:ウ"
   },
   {
+    "id": "045",
+    "word": "小春日和",
+    "reading": "こはるびより",
+    "category": "四字熟語",
+    "planned_date": "2026-06-14",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 3,
+    "answer_note": "2:ア\n3:イ\n4:全部「小春日和」\n6:ウ"
+  },
+  {
     "id": "004",
     "word": "過保護",
     "reading": "かほご",
@@ -78,6 +108,16 @@
     "lesson_group": "kakushu_20260531",
     "display_order": 4,
     "answer_note": "2:ア　3:イ　4:全部「虫が知らせる」　6:ウ"
+  },
+  {
+    "id": "046",
+    "word": "言語道断",
+    "reading": "ごんごどうだん",
+    "category": "四字熟語",
+    "planned_date": "2026-06-15",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 4,
+    "answer_note": "2:ア\n3:イ\n4:全部「言語道断」\n6:ウ"
   },
   {
     "id": "005",
@@ -100,6 +140,16 @@
     "answer_note": "2:イ　3:ア　4:全部「油を絞る」　6:ウ"
   },
   {
+    "id": "047",
+    "word": "三寒四温",
+    "reading": "さんかんしおん",
+    "category": "四字熟語",
+    "planned_date": "2026-06-15",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 5,
+    "answer_note": "2:ア\n3:イ\n4:全部「三寒四温」\n6:ウ"
+  },
+  {
     "id": "006",
     "word": "紅一点",
     "reading": "こういってん",
@@ -118,6 +168,16 @@
     "lesson_group": "kakushu_20260531",
     "display_order": 6,
     "answer_note": "2:イ　3:ア　4:全部「二の足を踏む」　6:ウ"
+  },
+  {
+    "id": "048",
+    "word": "自画自賛",
+    "reading": "じがじさん",
+    "category": "四字熟語",
+    "planned_date": "2026-06-15",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 6,
+    "answer_note": "2:ア\n3:イ\n4:全部「自画自賛」\n6:ウ"
   },
   {
     "id": "007",
@@ -140,6 +200,16 @@
     "answer_note": "2:ウ　3:ア　4:全部「木で鼻をくくる」　6:イ"
   },
   {
+    "id": "049",
+    "word": "自給自足",
+    "reading": "じきゅうじそく",
+    "category": "四字熟語",
+    "planned_date": "2026-06-16",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 7,
+    "answer_note": "2:ア\n3:イ\n4:全部「自給自足」\n6:ウ"
+  },
+  {
     "id": "008",
     "word": "大黒柱",
     "reading": "だいこくばしら",
@@ -158,6 +228,16 @@
     "lesson_group": "kakushu_20260531",
     "display_order": 8,
     "answer_note": "2:イ　3:ア　4:全部「竹を割ったような」　6:ウ"
+  },
+  {
+    "id": "050",
+    "word": "自業自得",
+    "reading": "じごうじとく",
+    "category": "四字熟語",
+    "planned_date": "2026-06-16",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 8,
+    "answer_note": "2:ア\n3:イ\n4:全部「自業自得」\n6:ウ"
   },
   {
     "id": "009",
@@ -180,6 +260,16 @@
     "answer_note": "2:ウ　3:ア　4:全部「おくびにも出さない」　6:ウ"
   },
   {
+    "id": "051",
+    "word": "七転八起",
+    "reading": "しちてんはっき",
+    "category": "四字熟語",
+    "planned_date": "2026-06-16",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 9,
+    "answer_note": "2:ア\n3:イ\n4:全部「七転八起」\n6:ウ"
+  },
+  {
     "id": "010",
     "word": "異口同音",
     "reading": "いくどうおん",
@@ -198,6 +288,16 @@
     "lesson_group": "kakushu_20260531",
     "display_order": 10,
     "answer_note": "2:ア　3:ア　4:全部「高をくくる」　6:イ"
+  },
+  {
+    "id": "052",
+    "word": "自問自答",
+    "reading": "じもんじとう",
+    "category": "四字熟語",
+    "planned_date": "2026-06-17",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 10,
+    "answer_note": "2:ア\n3:イ\n4:全部「自問自答」\n6:ウ"
   },
   {
     "id": "011",
@@ -220,6 +320,16 @@
     "answer_note": "2:イ　3:ウ　4:全部「襟を正す」　6:イ"
   },
   {
+    "id": "053",
+    "word": "弱肉強食",
+    "reading": "じゃくにくきょうしょく",
+    "category": "四字熟語",
+    "planned_date": "2026-06-17",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 11,
+    "answer_note": "2:ア\n3:イ\n4:全部「弱肉強食」\n6:ウ"
+  },
+  {
     "id": "012",
     "word": "一望千里",
     "reading": "いちぼうせんり",
@@ -238,6 +348,16 @@
     "lesson_group": "kakushu_20260531",
     "display_order": 12,
     "answer_note": "2:ア　3:ア　4:全部「固唾をのむ」　6:ウ"
+  },
+  {
+    "id": "054",
+    "word": "自由自在",
+    "reading": "じゆうじざい",
+    "category": "四字熟語",
+    "planned_date": "2026-06-17",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 12,
+    "answer_note": "2:ア\n3:イ\n4:全部「自由自在」\n6:ウ"
   },
   {
     "id": "013",
@@ -260,6 +380,16 @@
     "answer_note": "2:ウ　3:ア　4:全部「音を上げる」　6:ウ"
   },
   {
+    "id": "055",
+    "word": "十人十色",
+    "reading": "じゅうにんといろ",
+    "category": "四字熟語",
+    "planned_date": "2026-06-18",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 13,
+    "answer_note": "2:ア\n3:イ\n4:全部「十人十色」\n6:ウ"
+  },
+  {
     "id": "014",
     "word": "一進一退",
     "reading": "いっしんいったい",
@@ -278,6 +408,16 @@
     "lesson_group": "kakushu_20260531",
     "display_order": 14,
     "answer_note": "2:ウ　3:イ　4:全部「らちが明かない」　6:ア"
+  },
+  {
+    "id": "056",
+    "word": "絶体絶命",
+    "reading": "ぜったいぜつめい",
+    "category": "四字熟語",
+    "planned_date": "2026-06-18",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 14,
+    "answer_note": "2:ア\n3:イ\n4:全部「絶体絶命」\n6:ウ"
   },
   {
     "id": "015",
@@ -300,6 +440,16 @@
     "answer_note": "2:イ　3:ア　4:全部「棚に上げる」　6:ウ"
   },
   {
+    "id": "057",
+    "word": "千差万別",
+    "reading": "せんさばんべつ",
+    "category": "四字熟語",
+    "planned_date": "2026-06-18",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 15,
+    "answer_note": "2:ア\n3:イ\n4:全部「千差万別」\n6:ウ"
+  },
+  {
     "id": "016",
     "word": "一心不乱",
     "reading": "いっしんふらん",
@@ -318,6 +468,16 @@
     "lesson_group": "kakushu_20260531",
     "display_order": 16,
     "answer_note": "2:イ　3:イ　4:全部「日進月歩」　6:ウ"
+  },
+  {
+    "id": "058",
+    "word": "前代未聞",
+    "reading": "ぜんだいみもん",
+    "category": "四字熟語",
+    "planned_date": "2026-06-19",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 16,
+    "answer_note": "2:ア\n3:イ\n4:全部「前代未聞」\n6:ウ"
   },
   {
     "id": "017",
@@ -340,6 +500,16 @@
     "answer_note": "2:ア　3:ア　4:全部「温故知新」　6:イ"
   },
   {
+    "id": "059",
+    "word": "大器晩成",
+    "reading": "たいきばんせい",
+    "category": "四字熟語",
+    "planned_date": "2026-06-19",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 17,
+    "answer_note": "2:ア\n3:イ\n4:全部「大器晩成」\n6:ウ"
+  },
+  {
     "id": "018",
     "word": "一長一短",
     "reading": "いっちょういったん",
@@ -348,6 +518,16 @@
     "lesson_group": "keimeikan_p33",
     "display_order": 18,
     "answer_note": "2:ア　3:ウ　4:全部「一長一短」　6:イ"
+  },
+  {
+    "id": "060",
+    "word": "大義名分",
+    "reading": "たいぎめいぶん",
+    "category": "四字熟語",
+    "planned_date": "2026-06-19",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 18,
+    "answer_note": "2:ア\n3:イ\n4:全部「大義名分」\n6:ウ"
   },
   {
     "id": "019",
@@ -360,6 +540,16 @@
     "answer_note": "2:イ　3:ア　4:全部「意味深長」　6:ウ"
   },
   {
+    "id": "061",
+    "word": "大同小異",
+    "reading": "だいどうしょうい",
+    "category": "四字熟語",
+    "planned_date": "2026-06-20",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 19,
+    "answer_note": "2:ア\n3:イ\n4:全部「大同小異」\n6:ウ"
+  },
+  {
     "id": "020",
     "word": "海千山千",
     "reading": "うみせんやません",
@@ -368,6 +558,16 @@
     "lesson_group": "keimeikan_p33",
     "display_order": 20,
     "answer_note": "2:ウ　3:イ　4:全部「海千山千」　6:ア"
+  },
+  {
+    "id": "062",
+    "word": "単刀直入",
+    "reading": "たんとうちょくにゅう",
+    "category": "四字熟語",
+    "planned_date": "2026-06-20",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 20,
+    "answer_note": "2:ア\n3:イ\n4:全部「単刀直入」\n6:ウ"
   },
   {
     "id": "021",
@@ -380,6 +580,16 @@
     "answer_note": "2:ア　3:ウ　4:全部「我田引水」　6:イ"
   },
   {
+    "id": "063",
+    "word": "朝三暮四",
+    "reading": "ちょうさんぼし",
+    "category": "四字熟語",
+    "planned_date": "2026-06-20",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 21,
+    "answer_note": "2:ア\n3:イ\n4:全部「朝三暮四」\n6:ウ"
+  },
+  {
     "id": "022",
     "word": "完全無欠",
     "reading": "かんぜんむけつ",
@@ -388,6 +598,16 @@
     "lesson_group": "keimeikan_p33",
     "display_order": 22,
     "answer_note": "2:イ　3:ア　4:全部「完全無欠」　6:ウ"
+  },
+  {
+    "id": "064",
+    "word": "電光石火",
+    "reading": "でんこうせっか",
+    "category": "四字熟語",
+    "planned_date": "2026-06-21",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 22,
+    "answer_note": "2:ア\n3:イ\n4:全部「電光石火」\n6:ウ"
   },
   {
     "id": "023",
@@ -400,6 +620,16 @@
     "answer_note": "2:ウ　3:イ　4:全部「急転直下」　6:ア"
   },
   {
+    "id": "065",
+    "word": "天変地異",
+    "reading": "てんぺんちい",
+    "category": "四字熟語",
+    "planned_date": "2026-06-21",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 23,
+    "answer_note": "2:ア\n3:イ\n4:全部「天変地異」\n6:ウ"
+  },
+  {
     "id": "024",
     "word": "空前絶後",
     "reading": "くうぜんぜつご",
@@ -410,6 +640,16 @@
     "answer_note": "2:ア　3:ウ　4:全部「空前絶後」　6:イ"
   },
   {
+    "id": "066",
+    "word": "南船北馬",
+    "reading": "なんせんほくば",
+    "category": "四字熟語",
+    "planned_date": "2026-06-21",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 24,
+    "answer_note": "2:ア\n3:イ\n4:全部「南船北馬」\n6:ウ"
+  },
+  {
     "id": "025",
     "word": "公平無私",
     "reading": "こうへいむし",
@@ -418,5 +658,75 @@
     "lesson_group": "keimeikan_p33",
     "display_order": 25,
     "answer_note": "2:イ　3:ア　4:全部「公平無私」　6:ウ"
+  },
+  {
+    "id": "067",
+    "word": "日進月歩",
+    "reading": "にっしんげっぽ",
+    "category": "四字熟語",
+    "planned_date": "2026-06-22",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 25,
+    "answer_note": "2:ア\n3:イ\n4:全部「日進月歩」\n6:ウ"
+  },
+  {
+    "id": "068",
+    "word": "馬耳東風",
+    "reading": "ばじとうふう",
+    "category": "四字熟語",
+    "planned_date": "2026-06-22",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 26,
+    "answer_note": "2:ア\n3:イ\n4:全部「馬耳東風」\n6:ウ"
+  },
+  {
+    "id": "069",
+    "word": "八方美人",
+    "reading": "はっぽうびじん",
+    "category": "四字熟語",
+    "planned_date": "2026-06-22",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 27,
+    "answer_note": "2:ア\n3:イ\n4:全部「八方美人」\n6:ウ"
+  },
+  {
+    "id": "070",
+    "word": "品行方正",
+    "reading": "ひんこうほうせい",
+    "category": "四字熟語",
+    "planned_date": "2026-06-23",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 28,
+    "answer_note": "2:ア\n3:イ\n4:全部「品行方正」\n6:ウ"
+  },
+  {
+    "id": "071",
+    "word": "無我夢中",
+    "reading": "むがむちゅう",
+    "category": "四字熟語",
+    "planned_date": "2026-06-23",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 29,
+    "answer_note": "2:ア\n3:イ\n4:全部「無我夢中」\n6:ウ"
+  },
+  {
+    "id": "072",
+    "word": "用意周到",
+    "reading": "よういしゅうとう",
+    "category": "四字熟語",
+    "planned_date": "2026-06-23",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 30,
+    "answer_note": "2:ア\n3:イ\n4:全部「用意周到」\n6:ウ"
+  },
+  {
+    "id": "073",
+    "word": "臨機応変",
+    "reading": "りんきおうへん",
+    "category": "四字熟語",
+    "planned_date": "2026-06-24",
+    "lesson_group": "keimeikan_p34",
+    "display_order": 31,
+    "answer_note": "2:ア\n3:イ\n4:全部「臨機応変」\n6:ウ"
   }
 ]
