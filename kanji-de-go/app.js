@@ -2,9 +2,13 @@
 
 const STORAGE_KEY = "kanji-de-go-learning-data";
 const USER_NAME_KEY = "kanjiRushUserName";
+const RETRY_STORAGE_KEY = "kanji-de-go-today-retry";
 const CSV_SOURCE_PATHS = ["kanji-mistakes.csv", "data/kanji-mistakes.csv"];
 const MAX_DAILY_QUESTIONS = 5;
 const DEFAULT_TIME_LIMIT = 60;
+const IS_TEST_MODE =
+  window.location.pathname.endsWith("test.html") ||
+  new URLSearchParams(window.location.search).get("mode") === "test";
 const CSV_COLUMNS = [
   "id",
   "source_date",
@@ -138,10 +142,14 @@ let questionStartedAt = 0;
 let currentTimeLimit = DEFAULT_TIME_LIMIT;
 let currentUserName = "";
 let startupCsvMessage = "";
+let testRetryState = null;
 
 document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
+  if (IS_TEST_MODE) {
+    document.body.classList.add("test-mode");
+  }
   learningData = await loadLearningData();
   currentUserName = getStoredUserName();
   if (!currentUserName) {
@@ -152,11 +160,13 @@ async function init() {
 }
 
 function getStoredUserName() {
+  if (IS_TEST_MODE) return "テスト";
   return (localStorage.getItem(USER_NAME_KEY) || "").trim();
 }
 
 function saveUserName(name) {
   currentUserName = name.trim();
+  if (IS_TEST_MODE) return;
   localStorage.setItem(USER_NAME_KEY, currentUserName);
 }
 
@@ -182,6 +192,7 @@ async function loadLearningData() {
 }
 
 function loadSavedLearningData() {
+  if (IS_TEST_MODE) return [];
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
     try {
@@ -505,6 +516,10 @@ function codeToStatus(code) {
 }
 
 function applyCompactSaveData(saveData) {
+  if (IS_TEST_MODE) {
+    throw new Error("Import is disabled in test mode");
+  }
+
   if (!saveData || saveData.v !== 1 || typeof saveData.p !== "object" || saveData.p === null) {
     throw new Error("Unsupported save data");
   }
@@ -532,11 +547,16 @@ function applyCompactSaveData(saveData) {
 }
 
 function importLegacyFullData(records) {
+  if (IS_TEST_MODE) return;
   learningData = normalizeRecords(records);
   saveLearningData();
 }
 
 function saveLearningData(data = learningData) {
+  if (IS_TEST_MODE) {
+    learningData = normalizeRecords(data);
+    return;
+  }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data, null, 2));
 }
 
@@ -562,6 +582,10 @@ function formatLocalDate(date) {
 }
 
 function getDueQuestions() {
+  if (IS_TEST_MODE) {
+    return learningData.filter((item) => item.status === "active");
+  }
+
   const today = todayString();
   return learningData
     .filter((item) => item.status === "active" && item.next_review_date <= today)
@@ -576,6 +600,110 @@ function getDueQuestions() {
 
 function getActiveCount() {
   return learningData.filter((item) => item.status === "active").length;
+}
+
+function getQuestionById(id) {
+  return learningData.find((item) => item.id === id);
+}
+
+function getEmptyRetryState() {
+  return {
+    date: todayString(),
+    pendingIds: [],
+    attemptsById: {},
+    tomorrowIds: []
+  };
+}
+
+function loadRetryState() {
+  if (IS_TEST_MODE) {
+    return testRetryState ? cloneRetryState(testRetryState) : getEmptyRetryState();
+  }
+
+  const saved = localStorage.getItem(RETRY_STORAGE_KEY);
+  if (!saved) return getEmptyRetryState();
+
+  try {
+    const parsed = JSON.parse(saved);
+    if (parsed.date !== todayString()) {
+      localStorage.removeItem(RETRY_STORAGE_KEY);
+      return getEmptyRetryState();
+    }
+
+    return {
+      date: parsed.date,
+      pendingIds: Array.isArray(parsed.pendingIds) ? parsed.pendingIds : [],
+      attemptsById: parsed.attemptsById && typeof parsed.attemptsById === "object" ? parsed.attemptsById : {},
+      tomorrowIds: Array.isArray(parsed.tomorrowIds) ? parsed.tomorrowIds : []
+    };
+  } catch {
+    localStorage.removeItem(RETRY_STORAGE_KEY);
+    return getEmptyRetryState();
+  }
+}
+
+function saveRetryState(state) {
+  const cleanState = {
+    date: todayString(),
+    pendingIds: Array.from(new Set(state.pendingIds || [])),
+    attemptsById: state.attemptsById || {},
+    tomorrowIds: Array.from(new Set(state.tomorrowIds || []))
+  };
+
+  if (IS_TEST_MODE) {
+    testRetryState = cleanState.pendingIds.length === 0 && cleanState.tomorrowIds.length === 0 ? null : cleanState;
+    return;
+  }
+
+  if (cleanState.pendingIds.length === 0 && cleanState.tomorrowIds.length === 0) {
+    localStorage.removeItem(RETRY_STORAGE_KEY);
+    return;
+  }
+
+  localStorage.setItem(RETRY_STORAGE_KEY, JSON.stringify(cleanState));
+}
+
+function clearRetryState() {
+  if (IS_TEST_MODE) {
+    testRetryState = null;
+    return;
+  }
+  localStorage.removeItem(RETRY_STORAGE_KEY);
+}
+
+function cloneRetryState(state) {
+  return {
+    date: state.date,
+    pendingIds: [...(state.pendingIds || [])],
+    attemptsById: { ...(state.attemptsById || {}) },
+    tomorrowIds: [...(state.tomorrowIds || [])]
+  };
+}
+
+function buildRetryQueueFromState(state) {
+  const usableIds = Array.from(new Set(state.pendingIds || [])).filter((id) => Boolean(getQuestionById(id)));
+  if (usableIds.length !== (state.pendingIds || []).length) {
+    saveRetryState({ ...state, pendingIds: usableIds });
+  }
+
+  return usableIds.map((id) => ({
+    question: getQuestionById(id),
+    retryAttempt: Number(state.attemptsById[id]) || 1
+  }));
+}
+
+function addPersistentRetry(id, attempts) {
+  const state = loadRetryState();
+  if (!state.pendingIds.includes(id)) state.pendingIds.push(id);
+  if (!state.tomorrowIds.includes(id)) state.tomorrowIds.push(id);
+  state.attemptsById[id] = attempts;
+  saveRetryState(state);
+}
+
+function removePersistentRetry(id) {
+  const state = loadRetryState();
+  state.pendingIds = state.pendingIds.filter((pendingId) => pendingId !== id);
+  saveRetryState(state);
 }
 
 function renderUserNameSetup() {
@@ -614,7 +742,13 @@ function renderUserNameSetup() {
 function renderHome() {
   stopTimer();
   clearKeyboardMode();
+  const savedData = loadSavedLearningData();
+  if (savedData.length > 0) {
+    learningData = savedData;
+  }
   const dueCount = getDueQuestions().length;
+  const retryCount = buildRetryQueueFromState(loadRetryState()).length;
+  const todayPracticeCount = dueCount + retryCount;
   const userName = escapeHtml(currentUserName);
   app.className = "app-shell home-shell";
   app.innerHTML = `
@@ -627,7 +761,7 @@ function renderHome() {
 
       <div class="home-stats" aria-label="今日の状況">
         <div>
-          <span class="stat-number">${dueCount}</span>
+          <span class="stat-number">${todayPracticeCount}</span>
           <span class="stat-label">今日の対象問題数</span>
         </div>
         <div>
@@ -650,19 +784,24 @@ function renderHome() {
 }
 
 function startPractice() {
+  const savedData = loadSavedLearningData();
+  if (savedData.length > 0) {
+    learningData = savedData;
+  }
   dailyQuestions = getDueQuestions();
+  const retryState = loadRetryState();
   currentIndex = 0;
   currentQuestionEntry = null;
-  retryQueue = [];
-  retryAttemptsById = {};
+  retryQueue = buildRetryQueueFromState(retryState);
+  retryAttemptsById = { ...retryState.attemptsById };
   retryQuestionCounter = 0;
   correctCount = 0;
   retrySuccessCount = 0;
-  tomorrowReviewIds = new Set();
+  tomorrowReviewIds = new Set(retryState.tomorrowIds || retryState.pendingIds || []);
   score = 0;
   combo = 0;
 
-  if (dailyQuestions.length === 0) {
+  if (dailyQuestions.length === 0 && retryQueue.length === 0) {
     renderEmptyPractice();
     return;
   }
@@ -815,6 +954,7 @@ function judgeAnswer(timedOut, skipped = false) {
     correctCount += 1;
     if (isRetry) {
       retrySuccessCount += 1;
+      removePersistentRetry(question.id);
     } else {
       updateReview(question.id, true);
     }
@@ -836,12 +976,18 @@ function judgeAnswer(timedOut, skipped = false) {
 
 function enqueueRetry(question) {
   const attempts = retryAttemptsById[question.id] || 0;
-  if (attempts >= 2) return false;
+  if (attempts >= 2) {
+    removePersistentRetry(question.id);
+    return false;
+  }
   retryAttemptsById[question.id] = attempts + 1;
-  retryQueue.push({
-    question,
-    retryAttempt: attempts + 1
-  });
+  if (!retryQueue.some((entry) => entry.question.id === question.id)) {
+    retryQueue.push({
+      question,
+      retryAttempt: attempts + 1
+    });
+  }
+  addPersistentRetry(question.id, attempts + 1);
   return true;
 }
 
@@ -1029,13 +1175,43 @@ function renderDataMode() {
   app.querySelector('[data-action="reset"]').addEventListener("click", resetData);
   app.querySelector('[data-action="reset-all"]').addEventListener("click", resetAllData);
   app.querySelector('[data-action="import"]').addEventListener("change", importData);
+  if (IS_TEST_MODE) {
+    disableDataAction("change-name");
+    disableDataAction("export");
+    disableDataAction("export-csv");
+    disableDataAction("import");
+    disableDataAction("reset");
+    disableDataAction("reset-all");
+    disableNameEdit();
+    setDataMessage("テストモード：本番データに触れる操作は無効です。CSVの読込確認だけ使えます。");
+  }
   if (startupCsvMessage) {
     setDataMessage(startupCsvMessage);
   }
 }
 
+function disableDataAction(action) {
+  const element = app.querySelector(`[data-action="${action}"]`);
+  if (!element) return;
+  element.disabled = true;
+  element.setAttribute("aria-disabled", "true");
+  const label = element.closest(".file-import");
+  if (label) label.classList.add("disabled");
+}
+
+function disableNameEdit() {
+  app.querySelectorAll('[data-action="change-name"] input, [data-action="change-name"] button').forEach((element) => {
+    element.disabled = true;
+    element.setAttribute("aria-disabled", "true");
+  });
+}
+
 function changeUserName(event) {
   event.preventDefault();
+  if (IS_TEST_MODE) {
+    setDataMessage("テストモードではユーザー名を保存しません。");
+    return;
+  }
   const input = app.querySelector("#data-user-name");
   const name = input.value.trim();
   if (!name) {
@@ -1047,6 +1223,10 @@ function changeUserName(event) {
 }
 
 function exportData() {
+  if (IS_TEST_MODE) {
+    setDataMessage("テストモードでは本番バックアップを書き出しません。");
+    return;
+  }
   const compactData = buildCompactSaveData();
   const json = JSON.stringify(compactData);
   const box = app.querySelector("#export-box");
@@ -1067,6 +1247,10 @@ function exportData() {
 }
 
 function exportCsvData() {
+  if (IS_TEST_MODE) {
+    setDataMessage("テストモードではCSVエクスポートを無効にしています。");
+    return;
+  }
   const currentRecords = loadSavedLearningData();
   const csv = recordsToCsv(currentRecords.length > 0 ? currentRecords : learningData);
   const box = app.querySelector("#export-box");
@@ -1137,15 +1321,25 @@ function importPastedCsv() {
 }
 
 function resetData() {
+  if (IS_TEST_MODE) {
+    setDataMessage("テストモードでは本番学習データを初期化できません。");
+    return;
+  }
   learningData = normalizeRecords(SAMPLE_DATA);
   saveLearningData();
+  clearRetryState();
   setDataMessage("学習データをサンプルデータに戻しました。ユーザー名はそのままです。");
 }
 
 function resetAllData() {
+  if (IS_TEST_MODE) {
+    setDataMessage("テストモードでは本番データを初期化できません。");
+    return;
+  }
   if (!window.confirm("学習データとユーザー名をすべて初期化しますか？")) return;
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(USER_NAME_KEY);
+  clearRetryState();
   learningData = normalizeRecords(SAMPLE_DATA);
   saveLearningData();
   currentUserName = "";
@@ -1153,6 +1347,11 @@ function resetAllData() {
 }
 
 function importData(event) {
+  if (IS_TEST_MODE) {
+    event.target.value = "";
+    setDataMessage("テストモードではバックアップインポートを無効にしています。");
+    return;
+  }
   const file = event.target.files[0];
   if (!file) return;
 
