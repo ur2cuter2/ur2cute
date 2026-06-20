@@ -6,6 +6,7 @@ const RETRY_STORAGE_KEY = "kanji-de-go-today-retry";
 const CSV_SOURCE_PATHS = ["kanji-mistakes.csv", "data/kanji-mistakes.csv"];
 const MAX_DAILY_QUESTIONS = 5;
 const DEFAULT_TIME_LIMIT = 60;
+const MAX_ANSWER_ATTEMPTS = 3;
 const IS_TEST_MODE =
   window.location.pathname.endsWith("test.html") ||
   new URLSearchParams(window.location.search).get("mode") === "test";
@@ -143,6 +144,9 @@ let currentTimeLimit = DEFAULT_TIME_LIMIT;
 let currentUserName = "";
 let startupCsvMessage = "";
 let testRetryState = null;
+let isAnimating = false;
+let currentAttemptCount = 0;
+let currentQuestionHadRetry = false;
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -855,6 +859,8 @@ function renderQuestion() {
   const { question, isRetry, normalIndex, retryNumber } = currentQuestionEntry;
   currentTimeLimit = question.time_limit_sec || DEFAULT_TIME_LIMIT;
   questionStartedAt = Date.now();
+  currentAttemptCount = 0;
+  currentQuestionHadRetry = false;
   app.className = "app-shell game-shell";
   app.innerHTML = `
     <section class="game-view">
@@ -871,6 +877,10 @@ function renderQuestion() {
           <span>コンボ</span>
           <strong>${combo}</strong>
         </div>
+        <div class="life-box">
+          <span>ライフ</span>
+          <strong id="attempt-lives" class="life-hearts" aria-label="残り3回">${renderLifeHearts(MAX_ANSWER_ATTEMPTS)}</strong>
+        </div>
       </header>
 
       <p class="question-count">${isRetry ? `今日のリトライ ${retryNumber}問目` : `第${normalIndex}問 / 今日の${dailyQuestions.length}問`}</p>
@@ -884,6 +894,7 @@ function renderQuestion() {
 
       <label class="answer-label" for="answer-input">答え：</label>
       <input id="answer-input" class="answer-input" type="text" inputmode="text" autocomplete="off" autocapitalize="off">
+      <p id="attempt-feedback" class="attempt-feedback" aria-live="polite"></p>
 
       <div class="game-actions">
         <button class="primary-button" data-action="judge">判定する</button>
@@ -1001,16 +1012,77 @@ function formatTime(totalSeconds) {
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
-function judgeAnswer(timedOut, skipped = false) {
+function renderLifeHearts(remaining) {
+  return Array.from({ length: MAX_ANSWER_ATTEMPTS }, (_, index) => {
+    const active = index < remaining;
+    return `<span class="life-heart ${active ? "active" : "lost"}" aria-hidden="true"></span>`;
+  }).join("");
+}
+
+function updateAttemptDisplay() {
+  const remaining = Math.max(MAX_ANSWER_ATTEMPTS - currentAttemptCount, 0);
+  const lives = app.querySelector("#attempt-lives");
+  if (lives) {
+    lives.innerHTML = renderLifeHearts(remaining);
+    lives.setAttribute("aria-label", `残り${remaining}回`);
+  }
+}
+
+function showAttemptFeedback(remaining) {
+  const feedback = app.querySelector("#attempt-feedback");
+  if (!feedback) return;
+  feedback.textContent = remaining === 2 ? "もう一度！あと2回" : "惜しい！あと1回";
+  feedback.classList.remove("attempt-feedback-pop");
+  void feedback.offsetWidth;
+  feedback.classList.add("attempt-feedback-pop");
+}
+
+function prepareNextAttempt() {
+  const input = app.querySelector("#answer-input");
+  if (input) input.value = "";
+  updateAttemptDisplay();
+  setGameControlsDisabled(false);
+  isAnimating = false;
+  startTimer();
+  focusAnswerInputKeepingScroll();
+  settleQuestionViewport();
+}
+
+async function judgeAnswer(timedOut, skipped = false) {
+  if (isAnimating) return;
   stopTimer();
   const { question, isRetry } = currentQuestionEntry;
   const input = app.querySelector("#answer-input");
   const userAnswer = normalizeAnswer(input ? input.value : "");
-  if (input) input.blur();
-  clearKeyboardMode();
+  if (!timedOut && !skipped) {
+    currentAttemptCount += 1;
+  }
   const validAnswers = [question.answer, ...(question.acceptable_answers || [])].map(normalizeAnswer);
   const isCorrect = !timedOut && !skipped && validAnswers.includes(userAnswer);
+  const attemptsRemaining = Math.max(MAX_ANSWER_ATTEMPTS - currentAttemptCount, 0);
+  const isFinalMiss = !isCorrect && (timedOut || skipped || attemptsRemaining <= 0);
+  if (!isCorrect && !timedOut && !skipped) {
+    currentQuestionHadRetry = true;
+  }
+  const hadRetry = currentQuestionHadRetry || (isCorrect && currentAttemptCount > 1) || isFinalMiss;
   let retryQueued = false;
+
+  isAnimating = true;
+  setGameControlsDisabled(true);
+  try {
+    await playAnswerAttackAnimation(getAttackText(userAnswer, timedOut, skipped), isCorrect);
+  } catch (error) {
+    console.warn("回答演出をスキップしました。", error);
+  }
+
+  if (!isCorrect && !isFinalMiss) {
+    showAttemptFeedback(attemptsRemaining);
+    prepareNextAttempt();
+    return;
+  }
+
+  if (input) input.blur();
+  clearKeyboardMode();
 
   if (isCorrect) {
     correctCount += 1;
@@ -1018,10 +1090,10 @@ function judgeAnswer(timedOut, skipped = false) {
       retrySuccessCount += 1;
       removePersistentRetry(question.id);
     } else {
-      updateReview(question.id, true);
+      updateReview(question.id, true, hadRetry);
     }
   } else {
-    updateReview(question.id, false);
+    updateReview(question.id, false, hadRetry);
     retryQueued = enqueueRetry(question);
     tomorrowReviewIds.add(question.id);
   }
@@ -1033,7 +1105,112 @@ function judgeAnswer(timedOut, skipped = false) {
     combo = 0;
   }
 
-  renderResult(question, isCorrect, timedOut, skipped, isRetry, retryQueued);
+  isAnimating = false;
+  renderResult(question, isCorrect, timedOut, skipped, isRetry, retryQueued, hadRetry);
+  renderHadRetryResultNote(isCorrect, hadRetry);
+}
+
+function setGameControlsDisabled(disabled) {
+  app.querySelectorAll('[data-action="judge"], [data-action="skip"]').forEach((button) => {
+    button.disabled = disabled;
+  });
+}
+
+function getAttackText(userAnswer, timedOut, skipped) {
+  if (userAnswer) return userAnswer;
+  if (skipped) return "スキップ";
+  if (timedOut) return "時間切れ";
+  return "？";
+}
+
+async function playAnswerAttackAnimation(answerText, isCorrect) {
+  const input = app.querySelector("#answer-input");
+  const target = app.querySelector(".incoming-reading");
+  if (!input || !target) {
+    await wait(80);
+    return;
+  }
+
+  const inputRect = input.getBoundingClientRect();
+  const targetRect = target.getBoundingClientRect();
+  const sourceX = inputRect.left + inputRect.width / 2;
+  const sourceY = inputRect.top + Math.min(inputRect.height * 0.42, 52);
+  const targetX = targetRect.left + targetRect.width / 2;
+  const targetY = targetRect.top + targetRect.height / 2;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const projectile = document.createElement("div");
+  projectile.className = "answer-projectile";
+  projectile.textContent = answerText;
+  projectile.style.left = `${sourceX}px`;
+  projectile.style.top = `${sourceY}px`;
+  projectile.style.setProperty("--attack-x", `${targetX - sourceX}px`);
+  projectile.style.setProperty("--attack-y", `${targetY - sourceY}px`);
+  document.body.append(projectile);
+
+  if (reducedMotion) {
+    projectile.style.left = `${targetX}px`;
+    projectile.style.top = `${targetY}px`;
+    await wait(40);
+  } else {
+    projectile.classList.add("answer-projectile-launch");
+    await waitForAnimation(projectile, 340);
+    projectile.classList.remove("answer-projectile-launch");
+    projectile.style.left = `${targetX}px`;
+    projectile.style.top = `${targetY}px`;
+    projectile.style.transform = "translate(-50%, -50%)";
+  }
+
+  if (isCorrect) {
+    const targetStyle = window.getComputedStyle(target);
+    target.style.animation = "none";
+    target.style.transform = targetStyle.transform;
+    target.classList.add("kana-explode");
+    renderImpactBurst(targetX, targetY, true);
+    projectile.classList.add("answer-hit-success");
+    await wait(reducedMotion ? 40 : 420);
+    target.classList.remove("kana-explode");
+    projectile.remove();
+  } else {
+    renderImpactBurst(targetX, targetY, false);
+    projectile.classList.add("answer-shatter");
+    await wait(reducedMotion ? 40 : 420);
+    projectile.remove();
+  }
+}
+
+function renderImpactBurst(x, y, isCorrect) {
+  const burst = document.createElement("div");
+  burst.className = `impact-burst ${isCorrect ? "impact-success" : "impact-miss"}`;
+  burst.style.left = `${x}px`;
+  burst.style.top = `${y}px`;
+  burst.innerHTML = Array.from({ length: isCorrect ? 10 : 7 }, (_, index) => {
+    const angle = (Math.PI * 2 * index) / (isCorrect ? 10 : 7);
+    const distance = isCorrect ? 72 : 46;
+    const dx = Math.round(Math.cos(angle) * distance);
+    const dy = Math.round(Math.sin(angle) * distance);
+    return `<span style="--burst-x:${dx}px;--burst-y:${dy}px"></span>`;
+  }).join("");
+  document.body.append(burst);
+  window.setTimeout(() => burst.remove(), 520);
+}
+
+function waitForAnimation(element, fallbackMs) {
+  return new Promise((resolve) => {
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      element.removeEventListener("animationend", finish);
+      resolve();
+    };
+    element.addEventListener("animationend", finish, { once: true });
+    window.setTimeout(finish, fallbackMs);
+  });
+}
+
+function wait(ms) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
 function enqueueRetry(question) {
@@ -1057,7 +1234,7 @@ function normalizeAnswer(value) {
   return String(value || "").trim().replace(/\s+/g, "");
 }
 
-function updateReview(id, isCorrect) {
+function updateReview(id, isCorrect, hadRetry = false) {
   const today = todayString();
   learningData = learningData.map((item) => {
     if (item.id !== id) return item;
@@ -1069,7 +1246,9 @@ function updateReview(id, isCorrect) {
         miss_count: item.miss_count + 1,
         correct_streak: 0,
         next_review_date: addDays(today, 1),
-        status: "active"
+        status: "active",
+        last_had_retry: hadRetry,
+        retry_miss_count: Number(item.retry_miss_count || 0) + (hadRetry ? 1 : 0)
       };
     }
 
@@ -1080,7 +1259,10 @@ function updateReview(id, isCorrect) {
         ...item,
         review_stage: nextStage,
         correct_streak: item.correct_streak + 1,
-        status: "graduated"
+        status: "graduated",
+        last_had_retry: hadRetry,
+        retry_count: Number(item.retry_count || 0) + (hadRetry ? 1 : 0),
+        first_try_correct_count: Number(item.first_try_correct_count || 0) + (hadRetry ? 0 : 1)
       };
     }
 
@@ -1089,13 +1271,16 @@ function updateReview(id, isCorrect) {
       review_stage: nextStage,
       correct_streak: item.correct_streak + 1,
       next_review_date: addDays(today, intervals[item.review_stage] || 30),
-      status: "active"
+      status: "active",
+      last_had_retry: hadRetry,
+      retry_count: Number(item.retry_count || 0) + (hadRetry ? 1 : 0),
+      first_try_correct_count: Number(item.first_try_correct_count || 0) + (hadRetry ? 0 : 1)
     };
   });
   saveLearningData();
 }
 
-function renderResult(question, isCorrect, timedOut, skipped, isRetry, retryQueued) {
+function renderResult(question, isCorrect, timedOut, skipped, isRetry, retryQueued, hadRetry = false) {
   const title = isCorrect ? (isRetry ? "リトライ成功！" : "正解！") : timedOut ? "時間切れ！" : skipped ? "スキップ！" : "ざんねん！";
   const resultClass = isCorrect ? "result-view success" : "result-view retry";
   app.className = `app-shell result-shell ${isCorrect ? "shake-success" : ""}`;
@@ -1119,6 +1304,16 @@ function renderResult(question, isCorrect, timedOut, skipped, isRetry, retryQueu
 
   app.querySelector('[data-action="next"]').addEventListener("click", nextQuestion);
   app.querySelector('[data-action="home"]').addEventListener("click", renderHome);
+}
+
+function renderHadRetryResultNote(isCorrect, hadRetry) {
+  if (!isCorrect || !hadRetry) return;
+  const title = app.querySelector(".result-view h1");
+  if (title) title.textContent = "リトライ正解！";
+  const card = app.querySelector(".answer-card");
+  if (card) {
+    card.insertAdjacentHTML("beforeend", `<p class="retry-note">リトライありで正解！明日も紙で確認しよう。</p>`);
+  }
 }
 
 function renderCelebration() {
