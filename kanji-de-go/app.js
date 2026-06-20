@@ -2,8 +2,35 @@
 
 const STORAGE_KEY = "kanji-de-go-learning-data";
 const USER_NAME_KEY = "kanjiRushUserName";
+const CSV_SOURCE_PATHS = ["kanji-mistakes.csv", "data/kanji-mistakes.csv"];
 const MAX_DAILY_QUESTIONS = 5;
 const DEFAULT_TIME_LIMIT = 60;
+const CSV_COLUMNS = [
+  "id",
+  "source_date",
+  "source_type",
+  "sentence",
+  "reading",
+  "answer",
+  "acceptable_answers",
+  "meaning",
+  "wrong_answer",
+  "mistake_type",
+  "time_limit_sec"
+];
+const REQUIRED_CSV_COLUMNS = ["id", "source_date", "source_type", "sentence", "reading", "answer", "meaning"];
+const MASTER_FIELDS = [
+  "source_date",
+  "source_type",
+  "sentence",
+  "reading",
+  "answer",
+  "acceptable_answers",
+  "meaning",
+  "wrong_answer",
+  "mistake_type",
+  "time_limit_sec"
+];
 const SAMPLE_DATA = [
   {
     id: "kanji_001",
@@ -103,6 +130,7 @@ let timerId = null;
 let questionStartedAt = 0;
 let currentTimeLimit = DEFAULT_TIME_LIMIT;
 let currentUserName = "";
+let startupCsvMessage = "";
 
 document.addEventListener("DOMContentLoaded", init);
 
@@ -126,6 +154,27 @@ function saveUserName(name) {
 }
 
 async function loadLearningData() {
+  const savedData = loadSavedLearningData();
+  const csvResult = await loadCsvMasterRecords({ forStartup: true });
+
+  if (csvResult.ok) {
+    const merged = mergeMasterRecords(savedData, csvResult.records);
+    saveLearningData(merged.data);
+    return merged.data;
+  }
+
+  startupCsvMessage = "CSVファイルは自動読込できませんでした。貼り付けインポートは利用できます。";
+
+  if (savedData.length > 0) {
+    return savedData;
+  }
+
+  const normalized = normalizeRecords(SAMPLE_DATA);
+  saveLearningData(normalized);
+  return normalized;
+}
+
+function loadSavedLearningData() {
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
     try {
@@ -135,21 +184,244 @@ async function loadLearningData() {
     }
   }
 
-  let initialData = SAMPLE_DATA;
-  if (window.location.protocol !== "file:") {
+  return [];
+}
+
+async function loadCsvMasterRecords({ forStartup = false } = {}) {
+  const failureMessage = forStartup
+    ? "CSVファイルは自動読込できませんでした。貼り付けインポートは利用できます。"
+    : "CSVファイルを読み込めませんでした。";
+  if (window.location.protocol === "file:") {
+    return { ok: false, records: [], errors: [failureMessage] };
+  }
+
+  for (const path of CSV_SOURCE_PATHS) {
     try {
-      const response = await fetch("data/kanji_mistakes.json", { cache: "no-store" });
-      if (response.ok) {
-        initialData = await response.json();
-      }
+      const response = await fetch(path, { cache: "no-store" });
+      if (!response.ok) continue;
+      const text = await response.text();
+      const result = csvTextToRecords(text);
+      if (result.ok) return result;
+      return result;
     } catch {
-      initialData = SAMPLE_DATA;
+      // Try the next CSV source.
     }
   }
 
-  const normalized = normalizeRecords(initialData);
-  saveLearningData(normalized);
-  return normalized;
+  return { ok: false, records: [], errors: [failureMessage] };
+}
+
+function mergeMasterRecords(existingRecords, masterRecords) {
+  const existingById = new Map(normalizeRecords(existingRecords).map((record) => [record.id, record]));
+  const mergedIds = new Set();
+  let newCount = 0;
+  let updateCount = 0;
+  const mergedMasters = normalizeMasterRecords(masterRecords).map((masterRecord) => {
+    const existing = existingById.get(masterRecord.id);
+    mergedIds.add(masterRecord.id);
+    if (!existing) {
+      newCount += 1;
+      return masterRecord;
+    }
+
+    const merged = { ...existing };
+    MASTER_FIELDS.forEach((field) => {
+      merged[field] = masterRecord[field];
+    });
+    updateCount += 1;
+    return normalizeRecords([merged])[0];
+  });
+
+  const localOnly = normalizeRecords(existingRecords).filter((record) => !mergedIds.has(record.id));
+  return {
+    data: [...mergedMasters, ...localOnly],
+    newCount,
+    updateCount,
+    skipCount: localOnly.length
+  };
+}
+
+function normalizeMasterRecords(records) {
+  return normalizeRecords(records).map((record) => ({
+    ...record,
+    review_stage: 0,
+    correct_streak: 0,
+    miss_count: 1,
+    next_review_date: record.source_date || todayString(),
+    status: "active"
+  }));
+}
+
+function csvTextToRecords(csvText) {
+  const trimmedText = String(csvText || "").trim();
+  if (!trimmedText) {
+    return { ok: false, records: [], errors: ["CSVが空です。ヘッダー行とデータ行を貼り付けてください。"], skipped: 0 };
+  }
+
+  const rows = parseCsv(trimmedText);
+  if (rows.length < 2) {
+    return { ok: false, records: [], errors: ["CSVが空です。ヘッダー行とデータ行を貼り付けてください。"], skipped: 0 };
+  }
+
+  const headers = rows[0].map((header) => normalizeCsvCell(header));
+  if (!isOfficialCsvHeader(headers)) {
+    return {
+      ok: false,
+      records: [],
+      errors: ["CSVヘッダーを確認してください。必要な列：id, source_date, source_type, sentence, reading, answer, meaning"],
+      skipped: 0
+    };
+  }
+
+  const records = [];
+  const seenIds = new Set();
+  let skipped = 0;
+
+  for (let rowIndex = 1; rowIndex < rows.length; rowIndex += 1) {
+    const row = rows[rowIndex];
+    if (!row.some((cell) => String(cell).trim() !== "")) {
+      skipped += 1;
+      continue;
+    }
+
+    const lineNumber = rowIndex + 1;
+    const record = {};
+    CSV_COLUMNS.forEach((column, index) => {
+      record[column] = normalizeCsvCell(row[index] ?? "");
+    });
+
+    const error = validateCsvRecord(record, lineNumber, seenIds);
+    if (error) {
+      return { ok: false, records: [], errors: [error], skipped };
+    }
+
+    seenIds.add(record.id);
+    records.push(normalizeMasterRecord(record));
+  }
+
+  if (records.length === 0) {
+    return { ok: false, records: [], errors: ["CSVが空です。ヘッダー行とデータ行を貼り付けてください。"], skipped };
+  }
+
+  return { ok: true, records, errors: [], skipped };
+}
+
+function isOfficialCsvHeader(headers) {
+  return CSV_COLUMNS.length === headers.length && CSV_COLUMNS.every((column, index) => column === headers[index]);
+}
+
+function normalizeCsvCell(value) {
+  return String(value || "").replace(/^\uFEFF/, "").trim();
+}
+
+function validateCsvRecord(record, lineNumber, seenIds) {
+  for (const column of REQUIRED_CSV_COLUMNS) {
+    if (!record[column]) {
+      return `${lineNumber}行目：${column} が空欄です。`;
+    }
+  }
+
+  if (seenIds.has(record.id)) {
+    return `${lineNumber}行目：id が重複しています。${record.id}`;
+  }
+
+  const normalizedDate = normalizeCsvDate(record.source_date);
+  if (!normalizedDate) {
+    return `${lineNumber}行目：source_date の形式を確認してください。`;
+  }
+
+  return "";
+}
+
+function normalizeMasterRecord(record) {
+  return {
+    ...record,
+    source_date: normalizeCsvDate(record.source_date) || todayString(),
+    acceptable_answers: normalizeAcceptableAnswers(record.acceptable_answers, record.answer),
+    time_limit_sec: Number(record.time_limit_sec) || DEFAULT_TIME_LIMIT
+  };
+}
+
+function normalizeCsvDate(value) {
+  const text = String(value || "").trim();
+  let match = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (!match) {
+    match = text.match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/);
+  }
+  if (!match) return "";
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(year, month - 1, day);
+  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+    return "";
+  }
+  return formatLocalDate(date);
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let inQuotes = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    const nextChar = text[index + 1];
+
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        cell += '"';
+        index += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+
+    if (char === "," && !inQuotes) {
+      row.push(cell);
+      cell = "";
+      continue;
+    }
+
+    if ((char === "\n" || char === "\r") && !inQuotes) {
+      if (char === "\r" && nextChar === "\n") index += 1;
+      row.push(cell);
+      rows.push(row);
+      row = [];
+      cell = "";
+      continue;
+    }
+
+    cell += char;
+  }
+
+  row.push(cell);
+  rows.push(row);
+  return rows;
+}
+
+function recordsToCsv(records) {
+  const lines = [CSV_COLUMNS.join(",")];
+  normalizeRecords(records).forEach((record) => {
+    lines.push(CSV_COLUMNS.map((column) => csvEscape(formatCsvValue(record[column]))).join(","));
+  });
+  return lines.join("\r\n");
+}
+
+function formatCsvValue(value) {
+  if (Array.isArray(value)) return value.join("、");
+  return value ?? "";
+}
+
+function csvEscape(value) {
+  const text = String(value);
+  if (/[",\r\n]/.test(text)) {
+    return `"${text.replaceAll('"', '""')}"`;
+  }
+  return text;
 }
 
 function normalizeRecords(records) {
@@ -160,9 +432,10 @@ function normalizeRecords(records) {
     sentence: record.sentence || "",
     reading: record.reading || "",
     answer: record.answer || "",
-    acceptable_answers: Array.isArray(record.acceptable_answers) ? record.acceptable_answers : [],
+    acceptable_answers: normalizeAcceptableAnswers(record.acceptable_answers, record.answer),
     meaning: record.meaning || "",
     wrong_answer: record.wrong_answer || "",
+    mistake_type: record.mistake_type || "",
     time_limit_sec: Number(record.time_limit_sec) || DEFAULT_TIME_LIMIT,
     review_stage: Number(record.review_stage) || 0,
     correct_streak: Number(record.correct_streak) || 0,
@@ -170,6 +443,90 @@ function normalizeRecords(records) {
     next_review_date: record.next_review_date || todayString(),
     status: record.status || "active"
   }));
+}
+
+function normalizeAcceptableAnswers(value, answer) {
+  if (Array.isArray(value)) {
+    const answers = value.map((item) => String(item).trim()).filter(Boolean);
+    return answers.length > 0 ? answers : [answer].filter(Boolean);
+  }
+
+  const answers = String(value || "")
+    .split(/[,|;、]/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+  return answers.length > 0 ? answers : [answer].filter(Boolean);
+}
+
+function buildCompactSaveData() {
+  const progress = {};
+  const currentRecords = loadSavedLearningData();
+  normalizeRecords(currentRecords.length > 0 ? currentRecords : learningData).forEach((record) => {
+    if (!hasNonInitialProgress(record)) return;
+    progress[record.id] = [
+      record.review_stage,
+      record.correct_streak,
+      record.miss_count,
+      record.next_review_date,
+      statusToCode(record.status)
+    ];
+  });
+
+  return {
+    v: 1,
+    u: currentUserName || getStoredUserName(),
+    p: progress
+  };
+}
+
+function hasNonInitialProgress(record) {
+  return !(
+    record.review_stage === 0 &&
+    record.correct_streak === 0 &&
+    record.miss_count === 1 &&
+    record.next_review_date === record.source_date &&
+    record.status === "active"
+  );
+}
+
+function statusToCode(status) {
+  return status === "graduated" ? 1 : 0;
+}
+
+function codeToStatus(code) {
+  return Number(code) === 1 ? "graduated" : "active";
+}
+
+function applyCompactSaveData(saveData) {
+  if (!saveData || saveData.v !== 1 || typeof saveData.p !== "object" || saveData.p === null) {
+    throw new Error("Unsupported save data");
+  }
+
+  if (typeof saveData.u === "string" && saveData.u.trim()) {
+    saveUserName(saveData.u.trim());
+  }
+
+  const progressById = saveData.p;
+  const currentRecords = loadSavedLearningData();
+  learningData = normalizeRecords(currentRecords.length > 0 ? currentRecords : learningData).map((record) => {
+    const progress = progressById[record.id];
+    if (!Array.isArray(progress)) return record;
+
+    return {
+      ...record,
+      review_stage: Number(progress[0]) || 0,
+      correct_streak: Number(progress[1]) || 0,
+      miss_count: Number(progress[2]) || 0,
+      next_review_date: String(progress[3] || record.next_review_date || record.source_date || todayString()),
+      status: codeToStatus(progress[4])
+    };
+  });
+  saveLearningData();
+}
+
+function importLegacyFullData(records) {
+  learningData = normalizeRecords(records);
+  saveLearningData();
 }
 
 function saveLearningData(data = learningData) {
@@ -554,13 +911,25 @@ function renderDataMode() {
 
       <div class="data-actions">
         <button class="primary-button" data-action="export">JSONをエクスポート</button>
+        <button class="primary-button" data-action="export-csv">CSVをエクスポート</button>
         <label class="file-import">
           JSONをインポート
           <input type="file" accept="application/json,.json" data-action="import">
         </label>
+        <button class="secondary-button" data-action="repair-csv">CSVから修復</button>
+        <label class="file-import">
+          CSVファイルを選んで修復
+          <input type="file" accept=".csv,text/csv" data-action="repair-csv-file">
+        </label>
         <button class="danger-button" data-action="reset">学習データをサンプルに戻す</button>
         <button class="danger-button" data-action="reset-all">全データを初期化</button>
       </div>
+      <section class="csv-import-panel">
+        <h2>CSV貼り付けインポート</h2>
+        <p>CSVの問題マスタを貼り付けると、新規IDを追加し、既存IDは問題文・読み・答え・意味などだけ更新します。</p>
+        <textarea id="csv-import-box" class="export-box" aria-label="CSV貼り付け欄" placeholder="id,source_date,source_type,sentence,reading,answer,acceptable_answers,meaning,wrong_answer,mistake_type,time_limit_sec"></textarea>
+        <button class="secondary-button" data-action="import-csv">貼り付けCSVを取り込む</button>
+      </section>
       <textarea id="export-box" class="export-box" readonly aria-label="エクスポートJSON"></textarea>
       <p id="data-message" class="data-message"></p>
     </section>
@@ -569,9 +938,16 @@ function renderDataMode() {
   app.querySelector('[data-action="home"]').addEventListener("click", renderHome);
   app.querySelector('[data-action="change-name"]').addEventListener("submit", changeUserName);
   app.querySelector('[data-action="export"]').addEventListener("click", exportData);
+  app.querySelector('[data-action="export-csv"]').addEventListener("click", exportCsvData);
+  app.querySelector('[data-action="repair-csv"]').addEventListener("click", repairFromCsvSource);
+  app.querySelector('[data-action="repair-csv-file"]').addEventListener("change", importRepairCsvFile);
+  app.querySelector('[data-action="import-csv"]').addEventListener("click", importPastedCsv);
   app.querySelector('[data-action="reset"]').addEventListener("click", resetData);
   app.querySelector('[data-action="reset-all"]').addEventListener("click", resetAllData);
   app.querySelector('[data-action="import"]').addEventListener("change", importData);
+  if (startupCsvMessage) {
+    setDataMessage(startupCsvMessage);
+  }
 }
 
 function changeUserName(event) {
@@ -587,21 +963,93 @@ function changeUserName(event) {
 }
 
 function exportData() {
+  const compactData = buildCompactSaveData();
+  const json = JSON.stringify(compactData);
   const box = app.querySelector("#export-box");
-  box.value = JSON.stringify(learningData, null, 2);
+  box.value = json;
   box.focus();
   box.select();
 
-  const blob = new Blob([box.value], { type: "application/json" });
+  const blob = new Blob([json], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `kanji-de-go-${todayString()}.json`;
+  link.download = `kanji-de-go-save-${todayString()}.json`;
   document.body.appendChild(link);
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
-  setDataMessage("JSONを書き出しました。");
+  setDataMessage("短縮版JSONを書き出しました。");
+}
+
+function exportCsvData() {
+  const currentRecords = loadSavedLearningData();
+  const csv = recordsToCsv(currentRecords.length > 0 ? currentRecords : learningData);
+  const box = app.querySelector("#export-box");
+  box.value = csv;
+  box.focus();
+  box.select();
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `kanji-de-go-${todayString()}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  setDataMessage("CSVを書き出しました。");
+}
+
+async function repairFromCsvSource() {
+  if (window.location.protocol === "file:") {
+    const fileInput = app.querySelector('[data-action="repair-csv-file"]');
+    if (fileInput) fileInput.click();
+    setDataMessage("HTMLを直接開いているため、CSVファイルを選択してください。貼り付けインポートも利用できます。");
+    return;
+  }
+
+  const csvResult = await loadCsvMasterRecords();
+  if (!csvResult.ok) {
+    setDataMessage("CSVファイルを自動取得できませんでした。CSVファイルを選択するか、貼り付けインポートを使ってください。");
+    return;
+  }
+  applyCsvImportResult(csvResult);
+}
+
+function importRepairCsvFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.addEventListener("load", () => {
+    const csvResult = csvTextToRecords(reader.result);
+    if (!csvResult.ok) {
+      setDataMessage(csvResult.errors[0]);
+      return;
+    }
+    applyCsvImportResult(csvResult);
+    event.target.value = "";
+  });
+  reader.readAsText(file);
+}
+
+function applyCsvImportResult(csvResult) {
+  const merged = mergeMasterRecords(loadSavedLearningData(), csvResult.records);
+  learningData = merged.data;
+  saveLearningData();
+  setDataMessage(`CSVを読み込みました。新規${merged.newCount}件、更新${merged.updateCount}件、スキップ${merged.skipCount + csvResult.skipped}件。`);
+}
+
+function importPastedCsv() {
+  const box = app.querySelector("#csv-import-box");
+  const csvResult = csvTextToRecords(box.value);
+  if (!csvResult.ok) {
+    setDataMessage(csvResult.errors[0]);
+    return;
+  }
+  applyCsvImportResult(csvResult);
 }
 
 function resetData() {
@@ -627,10 +1075,16 @@ function importData(event) {
   const reader = new FileReader();
   reader.addEventListener("load", () => {
     try {
-      const imported = normalizeRecords(JSON.parse(reader.result));
-      learningData = imported;
-      saveLearningData();
-      setDataMessage("JSONを読み込みました。");
+      const imported = JSON.parse(reader.result);
+      if (Array.isArray(imported)) {
+        importLegacyFullData(imported);
+        setDataMessage("従来形式JSONを読み込みました。");
+        return;
+      }
+
+      applyCompactSaveData(imported);
+      renderDataMode();
+      setDataMessage("短縮版JSONから進捗を復元しました。");
     } catch {
       setDataMessage("JSONを読み込めませんでした。形式を確認してください。");
     }

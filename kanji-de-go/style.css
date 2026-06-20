@@ -524,6 +524,23 @@ h1 {
   font-weight: 700;
 }
 
+.csv-import-panel {
+  margin-top: 24px;
+  padding: 18px;
+  border: 3px solid rgba(21, 120, 212, 0.35);
+  border-radius: 8px;
+  background: var(--white);
+}
+
+.csv-import-panel h2 {
+  margin: 0 0 8px;
+  font-size: clamp(1.35rem, 4vw, 2rem);
+}
+
+.csv-import-panel p {
+  margin: 0 0 12px;
+}
+
 .file-import {
   display: inline-grid;
   place-items: center;
