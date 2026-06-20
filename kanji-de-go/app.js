@@ -898,20 +898,13 @@ function renderQuestion() {
   input.addEventListener("focus", () => {
     if (!shouldUseKeyboardMode()) return;
     document.body.classList.add("keyboard-mode");
-    if (input.dataset.skipFocusScroll === "true") {
-      input.dataset.skipFocusScroll = "";
-      return;
-    }
     window.setTimeout(() => {
       input.scrollIntoView({ behavior: "auto", block: "center" });
     }, 100);
   });
   input.addEventListener("blur", clearKeyboardMode);
   scrollGameToTop(0);
-  if (shouldAutoFocusAnswer()) {
-    input.dataset.skipFocusScroll = "true";
-    input.focus({ preventScroll: true });
-  }
+  input.focus();
   app.querySelector('[data-action="judge"]').addEventListener("click", () => judgeAnswer(false));
   app.querySelector('[data-action="skip"]').addEventListener("click", () => judgeAnswer(false, true));
   input.addEventListener("keydown", (event) => {
@@ -952,22 +945,22 @@ function blurActiveElement() {
 }
 
 function scrollGameToTop(delay = 0) {
-  window.setTimeout(() => {
+  const scroll = () => {
     const gameTop = app.querySelector(".game-view") || app.querySelector(".game-hud") || app;
     if (gameTop) {
       gameTop.scrollIntoView({ block: "start", behavior: "auto" });
     }
-  }, delay);
+  };
+  if (delay > 0) {
+    window.setTimeout(scroll, delay);
+  } else {
+    scroll();
+  }
 }
 
 function shouldUseKeyboardMode() {
   return window.matchMedia("(pointer: coarse)").matches ||
     window.matchMedia("(orientation: landscape) and (max-height: 820px)").matches;
-}
-
-function shouldAutoFocusAnswer() {
-  return window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
-    !window.matchMedia("(orientation: landscape) and (max-height: 820px)").matches;
 }
 
 function formatTime(totalSeconds) {
