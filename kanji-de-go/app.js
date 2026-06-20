@@ -847,7 +847,7 @@ function showNextQuestion() {
   }
 
   renderQuestion();
-  scrollGameToTop(60);
+  settleQuestionViewport();
 }
 
 function renderQuestion() {
@@ -898,13 +898,17 @@ function renderQuestion() {
   input.addEventListener("focus", () => {
     if (!shouldUseKeyboardMode()) return;
     document.body.classList.add("keyboard-mode");
+    if (input.dataset.programmaticFocus === "true") {
+      input.dataset.programmaticFocus = "";
+      return;
+    }
     window.setTimeout(() => {
       input.scrollIntoView({ behavior: "auto", block: "center" });
     }, 100);
   });
   input.addEventListener("blur", clearKeyboardMode);
-  scrollGameToTop(0);
-  input.focus();
+  scrollGameToPreferredPosition();
+  focusAnswerInputKeepingScroll();
   app.querySelector('[data-action="judge"]').addEventListener("click", () => judgeAnswer(false));
   app.querySelector('[data-action="skip"]').addEventListener("click", () => judgeAnswer(false, true));
   input.addEventListener("keydown", (event) => {
@@ -944,18 +948,46 @@ function blurActiveElement() {
   }
 }
 
-function scrollGameToTop(delay = 0) {
+function settleQuestionViewport() {
+  window.setTimeout(() => {
+    scrollGameToPreferredPosition();
+    focusAnswerInputKeepingScroll();
+  }, 50);
+  window.setTimeout(scrollGameToPreferredPosition, 260);
+  window.setTimeout(scrollGameToPreferredPosition, 520);
+}
+
+function scrollGameToPreferredPosition(delay = 0) {
   const scroll = () => {
-    const gameTop = app.querySelector(".game-view") || app.querySelector(".game-hud") || app;
-    if (gameTop) {
-      gameTop.scrollIntoView({ block: "start", behavior: "auto" });
-    }
+    const target = app.querySelector(".game-hud") || app.querySelector(".game-view") || app;
+    const rect = target.getBoundingClientRect();
+    const absoluteTop = rect.top + window.scrollY;
+    const offset = isTouchLikeDevice() ? 8 : 16;
+    window.scrollTo({
+      top: Math.max(absoluteTop - offset, 0),
+      behavior: "auto"
+    });
   };
   if (delay > 0) {
     window.setTimeout(scroll, delay);
   } else {
     scroll();
   }
+}
+
+function focusAnswerInputKeepingScroll() {
+  const input = app.querySelector("#answer-input");
+  if (!input) return;
+  input.dataset.programmaticFocus = "true";
+  try {
+    input.focus({ preventScroll: true });
+  } catch (error) {
+    input.focus();
+  }
+}
+
+function isTouchLikeDevice() {
+  return window.matchMedia("(pointer: coarse)").matches || navigator.maxTouchPoints > 1;
 }
 
 function shouldUseKeyboardMode() {
