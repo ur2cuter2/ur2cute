@@ -824,6 +824,7 @@ function renderEmptyPractice() {
 
 function showNextQuestion() {
   stopTimer();
+  blurActiveElement();
   clearKeyboardMode();
 
   if (currentIndex < dailyQuestions.length) {
@@ -846,6 +847,7 @@ function showNextQuestion() {
   }
 
   renderQuestion();
+  scrollGameToTop(60);
 }
 
 function renderQuestion() {
@@ -894,13 +896,22 @@ function renderQuestion() {
 
   const input = app.querySelector("#answer-input");
   input.addEventListener("focus", () => {
+    if (!shouldUseKeyboardMode()) return;
     document.body.classList.add("keyboard-mode");
+    if (input.dataset.skipFocusScroll === "true") {
+      input.dataset.skipFocusScroll = "";
+      return;
+    }
     window.setTimeout(() => {
       input.scrollIntoView({ behavior: "auto", block: "center" });
     }, 100);
   });
   input.addEventListener("blur", clearKeyboardMode);
-  input.focus();
+  scrollGameToTop(0);
+  if (shouldAutoFocusAnswer()) {
+    input.dataset.skipFocusScroll = "true";
+    input.focus({ preventScroll: true });
+  }
   app.querySelector('[data-action="judge"]').addEventListener("click", () => judgeAnswer(false));
   app.querySelector('[data-action="skip"]').addEventListener("click", () => judgeAnswer(false, true));
   input.addEventListener("keydown", (event) => {
@@ -934,6 +945,31 @@ function clearKeyboardMode() {
   document.body.classList.remove("keyboard-mode");
 }
 
+function blurActiveElement() {
+  if (document.activeElement && typeof document.activeElement.blur === "function") {
+    document.activeElement.blur();
+  }
+}
+
+function scrollGameToTop(delay = 0) {
+  window.setTimeout(() => {
+    const gameTop = app.querySelector(".game-view") || app.querySelector(".game-hud") || app;
+    if (gameTop) {
+      gameTop.scrollIntoView({ block: "start", behavior: "auto" });
+    }
+  }, delay);
+}
+
+function shouldUseKeyboardMode() {
+  return window.matchMedia("(pointer: coarse)").matches ||
+    window.matchMedia("(orientation: landscape) and (max-height: 820px)").matches;
+}
+
+function shouldAutoFocusAnswer() {
+  return window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
+    !window.matchMedia("(orientation: landscape) and (max-height: 820px)").matches;
+}
+
 function formatTime(totalSeconds) {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
@@ -942,10 +978,11 @@ function formatTime(totalSeconds) {
 
 function judgeAnswer(timedOut, skipped = false) {
   stopTimer();
-  clearKeyboardMode();
   const { question, isRetry } = currentQuestionEntry;
   const input = app.querySelector("#answer-input");
   const userAnswer = normalizeAnswer(input ? input.value : "");
+  if (input) input.blur();
+  clearKeyboardMode();
   const validAnswers = [question.answer, ...(question.acceptable_answers || [])].map(normalizeAnswer);
   const isCorrect = !timedOut && !skipped && validAnswers.includes(userAnswer);
   let retryQueued = false;
