@@ -40,6 +40,16 @@
     "answer_note": "2:ア　3:イ　4:全部「意固地」　6:ウ"
   },
   {
+    "id": "095",
+    "word": "百聞は一見にしかず",
+    "reading": "ひゃくぶんはいっけんにしかず",
+    "category": "ことわざ",
+    "planned_date": "2026-07-01",
+    "lesson_group": "kakushu_20260614",
+    "display_order": 1,
+    "answer_note": "2:ア　3:イ　4:全部「百聞は一見にしかず」　6:ウ"
+  },
+  {
     "id": "002",
     "word": "衣食住",
     "reading": "いしょくじゅう",
@@ -78,6 +88,16 @@
     "lesson_group": "keimeikan_p35",
     "display_order": 2,
     "answer_note": "2:イ　3:ウ　4:全部「有頂天」　6:ア"
+  },
+  {
+    "id": "096",
+    "word": "三つ子の魂百まで",
+    "reading": "みつごのたましいひゃくまで",
+    "category": "ことわざ",
+    "planned_date": "2026-07-01",
+    "lesson_group": "kakushu_20260614",
+    "display_order": 2,
+    "answer_note": "2:イ　3:ウ　4:全部「三つ子の魂百まで」　6:ア"
   },
   {
     "id": "003",
@@ -120,6 +140,16 @@
     "answer_note": "2:ウ　3:ア　4:全部「画期的」　6:イ"
   },
   {
+    "id": "097",
+    "word": "雀百まで踊り忘れず",
+    "reading": "すずめひゃくまでおどりわすれず",
+    "category": "ことわざ",
+    "planned_date": "2026-07-02",
+    "lesson_group": "kakushu_20260614",
+    "display_order": 3,
+    "answer_note": "2:ウ　3:ア　4:全部「雀百まで踊り忘れず」　6:イ"
+  },
+  {
     "id": "004",
     "word": "過保護",
     "reading": "かほご",
@@ -158,6 +188,16 @@
     "lesson_group": "keimeikan_p35",
     "display_order": 4,
     "answer_note": "2:ア　3:イ　4:全部「閑古鳥」　6:ウ"
+  },
+  {
+    "id": "098",
+    "word": "捕らぬ狸の皮算用",
+    "reading": "とらぬたぬきのかわざんよう",
+    "category": "ことわざ",
+    "planned_date": "2026-07-02",
+    "lesson_group": "kakushu_20260614",
+    "display_order": 4,
+    "answer_note": "2:ア　3:ウ　4:全部「捕らぬ狸の皮算用」　6:イ"
   },
   {
     "id": "005",
@@ -200,6 +240,16 @@
     "answer_note": "2:イ　3:ウ　4:全部「几帳面」　6:ア"
   },
   {
+    "id": "099",
+    "word": "竹馬の友",
+    "reading": "ちくばのとも",
+    "category": "ことわざ",
+    "planned_date": "2026-07-02",
+    "lesson_group": "kakushu_20260614",
+    "display_order": 5,
+    "answer_note": "2:イ　3:ア　4:全部「竹馬の友」　6:ウ"
+  },
+  {
     "id": "006",
     "word": "紅一点",
     "reading": "こういってん",
@@ -238,6 +288,16 @@
     "lesson_group": "keimeikan_p35",
     "display_order": 6,
     "answer_note": "2:ウ　3:ア　4:全部「金字塔」　6:イ"
+  },
+  {
+    "id": "100",
+    "word": "付け焼き刃",
+    "reading": "つけやきば",
+    "category": "慣用句",
+    "planned_date": "2026-07-03",
+    "lesson_group": "kakushu_20260614",
+    "display_order": 6,
+    "answer_note": "2:ウ　3:イ　4:全部「付け焼き刃」　6:ア"
   },
   {
     "id": "007",
@@ -280,6 +340,16 @@
     "answer_note": "2:ア　3:イ　4:全部「後遺症」　6:ウ"
   },
   {
+    "id": "101",
+    "word": "諸刃の剣",
+    "reading": "もろはのつるぎ",
+    "category": "慣用句",
+    "planned_date": "2026-07-03",
+    "lesson_group": "kakushu_20260614",
+    "display_order": 7,
+    "answer_note": "2:ア　3:イ　4:全部「諸刃の剣」　6:ウ"
+  },
+  {
     "id": "008",
     "word": "大黒柱",
     "reading": "だいこくばしら",
@@ -318,6 +388,16 @@
     "lesson_group": "keimeikan_p35",
     "display_order": 8,
     "answer_note": "2:イ　3:ウ　4:全部「後日談」　6:ア"
+  },
+  {
+    "id": "102",
+    "word": "焼け石に水",
+    "reading": "やけいしにみず",
+    "category": "ことわざ",
+    "planned_date": "2026-07-03",
+    "lesson_group": "kakushu_20260614",
+    "display_order": 8,
+    "answer_note": "2:イ　3:ウ　4:全部「焼け石に水」　6:ア"
   },
   {
     "id": "009",
@@ -360,6 +440,16 @@
     "answer_note": "2:ウ　3:ア　4:全部「自尊心」　6:イ"
   },
   {
+    "id": "103",
+    "word": "疑心暗鬼",
+    "reading": "ぎしんあんき",
+    "category": "四字熟語",
+    "planned_date": "2026-07-04",
+    "lesson_group": "kakushu_20260614",
+    "display_order": 9,
+    "answer_note": "2:ウ　3:ア　4:全部「疑心暗鬼」　6:イ"
+  },
+  {
     "id": "010",
     "word": "異口同音",
     "reading": "いくどうおん",
@@ -398,6 +488,16 @@
     "lesson_group": "keimeikan_p35",
     "display_order": 10,
     "answer_note": "2:ア　3:イ　4:全部「真善美」　6:ウ"
+  },
+  {
+    "id": "104",
+    "word": "一夜漬け",
+    "reading": "いちやづけ",
+    "category": "慣用句",
+    "planned_date": "2026-07-04",
+    "lesson_group": "kakushu_20260614",
+    "display_order": 10,
+    "answer_note": "2:ア　3:ウ　4:全部「一夜漬け」　6:イ"
   },
   {
     "id": "011",

@@ -491,9 +491,10 @@
         })
         .sort((a, b) => {
           if (state.activeFilter === "due_today") return compareDueToday(a, b);
-          const orderA = Number(a.display_order || a.id);
-          const orderB = Number(b.display_order || b.id);
-          return orderA - orderB || String(a.id).localeCompare(String(b.id));
+          return String(a.planned_date || "").localeCompare(String(b.planned_date || ""))
+            || String(a.id || "").localeCompare(String(b.id || ""), "ja", { numeric: true })
+            || String(a.lesson_group || "").localeCompare(String(b.lesson_group || ""), "ja", { numeric: true })
+            || Number(a.display_order || 0) - Number(b.display_order || 0);
         });
     }
 
@@ -505,9 +506,9 @@
 
     function compareDueToday(a, b) {
       return String(a.planned_date || "").localeCompare(String(b.planned_date || ""))
+        || String(a.id || "").localeCompare(String(b.id || ""), "ja", { numeric: true })
         || String(a.lesson_group || "").localeCompare(String(b.lesson_group || ""), "ja", { numeric: true })
-        || Number(a.display_order || a.id) - Number(b.display_order || b.id)
-        || String(a.id).localeCompare(String(b.id), "ja", { numeric: true });
+        || Number(a.display_order || 0) - Number(b.display_order || 0);
     }
 
     function renderSummary() {
