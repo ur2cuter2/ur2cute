@@ -124,6 +124,13 @@ const app = document.querySelector("#app");
 let learningData = [];
 let dailyQuestions = [];
 let currentIndex = 0;
+let currentQuestionEntry = null;
+let retryQueue = [];
+let retryAttemptsById = {};
+let retryQuestionCounter = 0;
+let correctCount = 0;
+let retrySuccessCount = 0;
+let tomorrowReviewIds = new Set();
 let score = 0;
 let combo = 0;
 let timerId = null;
@@ -606,6 +613,7 @@ function renderUserNameSetup() {
 
 function renderHome() {
   stopTimer();
+  clearKeyboardMode();
   const dueCount = getDueQuestions().length;
   const userName = escapeHtml(currentUserName);
   app.className = "app-shell home-shell";
@@ -644,6 +652,13 @@ function renderHome() {
 function startPractice() {
   dailyQuestions = getDueQuestions();
   currentIndex = 0;
+  currentQuestionEntry = null;
+  retryQueue = [];
+  retryAttemptsById = {};
+  retryQuestionCounter = 0;
+  correctCount = 0;
+  retrySuccessCount = 0;
+  tomorrowReviewIds = new Set();
   score = 0;
   combo = 0;
 
@@ -652,10 +667,11 @@ function startPractice() {
     return;
   }
 
-  renderQuestion();
+  showNextQuestion();
 }
 
 function renderEmptyPractice() {
+  clearKeyboardMode();
   app.className = "app-shell";
   app.innerHTML = `
     <section class="message-view">
@@ -667,9 +683,35 @@ function renderEmptyPractice() {
   app.querySelector('[data-action="home"]').addEventListener("click", renderHome);
 }
 
+function showNextQuestion() {
+  stopTimer();
+  clearKeyboardMode();
+
+  if (currentIndex < dailyQuestions.length) {
+    currentQuestionEntry = {
+      question: dailyQuestions[currentIndex],
+      isRetry: false,
+      normalIndex: currentIndex + 1
+    };
+    currentIndex += 1;
+  } else if (retryQueue.length > 0) {
+    retryQuestionCounter += 1;
+    currentQuestionEntry = {
+      ...retryQueue.shift(),
+      isRetry: true,
+      retryNumber: retryQuestionCounter
+    };
+  } else {
+    renderSessionComplete();
+    return;
+  }
+
+  renderQuestion();
+}
+
 function renderQuestion() {
   stopTimer();
-  const question = dailyQuestions[currentIndex];
+  const { question, isRetry, normalIndex, retryNumber } = currentQuestionEntry;
   currentTimeLimit = question.time_limit_sec || DEFAULT_TIME_LIMIT;
   questionStartedAt = Date.now();
   app.className = "app-shell game-shell";
@@ -690,7 +732,7 @@ function renderQuestion() {
         </div>
       </header>
 
-      <p class="question-count">第${currentIndex + 1}問 / 今日の${dailyQuestions.length}問</p>
+      <p class="question-count">${isRetry ? `今日のリトライ ${retryNumber}問目` : `第${normalIndex}問 / 今日の${dailyQuestions.length}問`}</p>
       <div class="road-scene">
         <div class="lane lane-left"></div>
         <div class="lane lane-right"></div>
@@ -712,6 +754,13 @@ function renderQuestion() {
   `;
 
   const input = app.querySelector("#answer-input");
+  input.addEventListener("focus", () => {
+    document.body.classList.add("keyboard-mode");
+    window.setTimeout(() => {
+      input.scrollIntoView({ behavior: "auto", block: "center" });
+    }, 100);
+  });
+  input.addEventListener("blur", clearKeyboardMode);
   input.focus();
   app.querySelector('[data-action="judge"]').addEventListener("click", () => judgeAnswer(false));
   app.querySelector('[data-action="skip"]').addEventListener("click", () => judgeAnswer(false, true));
@@ -742,6 +791,10 @@ function stopTimer() {
   }
 }
 
+function clearKeyboardMode() {
+  document.body.classList.remove("keyboard-mode");
+}
+
 function formatTime(totalSeconds) {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
@@ -750,13 +803,27 @@ function formatTime(totalSeconds) {
 
 function judgeAnswer(timedOut, skipped = false) {
   stopTimer();
-  const question = dailyQuestions[currentIndex];
+  clearKeyboardMode();
+  const { question, isRetry } = currentQuestionEntry;
   const input = app.querySelector("#answer-input");
   const userAnswer = normalizeAnswer(input ? input.value : "");
   const validAnswers = [question.answer, ...(question.acceptable_answers || [])].map(normalizeAnswer);
   const isCorrect = !timedOut && !skipped && validAnswers.includes(userAnswer);
+  let retryQueued = false;
 
-  updateReview(question.id, isCorrect);
+  if (isCorrect) {
+    correctCount += 1;
+    if (isRetry) {
+      retrySuccessCount += 1;
+    } else {
+      updateReview(question.id, true);
+    }
+  } else {
+    updateReview(question.id, false);
+    retryQueued = enqueueRetry(question);
+    tomorrowReviewIds.add(question.id);
+  }
+
   if (isCorrect) {
     combo += 1;
     score += 100 + combo * 20;
@@ -764,7 +831,18 @@ function judgeAnswer(timedOut, skipped = false) {
     combo = 0;
   }
 
-  renderResult(question, isCorrect, timedOut, skipped);
+  renderResult(question, isCorrect, timedOut, skipped, isRetry, retryQueued);
+}
+
+function enqueueRetry(question) {
+  const attempts = retryAttemptsById[question.id] || 0;
+  if (attempts >= 2) return false;
+  retryAttemptsById[question.id] = attempts + 1;
+  retryQueue.push({
+    question,
+    retryAttempt: attempts + 1
+  });
+  return true;
 }
 
 function normalizeAnswer(value) {
@@ -809,18 +887,20 @@ function updateReview(id, isCorrect) {
   saveLearningData();
 }
 
-function renderResult(question, isCorrect, timedOut, skipped) {
-  const title = isCorrect ? "正解！" : timedOut ? "時間切れ！" : skipped ? "スキップ！" : "ざんねん！";
+function renderResult(question, isCorrect, timedOut, skipped, isRetry, retryQueued) {
+  const title = isCorrect ? (isRetry ? "リトライ成功！" : "正解！") : timedOut ? "時間切れ！" : skipped ? "スキップ！" : "ざんねん！";
   const resultClass = isCorrect ? "result-view success" : "result-view retry";
   app.className = `app-shell result-shell ${isCorrect ? "shake-success" : ""}`;
   app.innerHTML = `
     <section class="${resultClass}">
       ${isCorrect ? renderCelebration() : ""}
-      <p class="result-kicker">${isCorrect ? "やったね" : "もう一回出るよ"}</p>
+      <p class="result-kicker">${isCorrect ? (isRetry ? "その場で取り返したね" : "やったね") : "もう一回出るよ"}</p>
       <h1>${title}</h1>
       <div class="answer-card">
         ${isCorrect ? `<p class="big-kanji">${escapeHtml(question.answer)}</p>` : `<p class="correct-answer">正解：<strong>${escapeHtml(question.answer)}</strong></p>`}
         <p class="meaning"><span>意味：</span>${escapeHtml(question.meaning)}</p>
+        ${!isCorrect && retryQueued ? `<p class="retry-note">あとで今日もう一回出るよ！</p>` : ""}
+        ${isCorrect && isRetry ? `<p class="retry-note">明日ももう一度出るから、紙にも書いて確認しよう。</p>` : ""}
       </div>
       <div class="result-actions">
         <button class="primary-button" data-action="next">次の問題へ</button>
@@ -839,20 +919,22 @@ function renderCelebration() {
 }
 
 function nextQuestion() {
-  currentIndex += 1;
-  if (currentIndex >= dailyQuestions.length) {
-    renderSessionComplete();
-    return;
-  }
-  renderQuestion();
+  showNextQuestion();
 }
 
 function renderSessionComplete() {
+  clearKeyboardMode();
   app.className = "app-shell";
   app.innerHTML = `
     <section class="message-view">
       <h1>今日の練習、おしまい！</h1>
-      <p>スコアは <strong>${score}</strong> 点。復習データも保存したよ。</p>
+      <p>間違えた問題もその場でリトライしたよ。</p>
+      <div class="session-summary">
+        <p>正解数：<strong>${correctCount}</strong>問</p>
+        <p>リトライ成功数：<strong>${retrySuccessCount}</strong>問</p>
+        <p>明日もう一度出る問題：<strong>${tomorrowReviewIds.size}</strong>問</p>
+        <p>スコア：<strong>${score}</strong>点</p>
+      </div>
       <button class="primary-button" data-action="home">ホームへ戻る</button>
     </section>
   `;
@@ -861,6 +943,7 @@ function renderSessionComplete() {
 
 function renderPaperMode() {
   stopTimer();
+  clearKeyboardMode();
   const questions = getDueQuestions();
   app.className = "app-shell paper-shell";
   app.innerHTML = `
@@ -893,6 +976,7 @@ function renderPaperMode() {
 
 function renderDataMode() {
   stopTimer();
+  clearKeyboardMode();
   const userName = escapeHtml(currentUserName);
   app.className = "app-shell data-shell";
   app.innerHTML = `
