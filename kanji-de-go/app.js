@@ -1,4 +1,6 @@
-"use strict";
+﻿"use strict";
+
+const APP_VERSION = "2026.06.22.1";
 
 const STORAGE_KEY = "kanji-de-go-learning-data";
 const USER_NAME_KEY = "kanjiRushUserName";
@@ -223,7 +225,7 @@ async function loadCsvMasterRecords({ forStartup = false } = {}) {
 
   for (const path of CSV_SOURCE_PATHS) {
     try {
-      const response = await fetch(path, { cache: "no-store" });
+      const response = await fetch(`${path}?v=${encodeURIComponent(APP_VERSION)}`, { cache: "no-store" });
       if (!response.ok) continue;
       const text = await response.text();
       const result = csvTextToRecords(text);
@@ -934,7 +936,7 @@ function renderHome() {
         <h1 class="home-logo-wrap">
           <img
             class="home-logo-image"
-            src="assets/Kanji-de-go_Logo.png"
+            src="assets/Kanji-de-go_Logo.png?v=${encodeURIComponent(APP_VERSION)}"
             alt="漢字でGO！"
             width="2172"
             height="724"
@@ -1620,6 +1622,7 @@ function renderDataMode() {
       </nav>
       <h1>データ管理</h1>
       <p>今の学習データを保存したり、サンプル状態に戻したりできます。</p>
+      <p class="app-version">アプリバージョン：<strong>${escapeHtml(APP_VERSION)}</strong></p>
 
       <div class="data-summary" aria-label="学習データ集計">
         <p><span>登録問題数</span><strong>${learningData.length}</strong></p>
