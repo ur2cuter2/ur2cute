@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+   <meta charset="UTF-8">
+   <title>イラスト背景透過ツール</title>
+   <style>
+       /* スタイルの設定 */
+       body {
+           font-family: Arial, sans-serif;
+           margin: 20px;
+           text-align: center;
+       }
+       #controls {
+           margin-bottom: 20px;
+           padding: 15px;
+           border: 1px solid #ccc;
+           border-radius: 8px;
+           display: inline-block;
+           text-align: left;
+       }
+       #colorInputs input {
+           width: 50px;
+           margin-right: 5px;
+           text-align: center;
+       }
+       canvas {
+           border: 2px dashed #007bff;
+           display: block;
+           margin: 20px auto;
+           max-width: 100%;
+           cursor: crosshair;
+       }
+       .control-group {
+           margin-bottom: 10px;
+       }
+       .main-buttons button, .history-buttons button {
+           margin-top: 10px;
+           padding: 10px 15px;
+           cursor: pointer;
+       }
+       .history-buttons {
+           display: inline-block;
+           margin-right: 20px;
+       }
+       .info-message {
+           color: gray;
+           font-size: 0.9em;
+           margin-top: 5px;
+       }
+   </style>
+</head>
+<body>
+
+   <h1>イラスト背景透過ツール</h1>
+
+   <div id="controls">
+       <div class="control-group">
+           <label>透過したい背景色 (RGB):</label><br>
+           R: <input type="number" id="rValue" value="255" min="0" max="255">
+           G: <input type="number" id="gValue" value="255" min="0" max="255">
+           B: <input type="number" id="bValue" value="255" min="0" max="255">
+       </div>
+       <div class="control-group">
+           <label for="tolerance">許容誤差 (0-100):</label>
+           <input type="range" id="tolerance" value="20" min="0" max="100" oninput="toleranceOutput.value = tolerance.value">
+           <output id="toleranceOutput">20</output>
+       </div>
+
+       <hr>
+
+       <div class="history-buttons">
+           <button onclick="undo()" id="undoButton" disabled>↩️ 戻る (Undo)</button>
+           <button onclick="redo()" id="redoButton" disabled>進む (Redo) ↪️</button>
+       </div>
+
+       <div class="main-buttons">
+           <input type="file" id="fileInput" accept="image/jpeg, image/png">
+           <button onclick="processImage()" id="processButton" disabled>背景を透過させる</button>
+           <button onclick="downloadImage()" id="downloadButton" disabled>PNGをダウンロード</button>
+       </div>
+   </div>
+
+   <p class="info-message">👆 画像上の背景色を直接クリックすると、その色が上のRGB欄に設定されます。</p>
+
+   <canvas id="imageCanvas"></canvas>
+
+   <script>
+       const fileInput = document.getElementById('fileInput');
+       const processButton = document.getElementById('processButton');
+       const downloadButton = document.getElementById('downloadButton');
+       const undoButton = document.getElementById('undoButton'); // ↩️ 戻るボタン
+       const redoButton = document.getElementById('redoButton'); // ↪️ 進むボタン
+       const rValueInput = document.getElementById('rValue');
+       const gValueInput = document.getElementById('gValue');
+       const bValueInput = document.getElementById('bValue');
+       const toleranceInput = document.getElementById('tolerance');
+       const canvas = document.getElementById('imageCanvas');
+       const ctx = canvas.getContext('2d');
+       let originalImage = null;
+
+       // ----------------------------------------------------
+       // 新機能：履歴管理のための変数
+       // ----------------------------------------------------
+       let history = []; // Canvasの状態（ImageData URL）を格納する配列
+       let historyIndex = -1; // 現在表示している状態のインデックス
+
+       // ----------------------------------------------------
+       // 履歴のボタンの状態を更新
+       // ----------------------------------------------------
+       function updateHistoryButtons() {
+           undoButton.disabled = historyIndex <= 0;
+           redoButton.disabled = historyIndex >= history.length - 1;
+           downloadButton.disabled = historyIndex === -1;
+       }
+
+       // ----------------------------------------------------
+       // Canvasの状態を履歴に保存
+       // ----------------------------------------------------
+       function saveState() {
+           if (historyIndex < history.length - 1) {
+               // 現在のインデックスより後ろの履歴（Redoで戻れる履歴）を破棄する
+               history = history.slice(0, historyIndex + 1);
+           }
+
+           // Canvasの内容をデータURLとして保存
+           const dataURL = canvas.toDataURL();
+           history.push(dataURL);
+           historyIndex++;
+           updateHistoryButtons();
+       }
+
+       // ----------------------------------------------------
+       // ↩️ 戻る (Undo) 処理
+       // ----------------------------------------------------
+       function undo() {
+           if (historyIndex > 0) {
+               historyIndex--;
+               restoreState();
+           }
+       }
+
+       // ----------------------------------------------------
+       // ↪️ 進む (Redo) 処理
+       // ----------------------------------------------------
+       function redo() {
+           if (historyIndex < history.length - 1) {
+               historyIndex++;
+               restoreState();
+           }
+       }
+
+       // ----------------------------------------------------
+       // 履歴から状態をCanvasに復元
+       // ----------------------------------------------------
+       function restoreState() {
+           const img = new Image();
+           img.onload = () => {
+               // Canvasのサイズが変更されている可能性があるため、ここで更新
+               canvas.width = img.width;
+               canvas.height = img.height;
+               ctx.clearRect(0, 0, canvas.width, canvas.height);
+               ctx.drawImage(img, 0, 0);
+               updateHistoryButtons();
+           };
+           img.src = history[historyIndex];
+       }
+
+
+       // ----------------------------------------------------
+       // ファイルの読み込み
+       // ----------------------------------------------------
+       fileInput.addEventListener('change', (e) => {
+           const file = e.target.files[0];
+           if (!file) return;
+
+           processButton.disabled = false;
+
+           // 履歴をリセット
+           history = [];
+           historyIndex = -1;
+
+           const reader = new FileReader();
+           reader.onload = (event) => {
+               originalImage = new Image();
+               originalImage.onload = () => {
+                   canvas.width = originalImage.width;
+                   canvas.height = originalImage.height;
+                   ctx.clearRect(0, 0, canvas.width, canvas.height);
+                   ctx.drawImage(originalImage, 0, 0);
+
+                   // 初期状態を履歴として保存
+                   saveState();
+               };
+               originalImage.src = event.target.result;
+           };
+           reader.readAsDataURL(file);
+       });
+
+       // ----------------------------------------------------
+       // Canvasクリックでピクセル色を取得 (変更なし)
+       // ----------------------------------------------------
+       function getPixelColor(e) {
+           if (!originalImage) return;
+           const x = e.offsetX;
+           const y = e.offsetY;
+           const pixel = ctx.getImageData(x, y, 1, 1).data;
+
+           rValueInput.value = pixel[0];
+           gValueInput.value = pixel[1];
+           bValueInput.value = pixel[2];
+
+           // alert(`クリックした場所の色: RGB(${pixel[0]}, ${pixel[1]}, ${pixel[2]}) に設定されました。`);
+       }
+
+       canvas.addEventListener('click', getPixelColor);
+
+       // ----------------------------------------------------
+       // 背景透過処理
+       // ----------------------------------------------------
+       function processImage() {
+           if (!originalImage) return;
+
+           const targetR = parseInt(rValueInput.value);
+           const targetG = parseInt(gValueInput.value);
+           const targetB = parseInt(bValueInput.value);
+           const tolerance = parseInt(toleranceInput.value);
+
+           // Canvasを現在の状態に戻してから、透過処理を開始
+           // これにより、複数回「透過させる」ボタンを押しても、前の処理結果から再処理できる
+           restoreState();
+
+           const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+           const data = imageData.data;
+
+           for (let i = 0; i < data.length; i += 4) {
+               const r = data[i];    
+               const g = data[i + 1];
+               const b = data[i + 2];
+
+               if (Math.abs(r - targetR) <= tolerance &&
+                   Math.abs(g - targetG) <= tolerance &&
+                   Math.abs(b - targetB) <= tolerance) {
+
+                   data[i + 3] = 0;
+               }
+           }
+
+           ctx.putImageData(imageData, 0, 0);
+
+           // 処理が完了したら、新しい状態を履歴に保存する
+           saveState();
+       }
+
+       // ----------------------------------------------------
+       // PNGとしてダウンロード (変更なし)
+       // ----------------------------------------------------
+       function downloadImage() {
+           if (downloadButton.disabled) return;
+
+           const dataURL = canvas.toDataURL('image/png');
+           const a = document.createElement('a');
+           a.href = dataURL;
+           a.download = 'transparent_image_custom.png';
+           document.body.appendChild(a);
+           a.click();
+           document.body.removeChild(a);
+       }
+
+   </script>
+</body>
+</html>

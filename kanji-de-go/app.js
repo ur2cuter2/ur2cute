@@ -3,6 +3,8 @@
 const STORAGE_KEY = "kanji-de-go-learning-data";
 const USER_NAME_KEY = "kanjiRushUserName";
 const RETRY_STORAGE_KEY = "kanji-de-go-today-retry";
+const DAILY_COMPLETED_KEY = "kanji-de-go-daily-completed-date";
+const DAILY_ADVENTURE_KEY = "kanji-de-go-daily-adventure";
 const CSV_SOURCE_PATHS = ["kanji-mistakes.csv", "data/kanji-mistakes.csv"];
 const MAX_DAILY_QUESTIONS = 5;
 const DEFAULT_TIME_LIMIT = 60;
@@ -144,6 +146,8 @@ let currentTimeLimit = DEFAULT_TIME_LIMIT;
 let currentUserName = "";
 let startupCsvMessage = "";
 let testRetryState = null;
+let testDailyCompletedDate = "";
+let testDailyAdventureState = null;
 let isAnimating = false;
 let currentAttemptCount = 0;
 let currentQuestionHadRetry = false;
@@ -570,6 +574,91 @@ function todayString() {
   return local.toISOString().slice(0, 10);
 }
 
+function getDailyCompletedDate() {
+  if (IS_TEST_MODE) return testDailyCompletedDate;
+  return localStorage.getItem(DAILY_COMPLETED_KEY) || "";
+}
+
+function getEmptyDailyAdventureState() {
+  return {
+    date: todayString(),
+    completedCount: 0,
+    normalSetFinished: false
+  };
+}
+
+function loadDailyAdventureState() {
+  if (IS_TEST_MODE) {
+    if (!testDailyAdventureState || testDailyAdventureState.date !== todayString()) {
+      testDailyAdventureState = getEmptyDailyAdventureState();
+    }
+    return { ...testDailyAdventureState };
+  }
+
+  const saved = localStorage.getItem(DAILY_ADVENTURE_KEY);
+  if (!saved) return getEmptyDailyAdventureState();
+  try {
+    const state = JSON.parse(saved);
+    if (state.date !== todayString()) return getEmptyDailyAdventureState();
+    return {
+      date: state.date,
+      completedCount: Math.min(Math.max(Number(state.completedCount) || 0, 0), MAX_DAILY_QUESTIONS),
+      normalSetFinished: Boolean(state.normalSetFinished)
+    };
+  } catch {
+    localStorage.removeItem(DAILY_ADVENTURE_KEY);
+    return getEmptyDailyAdventureState();
+  }
+}
+
+function saveDailyAdventureState(state) {
+  const cleanState = {
+    date: todayString(),
+    completedCount: Math.min(Math.max(Number(state.completedCount) || 0, 0), MAX_DAILY_QUESTIONS),
+    normalSetFinished: Boolean(state.normalSetFinished)
+  };
+  if (IS_TEST_MODE) {
+    testDailyAdventureState = cleanState;
+    return;
+  }
+  localStorage.setItem(DAILY_ADVENTURE_KEY, JSON.stringify(cleanState));
+}
+
+function recordDailyNormalQuestionCompleted(normalSetFinished) {
+  const state = loadDailyAdventureState();
+  state.completedCount = Math.min(state.completedCount + 1, MAX_DAILY_QUESTIONS);
+  state.normalSetFinished = state.normalSetFinished || normalSetFinished || state.completedCount >= MAX_DAILY_QUESTIONS;
+  saveDailyAdventureState(state);
+}
+
+function isDailyPracticeCompleted() {
+  return getDailyCompletedDate() === todayString();
+}
+
+function markDailyPracticeCompleted() {
+  const today = todayString();
+  saveDailyAdventureState({
+    date: today,
+    completedCount: MAX_DAILY_QUESTIONS,
+    normalSetFinished: true
+  });
+  if (IS_TEST_MODE) {
+    testDailyCompletedDate = today;
+    return;
+  }
+  localStorage.setItem(DAILY_COMPLETED_KEY, today);
+}
+
+function clearDailyPracticeCompleted() {
+  if (IS_TEST_MODE) {
+    testDailyCompletedDate = "";
+    testDailyAdventureState = null;
+    return;
+  }
+  localStorage.removeItem(DAILY_COMPLETED_KEY);
+  localStorage.removeItem(DAILY_ADVENTURE_KEY);
+}
+
 function addDays(dateString, days) {
   const [year, month, day] = dateString.split("-").map(Number);
   const date = new Date(year, month - 1, day);
@@ -587,7 +676,7 @@ function formatLocalDate(date) {
 
 function getDueQuestions() {
   if (IS_TEST_MODE) {
-    return learningData.filter((item) => item.status === "active");
+    return learningData.filter((item) => item.status === "active").slice(0, MAX_DAILY_QUESTIONS);
   }
 
   const today = todayString();
@@ -743,6 +832,88 @@ function renderUserNameSetup() {
   });
 }
 
+function renderLegacyDailyAdventurePanel(adventureState, dailyCompleted, retryCount) {
+  const progress = dailyCompleted ? MAX_DAILY_QUESTIONS : Math.min(adventureState.completedCount, MAX_DAILY_QUESTIONS);
+  const normalSetFinished = adventureState.normalSetFinished || progress >= MAX_DAILY_QUESTIONS;
+  const waitingForRetry = !dailyCompleted && normalSetFinished && retryCount > 0;
+  const characterPosition = dailyCompleted ? 89 : progress >= MAX_DAILY_QUESTIONS ? 83 : 7 + progress * 15.2;
+  const status = dailyCompleted
+    ? "全部クリア！"
+    : waitingForRetry
+      ? `5問クリア！ リベンジあと${retryCount}問`
+      : progress === 0
+        ? "スタート地点から出発しよう"
+        : `いい調子！ あと${MAX_DAILY_QUESTIONS - progress}問`;
+  const checkpoints = Array.from({ length: MAX_DAILY_QUESTIONS }, (_, index) => {
+    const questionNumber = index + 1;
+    return `
+      <li class="adventure-checkpoint ${questionNumber <= progress ? "passed" : ""}">
+        <span aria-hidden="true">${questionNumber <= progress ? "✓" : questionNumber}</span>
+        <small>${questionNumber}問目</small>
+      </li>
+    `;
+  }).join("");
+  const celebration = dailyCompleted
+    ? `<div class="adventure-confetti" aria-hidden="true">${Array.from({ length: 12 }, () => "<span></span>").join("")}</div>`
+    : "";
+
+  return `
+    <section class="daily-adventure ${dailyCompleted ? "clear" : ""} ${waitingForRetry ? "waiting-retry" : ""}" style="--character-position:${characterPosition}%" aria-label="今日の冒険 ${progress}問完了">
+      <header class="adventure-heading">
+        <h2>今日の冒険</h2>
+        <strong>${progress} / ${MAX_DAILY_QUESTIONS}</strong>
+      </header>
+      <p class="adventure-status">${status}</p>
+      <div class="adventure-world">
+        <span class="adventure-cloud cloud-one" aria-hidden="true"></span>
+        <span class="adventure-cloud cloud-two" aria-hidden="true"></span>
+        <div class="adventure-mountains" aria-hidden="true"></div>
+        <span class="adventure-start">スタート</span>
+        <ol class="adventure-checkpoints">${checkpoints}</ol>
+        <div class="adventure-goal" aria-label="ゴール">
+          <span class="goal-flag" aria-hidden="true"></span>
+          <strong>ゴール！</strong>
+        </div>
+        <div class="adventure-character" aria-label="冒険中のキャラクター">
+          <span aria-hidden="true">🏃</span>
+          ${dailyCompleted ? "<strong>やったー！</strong>" : ""}
+        </div>
+        ${celebration}
+      </div>
+    </section>
+  `;
+}
+
+function renderDailyAdventurePanel(adventureState, dailyCompleted, retryCount) {
+  const progress = dailyCompleted ? MAX_DAILY_QUESTIONS : Math.min(adventureState.completedCount, MAX_DAILY_QUESTIONS);
+  const normalSetFinished = adventureState.normalSetFinished || progress >= MAX_DAILY_QUESTIONS;
+  const waitingForRetry = !dailyCompleted && normalSetFinished && retryCount > 0;
+  const status = dailyCompleted
+    ? "クリア！ また明日やろう！"
+    : waitingForRetry
+      ? `今日の5問クリア！ リベンジあと${retryCount}問`
+      : progress === 0
+        ? "スタート地点から出発しよう！"
+        : `いい調子！ あと${MAX_DAILY_QUESTIONS - progress}問`;
+  const stageBackground = dailyCompleted ? "assets/background_goal.png" : "assets/background.png";
+  const stageCharacter = dailyCompleted ? "assets/glad_transparent.png" : "assets/walk_transparent.png";
+  const stageState = dailyCompleted ? "is-clear" : "is-walking";
+
+  return `
+    <section class="daily-adventure ${dailyCompleted ? "clear" : ""} ${waitingForRetry ? "waiting-retry" : ""}" aria-label="今日の冒険 ${progress}問完了">
+      <header class="adventure-heading">
+        <h2>今日の冒険</h2>
+        <strong>${progress} / ${MAX_DAILY_QUESTIONS}</strong>
+      </header>
+      <p class="adventure-status">${status}</p>
+      <div class="stage-area ${stageState}">
+        <img class="stage-bg ${dailyCompleted ? "is-goal" : "is-normal"}" src="${stageBackground}" alt="" width="1584" height="672" decoding="async" onerror="this.hidden=true">
+        <img class="stage-character ${stageState}" src="${stageCharacter}" alt="${dailyCompleted ? "クリアを喜ぶキャラクター" : "道を歩くキャラクター"}" width="896" height="1195" decoding="async" onerror="this.hidden=true">
+      </div>
+    </section>
+  `;
+}
+
 function renderHome() {
   stopTimer();
   clearKeyboardMode();
@@ -750,49 +921,64 @@ function renderHome() {
   if (savedData.length > 0) {
     learningData = savedData;
   }
-  const dueCount = getDueQuestions().length;
   const retryCount = buildRetryQueueFromState(loadRetryState()).length;
-  const todayPracticeCount = dueCount + retryCount;
+  const dailyCompleted = isDailyPracticeCompleted();
+  const adventureState = loadDailyAdventureState();
+  const waitingForRetry = !dailyCompleted && adventureState.normalSetFinished && retryCount > 0;
   const userName = escapeHtml(currentUserName);
   app.className = "app-shell home-shell";
   app.innerHTML = `
     <section class="home-view">
       <div class="title-block">
         <p class="eyebrow">${userName}の今日の練習</p>
-        <h1>漢字でGO！</h1>
+        <h1 class="home-logo-wrap">
+          <img
+            class="home-logo-image"
+            src="assets/Kanji-de-go_Logo.png"
+            alt="漢字でGO！"
+            width="2172"
+            height="724"
+            decoding="async"
+          >
+        </h1>
         <p class="tagline">${userName}、今日も漢字を倒そう！</p>
       </div>
 
-      <div class="home-stats" aria-label="今日の状況">
-        <div>
-          <span class="stat-number">${todayPracticeCount}</span>
-          <span class="stat-label">今日の対象問題数</span>
-        </div>
-        <div>
-          <span class="stat-number">${getActiveCount()}</span>
-          <span class="stat-label">未卒業問題数</span>
-        </div>
-      </div>
+      ${renderDailyAdventurePanel(adventureState, dailyCompleted, retryCount)}
 
       <div class="home-actions">
-        <button class="primary-button" data-action="start">今日の練習を始める</button>
+        ${dailyCompleted ? `
+          <div class="daily-complete-state" role="status">
+            <strong>今日の練習は完了！</strong>
+            <span>また明日やろう</span>
+          </div>
+        ` : `<button class="primary-button" data-action="start">${waitingForRetry ? "リベンジを始める" : "今日の練習を始める"}</button>`}
         <button class="secondary-button" data-action="paper">紙テストモード</button>
         <button class="secondary-button" data-action="data">データ管理</button>
       </div>
     </section>
   `;
 
-  app.querySelector('[data-action="start"]').addEventListener("click", startPractice);
+  const startButton = app.querySelector('[data-action="start"]');
+  if (startButton) startButton.addEventListener("click", startPractice);
   app.querySelector('[data-action="paper"]').addEventListener("click", renderPaperMode);
   app.querySelector('[data-action="data"]').addEventListener("click", renderDataMode);
 }
 
 function startPractice() {
+  if (isDailyPracticeCompleted()) {
+    renderHome();
+    return;
+  }
   const savedData = loadSavedLearningData();
   if (savedData.length > 0) {
     learningData = savedData;
   }
-  dailyQuestions = getDueQuestions();
+  const adventureState = loadDailyAdventureState();
+  const remainingNormalQuestions = adventureState.normalSetFinished
+    ? 0
+    : Math.max(MAX_DAILY_QUESTIONS - adventureState.completedCount, 0);
+  dailyQuestions = getDueQuestions().slice(0, remainingNormalQuestions);
   const retryState = loadRetryState();
   currentIndex = 0;
   currentQuestionEntry = null;
@@ -815,6 +1001,7 @@ function startPractice() {
 
 function renderEmptyPractice() {
   clearKeyboardMode();
+  markDailyPracticeCompleted();
   app.className = "app-shell";
   app.innerHTML = `
     <section class="message-view">
@@ -1028,10 +1215,14 @@ function updateAttemptDisplay() {
   }
 }
 
-function showAttemptFeedback(remaining) {
+function showAttemptFeedback(remaining, submittedAnswer) {
   const feedback = app.querySelector("#attempt-feedback");
   if (!feedback) return;
-  feedback.textContent = remaining === 2 ? "もう一度！あと2回" : "惜しい！あと1回";
+  feedback.innerHTML = `
+    <span class="submitted-answer-label">送信された答え</span>
+    <strong class="submitted-answer-value">${escapeHtml(submittedAnswer || "（空欄）")}</strong>
+    <span class="submitted-answer-guide">もう一回ためそう・あと${remaining}回</span>
+  `;
   feedback.classList.remove("attempt-feedback-pop");
   void feedback.offsetWidth;
   feedback.classList.add("attempt-feedback-pop");
@@ -1053,7 +1244,8 @@ async function judgeAnswer(timedOut, skipped = false) {
   stopTimer();
   const { question, isRetry } = currentQuestionEntry;
   const input = app.querySelector("#answer-input");
-  const userAnswer = normalizeAnswer(input ? input.value : "");
+  const submittedAnswer = String(input ? input.value : "").trim();
+  const userAnswer = normalizeAnswer(submittedAnswer);
   if (!timedOut && !skipped) {
     currentAttemptCount += 1;
   }
@@ -1061,22 +1253,23 @@ async function judgeAnswer(timedOut, skipped = false) {
   const isCorrect = !timedOut && !skipped && validAnswers.includes(userAnswer);
   const attemptsRemaining = Math.max(MAX_ANSWER_ATTEMPTS - currentAttemptCount, 0);
   const isFinalMiss = !isCorrect && (timedOut || skipped || attemptsRemaining <= 0);
-  if (!isCorrect && !timedOut && !skipped) {
+  if (!isCorrect) {
     currentQuestionHadRetry = true;
   }
-  const hadRetry = currentQuestionHadRetry || (isCorrect && currentAttemptCount > 1) || isFinalMiss;
+  const hadMistake = currentQuestionHadRetry || (isCorrect && currentAttemptCount > 1) || isFinalMiss;
+  const retryRequired = hadMistake && !isRetry;
   let retryQueued = false;
 
   isAnimating = true;
   setGameControlsDisabled(true);
   try {
-    await playAnswerAttackAnimation(getAttackText(userAnswer, timedOut, skipped), isCorrect);
+    await playAnswerAttackAnimation(getAttackText(submittedAnswer, timedOut, skipped), isCorrect);
   } catch (error) {
     console.warn("回答演出をスキップしました。", error);
   }
 
   if (!isCorrect && !isFinalMiss) {
-    showAttemptFeedback(attemptsRemaining);
+    showAttemptFeedback(attemptsRemaining, submittedAnswer);
     prepareNextAttempt();
     return;
   }
@@ -1090,12 +1283,20 @@ async function judgeAnswer(timedOut, skipped = false) {
       retrySuccessCount += 1;
       removePersistentRetry(question.id);
     } else {
-      updateReview(question.id, true, hadRetry);
+      updateReview(question.id, true, hadMistake);
+      if (retryRequired) {
+        retryQueued = enqueueRetry(question);
+        tomorrowReviewIds.add(question.id);
+      }
     }
   } else {
-    updateReview(question.id, false, hadRetry);
+    updateReview(question.id, false, hadMistake);
     retryQueued = enqueueRetry(question);
     tomorrowReviewIds.add(question.id);
+  }
+
+  if (!isRetry) {
+    recordDailyNormalQuestionCompleted(currentIndex >= dailyQuestions.length);
   }
 
   if (isCorrect) {
@@ -1106,8 +1307,9 @@ async function judgeAnswer(timedOut, skipped = false) {
   }
 
   isAnimating = false;
-  renderResult(question, isCorrect, timedOut, skipped, isRetry, retryQueued, hadRetry);
-  renderHadRetryResultNote(isCorrect, hadRetry);
+  renderResult(question, isCorrect, timedOut, skipped, isRetry, retryQueued, hadMistake);
+  renderHadRetryResultNote(isCorrect, hadMistake, retryQueued);
+  renderSubmittedAnswerResultNote(isCorrect, submittedAnswer, timedOut, skipped);
 }
 
 function setGameControlsDisabled(disabled) {
@@ -1252,6 +1454,19 @@ function updateReview(id, isCorrect, hadRetry = false) {
       };
     }
 
+    if (hadRetry) {
+      return {
+        ...item,
+        correct_streak: item.correct_streak,
+        review_stage: item.review_stage,
+        next_review_date: addDays(today, 1),
+        status: "active",
+        last_had_retry: true,
+        retry_count: Number(item.retry_count || 0) + 1,
+        retry_miss_count: Number(item.retry_miss_count || 0) + 1
+      };
+    }
+
     const nextStage = item.review_stage + 1;
     const intervals = [1, 3, 7, 14, 30];
     if (item.review_stage >= 5 || nextStage >= 6) {
@@ -1306,14 +1521,29 @@ function renderResult(question, isCorrect, timedOut, skipped, isRetry, retryQueu
   app.querySelector('[data-action="home"]').addEventListener("click", renderHome);
 }
 
-function renderHadRetryResultNote(isCorrect, hadRetry) {
+function renderHadRetryResultNote(isCorrect, hadRetry, retryQueued = false) {
   if (!isCorrect || !hadRetry) return;
   const title = app.querySelector(".result-view h1");
   if (title) title.textContent = "リトライ正解！";
   const card = app.querySelector(".answer-card");
   if (card) {
-    card.insertAdjacentHTML("beforeend", `<p class="retry-note">リトライありで正解！明日も紙で確認しよう。</p>`);
+    const message = retryQueued
+      ? "正解！あとでリベンジでもう一回出るよ。明日も復習しよう。"
+      : "リトライありで正解！明日も紙で確認しよう。";
+    card.insertAdjacentHTML("beforeend", `<p class="retry-note">${message}</p>`);
   }
+}
+
+function renderSubmittedAnswerResultNote(isCorrect, submittedAnswer, timedOut, skipped) {
+  if (isCorrect || timedOut || skipped) return;
+  const card = app.querySelector(".answer-card");
+  if (!card) return;
+  card.insertAdjacentHTML("afterbegin", `
+    <div class="submitted-answer-result">
+      <span>送信された答え</span>
+      <strong>${escapeHtml(submittedAnswer || "（空欄）")}</strong>
+    </div>
+  `);
 }
 
 function renderCelebration() {
@@ -1327,6 +1557,7 @@ function nextQuestion() {
 
 function renderSessionComplete() {
   clearKeyboardMode();
+  markDailyPracticeCompleted();
   app.className = "app-shell";
   app.innerHTML = `
     <section class="message-view">
@@ -1389,6 +1620,11 @@ function renderDataMode() {
       </nav>
       <h1>データ管理</h1>
       <p>今の学習データを保存したり、サンプル状態に戻したりできます。</p>
+
+      <div class="data-summary" aria-label="学習データ集計">
+        <p><span>登録問題数</span><strong>${learningData.length}</strong></p>
+        <p><span>未卒業問題数</span><strong>${getActiveCount()}</strong></p>
+      </div>
 
       <form class="name-edit" data-action="change-name">
         <label class="answer-label" for="data-user-name">ユーザー名</label>
@@ -1585,6 +1821,7 @@ function resetData() {
   learningData = normalizeRecords(SAMPLE_DATA);
   saveLearningData();
   clearRetryState();
+  clearDailyPracticeCompleted();
   setDataMessage("学習データをサンプルデータに戻しました。ユーザー名はそのままです。");
 }
 
@@ -1597,6 +1834,7 @@ function resetAllData() {
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(USER_NAME_KEY);
   clearRetryState();
+  clearDailyPracticeCompleted();
   learningData = normalizeRecords(SAMPLE_DATA);
   saveLearningData();
   currentUserName = "";
