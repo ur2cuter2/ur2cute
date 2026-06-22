@@ -1,16 +1,31 @@
 ﻿"use strict";
 
-const APP_VERSION = "2026.06.22.1";
+const APP_VERSION = "2026.06.23.1";
 
 const STORAGE_KEY = "kanji-de-go-learning-data";
 const USER_NAME_KEY = "kanjiRushUserName";
 const RETRY_STORAGE_KEY = "kanji-de-go-today-retry";
 const DAILY_COMPLETED_KEY = "kanji-de-go-daily-completed-date";
 const DAILY_ADVENTURE_KEY = "kanji-de-go-daily-adventure";
+const DAILY_TREASURE_KEY = "kanji-de-go-daily-treasure";
 const CSV_SOURCE_PATHS = ["kanji-mistakes.csv", "data/kanji-mistakes.csv"];
 const MAX_DAILY_QUESTIONS = 5;
 const DEFAULT_TIME_LIMIT = 60;
 const MAX_ANSWER_ATTEMPTS = 3;
+const TREASURE_CARDS = [
+  { id: "kotowaza_001", title: "継続は力なり", reading: "けいぞくはちからなり", meaning: "こつこつ続けると、大きな力になるということ。", comment: "今日もクリア、えらい！" },
+  { id: "kotowaza_002", title: "塵も積もれば山となる", reading: "ちりもつもればやまとなる", meaning: "小さなことでも、積み重なると大きなものになるということ。", comment: "毎日の5問が力になるよ！" },
+  { id: "kotowaza_003", title: "急がば回れ", reading: "いそがばまわれ", meaning: "急ぐときほど、安全で確かな方法を選ぶ方がよいということ。", comment: "ていねいに思い出せたね！" },
+  { id: "kotowaza_004", title: "七転び八起き", reading: "ななころびやおき", meaning: "何度失敗しても、くじけずに立ち上がること。", comment: "リトライする力も大切！" },
+  { id: "kotowaza_005", title: "石の上にも三年", reading: "いしのうえにもさんねん", meaning: "つらくても続けていれば、やがて成果が出るということ。", comment: "続けた分だけ強くなるよ！" },
+  { id: "kotowaza_006", title: "好きこそ物の上手なれ", reading: "すきこそもののじょうずなれ", meaning: "好きなことは熱心に取り組めるので、上達しやすいということ。", comment: "楽しみながら進もう！" },
+  { id: "kotowaza_007", title: "失敗は成功のもと", reading: "しっぱいはせいこうのもと", meaning: "失敗から学ぶことで、次の成功につながるということ。", comment: "間違いも力に変えられたね！" },
+  { id: "kotowaza_008", title: "千里の道も一歩から", reading: "せんりのみちもいっぽから", meaning: "大きな目標も、まず小さな一歩から始まるということ。", comment: "今日の5問も大事な一歩！" },
+  { id: "kotowaza_009", title: "習うより慣れよ", reading: "ならうよりなれよ", meaning: "説明を聞くだけでなく、実際に何度もやることが大切だということ。", comment: "今日もしっかり練習できたね！" },
+  { id: "kotowaza_010", title: "為せば成る", reading: "なせばなる", meaning: "強い気持ちで取り組めば、やりとげられるということ。", comment: "最後までやりきったね！" },
+  { id: "kotowaza_011", title: "雨垂れ石を穿つ", reading: "あまだれいしをうがつ", meaning: "小さな努力でも、長く続ければ大きな成果になるということ。", comment: "少しずつでも確実に前進！" },
+  { id: "kotowaza_012", title: "聞くは一時の恥、聞かぬは一生の恥", reading: "きくはいっときのはじ、きかぬはいっしょうのはじ", meaning: "分からないことは、そのままにせず尋ねる方がよいということ。", comment: "分からない字も一つずつ解決しよう！" }
+];
 const IS_TEST_MODE =
   window.location.pathname.endsWith("test.html") ||
   new URLSearchParams(window.location.search).get("mode") === "test";
@@ -150,6 +165,7 @@ let startupCsvMessage = "";
 let testRetryState = null;
 let testDailyCompletedDate = "";
 let testDailyAdventureState = null;
+let testDailyTreasureState = null;
 let isAnimating = false;
 let currentAttemptCount = 0;
 let currentQuestionHadRetry = false;
@@ -626,6 +642,77 @@ function saveDailyAdventureState(state) {
   localStorage.setItem(DAILY_ADVENTURE_KEY, JSON.stringify(cleanState));
 }
 
+function getEmptyDailyTreasureState() {
+  return {
+    date: todayString(),
+    cardId: "",
+    shownDate: ""
+  };
+}
+
+function loadDailyTreasureState() {
+  if (IS_TEST_MODE) {
+    if (!testDailyTreasureState || testDailyTreasureState.date !== todayString()) {
+      testDailyTreasureState = getEmptyDailyTreasureState();
+    }
+    return { ...testDailyTreasureState };
+  }
+
+  const saved = localStorage.getItem(DAILY_TREASURE_KEY);
+  if (!saved) return getEmptyDailyTreasureState();
+  try {
+    const state = JSON.parse(saved);
+    if (state.date !== todayString()) return getEmptyDailyTreasureState();
+    return {
+      date: state.date,
+      cardId: String(state.cardId || ""),
+      shownDate: String(state.shownDate || "")
+    };
+  } catch {
+    localStorage.removeItem(DAILY_TREASURE_KEY);
+    return getEmptyDailyTreasureState();
+  }
+}
+
+function saveDailyTreasureState(state) {
+  const cleanState = {
+    date: todayString(),
+    cardId: String(state.cardId || ""),
+    shownDate: String(state.shownDate || "")
+  };
+  if (IS_TEST_MODE) {
+    testDailyTreasureState = cleanState;
+    return;
+  }
+  localStorage.setItem(DAILY_TREASURE_KEY, JSON.stringify(cleanState));
+}
+
+function getOrCreateDailyTreasure() {
+  const state = loadDailyTreasureState();
+  let card = TREASURE_CARDS.find((item) => item.id === state.cardId);
+  if (!card) {
+    card = TREASURE_CARDS[Math.floor(Math.random() * TREASURE_CARDS.length)];
+    state.cardId = card.id;
+    saveDailyTreasureState(state);
+  }
+  return { state, card };
+}
+
+function resetDailyTreasureShown({ chooseNewCard = false } = {}) {
+  const state = loadDailyTreasureState();
+  state.shownDate = "";
+  if (chooseNewCard) state.cardId = "";
+  saveDailyTreasureState(state);
+}
+
+function clearDailyTreasureState() {
+  if (IS_TEST_MODE) {
+    testDailyTreasureState = null;
+    return;
+  }
+  localStorage.removeItem(DAILY_TREASURE_KEY);
+}
+
 function recordDailyNormalQuestionCompleted(normalSetFinished) {
   const state = loadDailyAdventureState();
   state.completedCount = Math.min(state.completedCount + 1, MAX_DAILY_QUESTIONS);
@@ -655,10 +742,12 @@ function clearDailyPracticeCompleted() {
   if (IS_TEST_MODE) {
     testDailyCompletedDate = "";
     testDailyAdventureState = null;
+    testDailyTreasureState = null;
     return;
   }
   localStorage.removeItem(DAILY_COMPLETED_KEY);
   localStorage.removeItem(DAILY_ADVENTURE_KEY);
+  localStorage.removeItem(DAILY_TREASURE_KEY);
 }
 
 function addDays(dateString, days) {
@@ -886,7 +975,7 @@ function renderLegacyDailyAdventurePanel(adventureState, dailyCompleted, retryCo
   `;
 }
 
-function renderDailyAdventurePanel(adventureState, dailyCompleted, retryCount) {
+function renderDailyAdventurePanel(adventureState, dailyCompleted, retryCount, treasureOpened = false) {
   const progress = dailyCompleted ? MAX_DAILY_QUESTIONS : Math.min(adventureState.completedCount, MAX_DAILY_QUESTIONS);
   const normalSetFinished = adventureState.normalSetFinished || progress >= MAX_DAILY_QUESTIONS;
   const waitingForRetry = !dailyCompleted && normalSetFinished && retryCount > 0;
@@ -897,7 +986,9 @@ function renderDailyAdventurePanel(adventureState, dailyCompleted, retryCount) {
       : progress === 0
         ? "スタート地点から出発しよう！"
         : `いい調子！ あと${MAX_DAILY_QUESTIONS - progress}問`;
-  const stageBackground = dailyCompleted ? "assets/background_goal.png" : "assets/background.png";
+  const stageBackground = dailyCompleted
+    ? treasureOpened ? "assets/background_goal_open.png" : "assets/background_goal.png"
+    : "assets/background.png";
   const stageCharacter = dailyCompleted ? "assets/glad_transparent.png" : "assets/walk_transparent.png";
   const stageState = dailyCompleted ? "is-clear" : "is-walking";
 
@@ -908,9 +999,9 @@ function renderDailyAdventurePanel(adventureState, dailyCompleted, retryCount) {
         <strong>${progress} / ${MAX_DAILY_QUESTIONS}</strong>
       </header>
       <p class="adventure-status">${status}</p>
-      <div class="stage-area ${stageState}">
-        <img class="stage-bg ${dailyCompleted ? "is-goal" : "is-normal"}" src="${stageBackground}" alt="" width="1584" height="672" decoding="async" onerror="this.hidden=true">
-        <img class="stage-character ${stageState}" src="${stageCharacter}" alt="${dailyCompleted ? "クリアを喜ぶキャラクター" : "道を歩くキャラクター"}" width="896" height="1195" decoding="async" onerror="this.hidden=true">
+      <div class="stage-area ${stageState} ${treasureOpened ? "treasure-opened" : ""}">
+        <img class="stage-bg ${dailyCompleted ? "is-goal" : "is-normal"}" src="${stageBackground}?v=${encodeURIComponent(APP_VERSION)}" alt="" width="1584" height="672" decoding="async" onerror="this.hidden=true">
+        <img class="stage-character ${stageState}" src="${stageCharacter}?v=${encodeURIComponent(APP_VERSION)}" alt="${dailyCompleted ? "クリアを喜ぶキャラクター" : "道を歩くキャラクター"}" width="896" height="1195" decoding="async" onerror="this.hidden=true">
       </div>
     </section>
   `;
@@ -919,6 +1010,7 @@ function renderDailyAdventurePanel(adventureState, dailyCompleted, retryCount) {
 function renderHome() {
   stopTimer();
   clearKeyboardMode();
+  closeTreasureReward();
   const savedData = loadSavedLearningData();
   if (savedData.length > 0) {
     learningData = savedData;
@@ -926,6 +1018,8 @@ function renderHome() {
   const retryCount = buildRetryQueueFromState(loadRetryState()).length;
   const dailyCompleted = isDailyPracticeCompleted();
   const adventureState = loadDailyAdventureState();
+  const treasure = dailyCompleted ? getOrCreateDailyTreasure() : null;
+  const treasureOpened = Boolean(treasure && treasure.state.shownDate === todayString());
   const waitingForRetry = !dailyCompleted && adventureState.normalSetFinished && retryCount > 0;
   const userName = escapeHtml(currentUserName);
   app.className = "app-shell home-shell";
@@ -946,7 +1040,7 @@ function renderHome() {
         <p class="tagline">${userName}、今日も漢字を倒そう！</p>
       </div>
 
-      ${renderDailyAdventurePanel(adventureState, dailyCompleted, retryCount)}
+      ${renderDailyAdventurePanel(adventureState, dailyCompleted, retryCount, treasureOpened)}
 
       <div class="home-actions">
         ${dailyCompleted ? `
@@ -965,6 +1059,64 @@ function renderHome() {
   if (startButton) startButton.addEventListener("click", startPractice);
   app.querySelector('[data-action="paper"]').addEventListener("click", renderPaperMode);
   app.querySelector('[data-action="data"]').addEventListener("click", renderDataMode);
+  if (treasure && treasure.state.shownDate !== todayString()) {
+    playDailyTreasureReward(treasure.card);
+  }
+}
+
+function playDailyTreasureReward(card) {
+  const state = loadDailyTreasureState();
+  state.cardId = card.id;
+  state.shownDate = todayString();
+  saveDailyTreasureState(state);
+
+  const stage = app.querySelector(".stage-area.is-clear");
+  if (!stage) return;
+  stage.classList.add("treasure-opening");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const openDelay = reducedMotion ? 30 : 650;
+  const cardDelay = reducedMotion ? 70 : 920;
+
+  window.setTimeout(() => {
+    if (!app.querySelector(".home-view")) return;
+    const background = app.querySelector(".stage-bg.is-goal");
+    if (background) background.src = `assets/background_goal_open.png?v=${encodeURIComponent(APP_VERSION)}`;
+    stage.classList.remove("treasure-opening");
+    stage.classList.add("treasure-opened");
+  }, openDelay);
+
+  window.setTimeout(() => {
+    if (!app.querySelector(".home-view")) return;
+    showTreasureCard(card);
+  }, cardDelay);
+}
+
+function showTreasureCard(card) {
+  closeTreasureReward();
+  const layer = document.createElement("div");
+  layer.className = "treasure-reward-layer";
+  layer.innerHTML = `
+    <div class="treasure-reward-backdrop" aria-hidden="true"></div>
+    <section class="treasure-card" role="dialog" aria-modal="true" aria-labelledby="treasure-title">
+      <p class="treasure-kicker">今日のたからもの</p>
+      <h2 id="treasure-title">${escapeHtml(card.title)}</h2>
+      <p class="treasure-reading">${escapeHtml(card.reading)}</p>
+      <p class="treasure-meaning">${escapeHtml(card.meaning)}</p>
+      <p class="treasure-comment">${escapeHtml(card.comment)}</p>
+      <button class="primary-button" type="button" data-action="close-treasure">とじる</button>
+    </section>
+  `;
+  document.body.append(layer);
+  document.body.classList.add("treasure-modal-open");
+  window.requestAnimationFrame(() => layer.classList.add("visible"));
+  const closeButton = layer.querySelector('[data-action="close-treasure"]');
+  closeButton.addEventListener("click", closeTreasureReward);
+  closeButton.focus();
+}
+
+function closeTreasureReward() {
+  document.querySelector(".treasure-reward-layer")?.remove();
+  document.body.classList.remove("treasure-modal-open");
 }
 
 function startPractice() {
@@ -1629,6 +1781,17 @@ function renderDataMode() {
         <p><span>未卒業問題数</span><strong>${getActiveCount()}</strong></p>
       </div>
 
+      ${IS_TEST_MODE ? `
+        <section class="test-operations">
+          <h2>演出確認</h2>
+          <p>テストモード内だけで状態を変更します。本番の学習データには影響しません。</p>
+          <div>
+            <button class="secondary-button" type="button" data-action="test-complete-today">テスト用：今日の練習完了にする</button>
+            <button class="ghost-button" type="button" data-action="test-reset-treasure">テスト用：宝箱演出を未表示に戻す</button>
+          </div>
+        </section>
+      ` : ""}
+
       <form class="name-edit" data-action="change-name">
         <label class="answer-label" for="data-user-name">ユーザー名</label>
         <input id="data-user-name" class="name-input" type="text" value="${userName}" autocomplete="name" maxlength="20">
@@ -1672,6 +1835,8 @@ function renderDataMode() {
   app.querySelector('[data-action="reset-all"]').addEventListener("click", resetAllData);
   app.querySelector('[data-action="import"]').addEventListener("change", importData);
   if (IS_TEST_MODE) {
+    app.querySelector('[data-action="test-complete-today"]').addEventListener("click", testCompleteTodayForTreasure);
+    app.querySelector('[data-action="test-reset-treasure"]').addEventListener("click", testResetTreasureShown);
     disableDataAction("change-name");
     disableDataAction("export");
     disableDataAction("export-csv");
@@ -1684,6 +1849,23 @@ function renderDataMode() {
   if (startupCsvMessage) {
     setDataMessage(startupCsvMessage);
   }
+}
+
+function testCompleteTodayForTreasure() {
+  if (!IS_TEST_MODE) return;
+  markDailyPracticeCompleted();
+  resetDailyTreasureShown({ chooseNewCard: true });
+  renderHome();
+}
+
+function testResetTreasureShown() {
+  if (!IS_TEST_MODE) return;
+  if (!isDailyPracticeCompleted()) {
+    setDataMessage("先に「今日の練習完了にする」を押してください。");
+    return;
+  }
+  resetDailyTreasureShown();
+  renderHome();
 }
 
 function disableDataAction(action) {

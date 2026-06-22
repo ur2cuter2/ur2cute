@@ -539,6 +539,28 @@ h1 {
 .stage-bg.is-normal { object-position: center bottom; }
 .stage-bg.is-goal { object-position: right bottom; }
 
+.stage-area.treasure-opening::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  right: 3%;
+  bottom: 2%;
+  width: 28%;
+  aspect-ratio: 1;
+  border-radius: 999px;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 246, 139, 0.92) 0 8%, rgba(255, 211, 77, 0.45) 22%, transparent 66%);
+  animation: treasureGlow 620ms ease-in-out infinite alternate;
+}
+
+.stage-area.treasure-opening .stage-bg {
+  animation: treasureSceneShake 160ms ease-in-out 3;
+}
+
+.stage-area.treasure-opened .stage-bg {
+  animation: treasureSceneOpen 320ms ease-out;
+}
+
 .stage-character {
   position: absolute;
   z-index: 2;
@@ -596,6 +618,118 @@ h1 {
 
 .daily-complete-state span {
   font-weight: 800;
+}
+
+body.treasure-modal-open {
+  overflow: hidden;
+}
+
+.treasure-reward-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 12000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease-out;
+}
+
+.treasure-reward-layer.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.treasure-reward-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(9, 44, 76, 0.48);
+  backdrop-filter: blur(4px);
+}
+
+.treasure-card {
+  position: relative;
+  z-index: 1;
+  width: min(560px, 100%);
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  border: 5px solid #ffd34d;
+  border-radius: 8px;
+  padding: clamp(20px, 5vw, 34px);
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 88% 12%, rgba(255, 240, 107, 0.5), transparent 22%),
+    #fffdf4;
+  text-align: center;
+  box-shadow: 0 22px 58px rgba(9, 44, 76, 0.34), inset 0 -7px 0 rgba(255, 211, 77, 0.2);
+  transform: translateY(18px) scale(0.88);
+  animation: treasureCardPop 440ms cubic-bezier(0.18, 0.82, 0.28, 1.18) forwards;
+}
+
+.treasure-kicker {
+  margin: 0 0 8px;
+  color: #b45a11;
+  font-size: clamp(1rem, 2.8vw, 1.3rem);
+  font-weight: 900;
+}
+
+.treasure-card h2 {
+  margin: 0;
+  color: var(--deep-blue);
+  font-size: clamp(1.8rem, 6vw, 3rem);
+  line-height: 1.2;
+}
+
+.treasure-reading {
+  margin: 8px 0 20px;
+  color: #42647f;
+  font-size: clamp(0.95rem, 2.6vw, 1.15rem);
+  font-weight: 800;
+}
+
+.treasure-meaning {
+  margin: 0 auto 18px;
+  max-width: 34em;
+  font-size: clamp(1.05rem, 3vw, 1.3rem);
+  font-weight: 700;
+  line-height: 1.7;
+}
+
+.treasure-comment {
+  margin: 0 0 22px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #9e2252;
+  background: #fff3aa;
+  font-weight: 900;
+}
+
+.treasure-card button {
+  min-width: 180px;
+}
+
+.test-operations {
+  margin: 18px 0;
+  border: 3px solid rgba(255, 138, 61, 0.42);
+  border-radius: 8px;
+  padding: 16px;
+  background: #fff9f0;
+}
+
+.test-operations h2 {
+  margin: 0 0 6px;
+  font-size: 1.35rem;
+}
+
+.test-operations p {
+  margin: 0 0 12px;
+}
+
+.test-operations > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .game-view {
@@ -1575,6 +1709,33 @@ body.keyboard-mode .practice-note {
   50% { transform: translateY(-8px) scale(1.03); }
 }
 
+@keyframes treasureGlow {
+  from { opacity: 0.48; transform: scale(0.82); }
+  to { opacity: 1; transform: scale(1.16); }
+}
+
+@keyframes treasureSceneShake {
+  0%, 100% { transform: translateX(0); }
+  35% { transform: translateX(-3px); }
+  70% { transform: translateX(3px); }
+}
+
+@keyframes treasureSceneOpen {
+  from { opacity: 0.72; filter: brightness(1.25); }
+  to { opacity: 1; filter: brightness(1); }
+}
+
+@keyframes treasureCardPop {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @keyframes adventureCloudDrift {
   from { translate: -8px 0; }
   to { translate: 12px 2px; }
@@ -1618,7 +1779,11 @@ body.keyboard-mode .practice-note {
   .adventure-cloud,
   .adventure-character,
   .stage-character,
-  .adventure-confetti span {
+  .adventure-confetti span,
+  .stage-area.treasure-opening::after,
+  .stage-area.treasure-opening .stage-bg,
+  .stage-area.treasure-opened .stage-bg,
+  .treasure-card {
     animation-duration: 1ms !important;
     transition-duration: 1ms !important;
   }
@@ -1714,6 +1879,19 @@ body.keyboard-mode .practice-note {
 
   .data-summary {
     grid-template-columns: 1fr;
+  }
+
+  .treasure-reward-layer {
+    padding: 10px;
+  }
+
+  .treasure-card {
+    max-height: calc(100dvh - 20px);
+    padding: 18px 14px;
+  }
+
+  .test-operations button {
+    width: 100%;
   }
 
   .home-actions button,
