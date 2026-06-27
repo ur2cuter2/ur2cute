@@ -1,6 +1,6 @@
 ﻿"use strict";
 
-const APP_VERSION = "2026.06.23.3";
+const APP_VERSION = "2026.06.23.4";
 
 const STORAGE_KEY = "kanji-de-go-learning-data";
 const USER_NAME_KEY = "kanjiRushUserName";
@@ -1108,20 +1108,46 @@ function showTreasureCard(card) {
           height="896"
           decoding="async"
         >
-        <p class="treasure-buddy-message">今日のたからものだよ！</p>
+        <p class="treasure-buddy-message" aria-live="polite">今日のたからものだよ！</p>
       </div>
       <p class="treasure-kicker">今日のたからもの</p>
       <h2 id="treasure-title">${escapeHtml(card.title)}</h2>
       <p class="treasure-reading">${escapeHtml(card.reading)}</p>
       <p class="treasure-meaning">${escapeHtml(card.meaning)}</p>
       <p class="treasure-comment">${escapeHtml(card.comment)}</p>
-      <button class="primary-button" type="button" data-action="close-treasure">とじる</button>
+      <div class="treasure-actions">
+        <button class="primary-button" type="button" data-action="feed-buddy">相棒にあげる</button>
+        <button class="ghost-button" type="button" data-action="close-treasure">とじる</button>
+      </div>
     </section>
   `;
   document.body.append(layer);
   document.body.classList.add("treasure-modal-open");
   window.requestAnimationFrame(() => layer.classList.add("visible"));
+  const feedButton = layer.querySelector('[data-action="feed-buddy"]');
+  const buddyImage = layer.querySelector(".treasure-buddy-image");
+  const buddyMessage = layer.querySelector(".treasure-buddy-message");
   const closeButton = layer.querySelector('[data-action="close-treasure"]');
+  feedButton.addEventListener("click", () => {
+    if (buddyImage) {
+      buddyImage.src = `assets/m-3.png?v=${encodeURIComponent(APP_VERSION)}`;
+      buddyImage.classList.remove("fed");
+      void buddyImage.offsetWidth;
+      buddyImage.classList.add("fed");
+    }
+
+    if (buddyMessage) {
+      buddyMessage.textContent = "ありがとう！ もぐもぐ！";
+      buddyMessage.classList.add("fed");
+    }
+
+    feedButton.textContent = "相棒にあげたよ";
+    feedButton.disabled = true;
+    closeButton.classList.remove("ghost-button");
+    closeButton.classList.add("primary-button");
+    closeButton.textContent = "おしまい";
+    closeButton.focus();
+  });
   closeButton.addEventListener("click", closeTreasureReward);
   closeButton.focus();
 }

@@ -722,6 +722,13 @@ body.treasure-modal-open {
   box-shadow: 0 4px 0 rgba(255, 198, 64, 0.3);
 }
 
+.treasure-buddy-message.fed {
+  border-color: rgba(255, 118, 161, 0.64);
+  color: #9e2252;
+  background: #ffe0ec;
+  box-shadow: 0 4px 0 rgba(255, 118, 161, 0.22);
+}
+
 .treasure-kicker {
   margin: 0 0 8px;
   color: #b45a11;
@@ -762,6 +769,17 @@ body.treasure-modal-open {
 
 .treasure-card button {
   min-width: 180px;
+}
+
+.treasure-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.treasure-buddy-image.fed {
+  animation: buddyFedPop 520ms ease-out both;
 }
 
 .test-operations {
@@ -1808,6 +1826,24 @@ body.keyboard-mode .practice-note {
   }
 }
 
+@keyframes buddyFedPop {
+  0% {
+    transform: translateY(0) scale(0.92) rotate(-3deg);
+  }
+
+  42% {
+    transform: translateY(-7px) scale(1.09) rotate(4deg);
+  }
+
+  72% {
+    transform: translateY(2px) scale(0.98) rotate(-1deg);
+  }
+
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+}
+
 @keyframes adventureCloudDrift {
   from { translate: -8px 0; }
   to { translate: 12px 2px; }
@@ -1974,6 +2010,11 @@ body.keyboard-mode .practice-note {
   .treasure-buddy-message {
     padding: 5px 10px;
     font-size: 0.95rem;
+  }
+
+  .treasure-actions {
+    display: grid;
+    gap: 10px;
   }
 
   .test-operations button {
