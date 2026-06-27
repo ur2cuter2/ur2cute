@@ -1,6 +1,6 @@
 ﻿"use strict";
 
-const APP_VERSION = "2026.06.23.1";
+const APP_VERSION = "2026.06.23.2";
 
 const STORAGE_KEY = "kanji-de-go-learning-data";
 const USER_NAME_KEY = "kanjiRushUserName";
@@ -975,7 +975,7 @@ function renderLegacyDailyAdventurePanel(adventureState, dailyCompleted, retryCo
   `;
 }
 
-function renderDailyAdventurePanel(adventureState, dailyCompleted, retryCount, treasureOpened = false) {
+function renderDailyAdventurePanel(adventureState, dailyCompleted, retryCount, userName, treasureOpened = false) {
   const progress = dailyCompleted ? MAX_DAILY_QUESTIONS : Math.min(adventureState.completedCount, MAX_DAILY_QUESTIONS);
   const normalSetFinished = adventureState.normalSetFinished || progress >= MAX_DAILY_QUESTIONS;
   const waitingForRetry = !dailyCompleted && normalSetFinished && retryCount > 0;
@@ -991,17 +991,21 @@ function renderDailyAdventurePanel(adventureState, dailyCompleted, retryCount, t
     : "assets/background.png";
   const stageCharacter = dailyCompleted ? "assets/glad_transparent.png" : "assets/walk_transparent.png";
   const stageState = dailyCompleted ? "is-clear" : "is-walking";
+  const trimmedUserName = String(userName || "").trim();
+  const adventureTitle = trimmedUserName ? `今日の${escapeHtml(trimmedUserName)}の冒険` : "今日の冒険";
 
   return `
-    <section class="daily-adventure ${dailyCompleted ? "clear" : ""} ${waitingForRetry ? "waiting-retry" : ""}" aria-label="今日の冒険 ${progress}問完了">
+    <section class="daily-adventure ${dailyCompleted ? "clear" : ""} ${waitingForRetry ? "waiting-retry" : ""}" aria-label="${adventureTitle} ${progress}問完了">
       <header class="adventure-heading">
-        <h2>今日の冒険</h2>
+        <h2>${adventureTitle}</h2>
         <strong>${progress} / ${MAX_DAILY_QUESTIONS}</strong>
       </header>
       <p class="adventure-status">${status}</p>
       <div class="stage-area ${stageState} ${treasureOpened ? "treasure-opened" : ""}">
         <img class="stage-bg ${dailyCompleted ? "is-goal" : "is-normal"}" src="${stageBackground}?v=${encodeURIComponent(APP_VERSION)}" alt="" width="1584" height="672" decoding="async" onerror="this.hidden=true">
-        <img class="stage-character ${stageState}" src="${stageCharacter}?v=${encodeURIComponent(APP_VERSION)}" alt="${dailyCompleted ? "クリアを喜ぶキャラクター" : "道を歩くキャラクター"}" width="896" height="1195" decoding="async" onerror="this.hidden=true">
+        <div class="stage-character-wrap ${stageState}">
+          <img class="stage-character ${stageState}" src="${stageCharacter}?v=${encodeURIComponent(APP_VERSION)}" alt="${dailyCompleted ? "クリアを喜ぶキャラクター" : "道を歩くキャラクター"}" width="896" height="1195" decoding="async" onerror="this.hidden=true">
+        </div>
       </div>
     </section>
   `;
@@ -1021,12 +1025,10 @@ function renderHome() {
   const treasure = dailyCompleted ? getOrCreateDailyTreasure() : null;
   const treasureOpened = Boolean(treasure && treasure.state.shownDate === todayString());
   const waitingForRetry = !dailyCompleted && adventureState.normalSetFinished && retryCount > 0;
-  const userName = escapeHtml(currentUserName);
   app.className = "app-shell home-shell";
   app.innerHTML = `
     <section class="home-view">
       <div class="title-block">
-        <p class="eyebrow">${userName}の今日の練習</p>
         <h1 class="home-logo-wrap">
           <img
             class="home-logo-image"
@@ -1037,10 +1039,9 @@ function renderHome() {
             decoding="async"
           >
         </h1>
-        <p class="tagline">${userName}、今日も漢字を倒そう！</p>
       </div>
 
-      ${renderDailyAdventurePanel(adventureState, dailyCompleted, retryCount, treasureOpened)}
+      ${renderDailyAdventurePanel(adventureState, dailyCompleted, retryCount, currentUserName, treasureOpened)}
 
       <div class="home-actions">
         ${dailyCompleted ? `
