@@ -1,6 +1,6 @@
 ﻿"use strict";
 
-const APP_VERSION = "2026.06.23.2";
+const APP_VERSION = "2026.06.23.3";
 
 const STORAGE_KEY = "kanji-de-go-learning-data";
 const USER_NAME_KEY = "kanjiRushUserName";
@@ -1099,6 +1099,17 @@ function showTreasureCard(card) {
   layer.innerHTML = `
     <div class="treasure-reward-backdrop" aria-hidden="true"></div>
     <section class="treasure-card" role="dialog" aria-modal="true" aria-labelledby="treasure-title">
+      <div class="treasure-buddy" aria-hidden="true">
+        <img
+          class="treasure-buddy-image"
+          src="assets/m-1.png?v=${encodeURIComponent(APP_VERSION)}"
+          alt=""
+          width="896"
+          height="896"
+          decoding="async"
+        >
+        <p class="treasure-buddy-message">今日のたからものだよ！</p>
+      </div>
       <p class="treasure-kicker">今日のたからもの</p>
       <h2 id="treasure-title">${escapeHtml(card.title)}</h2>
       <p class="treasure-reading">${escapeHtml(card.reading)}</p>
