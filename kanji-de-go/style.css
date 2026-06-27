@@ -181,6 +181,7 @@ button:disabled,
 .message-view,
 .paper-view,
 .data-view,
+.kanji-cards-view,
 .game-view,
 .result-view,
 .setup-view,
@@ -645,6 +646,204 @@ h1 {
 
 .daily-complete-state span {
   font-weight: 800;
+}
+
+.cards-lead {
+  margin: 0 0 16px;
+  color: #42647f;
+  font-weight: 800;
+  text-align: center;
+}
+
+.card-filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 0 18px;
+}
+
+.card-filter-tabs button {
+  min-height: 48px;
+  border: 3px solid rgba(45, 160, 255, 0.28);
+  padding: 10px 14px;
+  color: var(--deep-blue);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 5px 0 rgba(23, 50, 77, 0.12);
+}
+
+.card-filter-tabs button.active {
+  border-color: rgba(255, 211, 77, 0.95);
+  color: #1f2a00;
+  background: linear-gradient(180deg, #fff7a8, var(--yellow));
+}
+
+.card-filter-tabs span {
+  display: inline-grid;
+  min-width: 1.8em;
+  min-height: 1.8em;
+  place-items: center;
+  margin-left: 8px;
+  border-radius: 999px;
+  color: var(--white);
+  background: var(--deep-blue);
+  font-size: 0.85em;
+}
+
+.kanji-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+  gap: 14px;
+}
+
+.kanji-study-card {
+  display: grid;
+  gap: 10px;
+  border: 3px solid rgba(45, 160, 255, 0.22);
+  border-radius: 8px;
+  padding: 14px;
+  background: #fffdf4;
+  box-shadow: 0 10px 0 rgba(23, 50, 77, 0.1);
+}
+
+.kanji-study-card.is-weak {
+  border-color: rgba(255, 138, 61, 0.48);
+  background: linear-gradient(180deg, #fffdf4, #fff4eb);
+}
+
+.kanji-study-card.is-learning {
+  border-color: rgba(19, 163, 111, 0.4);
+  background: linear-gradient(180deg, #fffdf4, #effff7);
+}
+
+.kanji-study-card.is-graduated {
+  border-color: rgba(255, 211, 77, 0.74);
+  background: linear-gradient(180deg, #fffdf4, #fff9dc);
+}
+
+.kanji-card-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.kanji-card-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  border-radius: 999px;
+  padding: 4px 10px;
+  color: var(--white);
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.kanji-card-status.is-weak {
+  background: linear-gradient(180deg, #ff8a3d, #e85b88);
+}
+
+.kanji-card-status.is-learning {
+  background: linear-gradient(180deg, #35c7b8, #13a36f);
+}
+
+.kanji-card-status.is-graduated {
+  color: #5b4300;
+  background: linear-gradient(180deg, #fff06b, #ffd34d);
+}
+
+.kanji-card-source {
+  min-width: 0;
+  overflow: hidden;
+  color: #55718a;
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kanji-card-sentence {
+  margin: 0;
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.74);
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.55;
+}
+
+.kanji-card-answer {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.kanji-card-answer span,
+.kanji-card-progress dt {
+  color: #55718a;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.kanji-card-answer strong {
+  color: var(--deep-blue);
+  font-size: clamp(1.55rem, 4vw, 2.25rem);
+  line-height: 1.1;
+}
+
+.kanji-card-reading,
+.kanji-card-meaning {
+  margin: 0;
+  font-weight: 800;
+}
+
+.kanji-card-reading {
+  color: #42647f;
+}
+
+.kanji-card-meaning {
+  line-height: 1.55;
+}
+
+.kanji-card-wrong {
+  margin: 0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: #9e2252;
+  background: #ffe0ec;
+  font-weight: 900;
+}
+
+.kanji-card-progress {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.kanji-card-progress div {
+  border-radius: 8px;
+  padding: 8px;
+  background: rgba(223, 246, 255, 0.65);
+}
+
+.kanji-card-progress dd {
+  margin: 2px 0 0;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.empty-cards {
+  grid-column: 1 / -1;
+  margin: 0;
+  border: 3px dashed rgba(45, 160, 255, 0.35);
+  border-radius: 8px;
+  padding: 22px;
+  color: #42647f;
+  background: rgba(255, 255, 255, 0.68);
+  font-weight: 900;
+  text-align: center;
 }
 
 body.treasure-modal-open {
@@ -2026,8 +2225,17 @@ body.keyboard-mode .practice-note {
   .result-actions button,
   .paper-actions button,
   .data-actions button,
+  .card-filter-tabs button,
   .file-import {
     width: 100%;
+  }
+
+  .kanji-card-progress {
+    grid-template-columns: 1fr;
+  }
+
+  .kanji-card-grid {
+    grid-template-columns: 1fr;
   }
 
   .road-scene {

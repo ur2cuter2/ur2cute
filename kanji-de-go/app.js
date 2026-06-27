@@ -1,6 +1,6 @@
 ﻿"use strict";
 
-const APP_VERSION = "2026.06.23.4";
+const APP_VERSION = "2026.06.23.6";
 
 const STORAGE_KEY = "kanji-de-go-learning-data";
 const USER_NAME_KEY = "kanjiRushUserName";
@@ -485,7 +485,9 @@ function normalizeRecords(records) {
     correct_streak: Number(record.correct_streak) || 0,
     miss_count: Number(record.miss_count) || 0,
     next_review_date: record.next_review_date || todayString(),
-    status: record.status || "active"
+    status: record.status || "active",
+    last_had_retry: isTruthyValue(record.last_had_retry),
+    retry_miss_count: Number(record.retry_miss_count) || 0
   }));
 }
 
@@ -786,6 +788,103 @@ function getActiveCount() {
   return learningData.filter((item) => item.status === "active").length;
 }
 
+function isTruthyValue(value) {
+  return value === true || value === "true" || value === 1 || value === "1";
+}
+
+function getKanjiCardDisplayStatus(record) {
+  if (record.status === "graduated") {
+    return "graduated";
+  }
+
+  const nextReviewDate = String(record.next_review_date || record.source_date || "");
+  const isReviewDue = nextReviewDate ? nextReviewDate <= todayString() : true;
+  const hadRetry = isTruthyValue(record.last_had_retry);
+  const retryMissCount = Number(record.retry_miss_count || 0);
+  const missCount = Number(record.miss_count || 0);
+
+  if (hadRetry || retryMissCount > 0 || missCount >= 2 || isReviewDue) {
+    return "weak";
+  }
+
+  return "learning";
+}
+
+function getKanjiCardStatusMeta(status) {
+  const meta = {
+    weak: { label: "あやしい", className: "is-weak" },
+    learning: { label: "練習中", className: "is-learning" },
+    graduated: { label: "卒業", className: "is-graduated" }
+  };
+  return meta[status] || meta.learning;
+}
+
+function getKanjiCardStatusLabel(status) {
+  return getKanjiCardStatusMeta(status).label;
+}
+
+function getKanjiCardCounts(records = learningData) {
+  return records.reduce((counts, record) => {
+    const status = getKanjiCardDisplayStatus(record);
+    counts[status] = (counts[status] || 0) + 1;
+    counts.all += 1;
+    return counts;
+  }, { weak: 0, learning: 0, graduated: 0, all: 0 });
+}
+
+function getDefaultKanjiCardFilter() {
+  const counts = getKanjiCardCounts();
+  if (counts.weak > 0) return "weak";
+  if (counts.learning > 0) return "learning";
+  return "all";
+}
+
+function filterKanjiCards(records, filter) {
+  return records
+    .map((record) => ({ record, displayStatus: getKanjiCardDisplayStatus(record) }))
+    .filter((item) => filter === "all" || item.displayStatus === filter);
+}
+
+function sortKanjiCards(items, filter) {
+  const statusOrder = { weak: 0, learning: 1, graduated: 2 };
+  const byDate = (a, b) => String(a.record.next_review_date || "").localeCompare(String(b.record.next_review_date || ""));
+  const byAnswer = (a, b) => String(a.record.answer || a.record.id).localeCompare(String(b.record.answer || b.record.id), "ja");
+  const byId = (a, b) => String(a.record.id || "").localeCompare(String(b.record.id || ""));
+  const weakSort = (a, b) =>
+    byDate(a, b) ||
+    Number(b.record.retry_miss_count || 0) - Number(a.record.retry_miss_count || 0) ||
+    Number(b.record.miss_count || 0) - Number(a.record.miss_count || 0) ||
+    Number(a.record.review_stage || 0) - Number(b.record.review_stage || 0) ||
+    byId(a, b);
+  const learningSort = (a, b) =>
+    byDate(a, b) ||
+    Number(a.record.review_stage || 0) - Number(b.record.review_stage || 0) ||
+    byId(a, b);
+  const graduatedSort = (a, b) => byAnswer(a, b) || byId(a, b);
+
+  return [...items].sort((a, b) => {
+    if (filter === "weak") return weakSort(a, b);
+    if (filter === "learning") return learningSort(a, b);
+    if (filter === "graduated") return graduatedSort(a, b);
+    if (a.displayStatus !== b.displayStatus) {
+      return statusOrder[a.displayStatus] - statusOrder[b.displayStatus];
+    }
+    if (a.displayStatus === "weak") return weakSort(a, b);
+    if (a.displayStatus === "learning") return learningSort(a, b);
+    return graduatedSort(a, b);
+  });
+}
+
+function getKanjiCardEmptyMessage(filter) {
+  const messages = {
+    weak: "あやしい漢字はありません。今日もいい調子！",
+    learning: "練習中の漢字はありません。新しい問題を追加したら、ここに出てくるよ。",
+    graduated: "卒業した漢字はまだありません。こつこつ続けよう！",
+    all: "漢字カードはまだありません。CSVから問題を読み込んでください。"
+  };
+  return messages[filter] || messages.all;
+}
+
 function getQuestionById(id) {
   return learningData.find((item) => item.id === id);
 }
@@ -1051,6 +1150,7 @@ function renderHome() {
           </div>
         ` : `<button class="primary-button" data-action="start">${waitingForRetry ? "リベンジを始める" : "今日の練習を始める"}</button>`}
         <button class="secondary-button" data-action="paper">紙テストモード</button>
+        <button class="secondary-button" data-action="kanji-cards">漢字カードを見る</button>
         <button class="secondary-button" data-action="data">データ管理</button>
       </div>
     </section>
@@ -1059,6 +1159,7 @@ function renderHome() {
   const startButton = app.querySelector('[data-action="start"]');
   if (startButton) startButton.addEventListener("click", startPractice);
   app.querySelector('[data-action="paper"]').addEventListener("click", renderPaperMode);
+  app.querySelector('[data-action="kanji-cards"]').addEventListener("click", () => renderKanjiCardsMode());
   app.querySelector('[data-action="data"]').addEventListener("click", renderDataMode);
   if (treasure && treasure.state.shownDate !== todayString()) {
     playDailyTreasureReward(treasure.card);
@@ -1798,6 +1899,76 @@ function renderPaperMode() {
     app.querySelector("#paper-answers").hidden = false;
   });
   app.querySelector('[data-action="print"]').addEventListener("click", () => window.print());
+}
+
+function renderKanjiCardsMode(filter = getDefaultKanjiCardFilter()) {
+  stopTimer();
+  clearKeyboardMode();
+  const filters = [
+    { key: "weak", label: "あやしい" },
+    { key: "learning", label: "練習中" },
+    { key: "graduated", label: "卒業" },
+    { key: "all", label: "全部" }
+  ];
+  const counts = getKanjiCardCounts();
+  const cards = sortKanjiCards(filterKanjiCards(learningData, filter), filter);
+
+  app.className = "app-shell cards-shell";
+  app.innerHTML = `
+    <section class="kanji-cards-view">
+      <nav class="screen-nav">
+        <button class="ghost-button" data-action="home">ホームへ戻る</button>
+      </nav>
+      <h1>漢字カード</h1>
+      <p class="cards-lead">今の覚え具合でカードを分けています。</p>
+      <div class="card-filter-tabs" role="tablist" aria-label="漢字カードの表示切替">
+        ${filters.map((item) => `
+          <button
+            class="${filter === item.key ? "active" : ""}"
+            type="button"
+            aria-pressed="${filter === item.key ? "true" : "false"}"
+            data-filter="${item.key}"
+          >${item.label}<span>${counts[item.key] || 0}</span></button>
+        `).join("")}
+      </div>
+      <div class="kanji-card-grid">
+        ${cards.map(({ record, displayStatus }) => renderKanjiStudyCard(record, displayStatus)).join("") || `<p class="empty-cards">${getKanjiCardEmptyMessage(filter)}</p>`}
+      </div>
+    </section>
+  `;
+
+  app.querySelector('[data-action="home"]').addEventListener("click", renderHome);
+  app.querySelectorAll("[data-filter]").forEach((button) => {
+    button.addEventListener("click", () => renderKanjiCardsMode(button.dataset.filter));
+  });
+}
+
+function renderKanjiStudyCard(record, displayStatus) {
+  const meta = getKanjiCardStatusMeta(displayStatus);
+  const nextReviewDate = record.status === "graduated"
+    ? "完了"
+    : escapeHtml(record.next_review_date || record.source_date || "未設定");
+  return `
+    <article class="kanji-study-card ${meta.className}">
+      <div class="kanji-card-topline">
+        <span class="kanji-card-status ${meta.className}">${meta.label}</span>
+        <span class="kanji-card-source">${escapeHtml(record.source_type || "")}</span>
+      </div>
+      <div class="kanji-card-answer">
+        <span>答え</span>
+        <strong>${escapeHtml(record.answer)}</strong>
+      </div>
+      <p class="kanji-card-reading">${escapeHtml(record.reading)}</p>
+      <p class="kanji-card-meaning">${escapeHtml(record.meaning || "")}</p>
+      <p class="kanji-card-sentence">${highlightReading(record.sentence, record.reading)}</p>
+      ${record.wrong_answer ? `<p class="kanji-card-wrong">前の答え：${escapeHtml(record.wrong_answer)}</p>` : ""}
+      <dl class="kanji-card-progress">
+        <div><dt>次の復習</dt><dd>${nextReviewDate}</dd></div>
+        <div><dt>ステージ</dt><dd>${Number(record.review_stage || 0)}</dd></div>
+        <div><dt>ミス</dt><dd>${Number(record.miss_count || 0)}</dd></div>
+      </dl>
+    </article>
+  `;
 }
 
 function renderDataMode() {
