@@ -1,6 +1,6 @@
 ﻿"use strict";
 
-const APP_VERSION = "2026.06.29.2";
+const APP_VERSION = "2026.06.29.3";
 
 const STORAGE_KEY = "kanji-de-go-learning-data";
 const USER_NAME_KEY = "kanjiRushUserName";
@@ -2012,6 +2012,25 @@ function renderDataMode() {
         <button class="secondary-button" type="submit">変更する</button>
       </form>
 
+      <section class="backup-panel">
+        <h2>バックアップコード</h2>
+        <p>このコードをコピーして保存しておくと、セーブデータが消えたときに復元できます。</p>
+        <p>スマホのメモ、LINE、自分宛メールなどに保存してください。</p>
+        <div class="data-actions">
+          <button class="primary-button" data-action="export-text">バックアップコードを作る</button>
+          <button class="secondary-button" data-action="import-text">貼り付けJSONを読み込む</button>
+        </div>
+        <textarea
+          id="backup-json-box"
+          class="export-box backup-code-box"
+          aria-label="バックアップJSONコード"
+          placeholder="ここにバックアップコードが表示されます。復元するときは、保存していたJSONをここに貼り付けてください。"
+        ></textarea>
+      </section>
+
+      <section class="file-panel">
+        <h2>ファイル操作</h2>
+        <p>必要な場合は、JSONやCSVをファイルとして保存・読み込みできます。</p>
       <div class="data-actions">
         <button class="primary-button" data-action="export">JSONをエクスポート</button>
         <button class="primary-button" data-action="export-csv">CSVをエクスポート</button>
@@ -2027,6 +2046,7 @@ function renderDataMode() {
         <button class="danger-button" data-action="reset">学習データをサンプルに戻す</button>
         <button class="danger-button" data-action="reset-all">全データを初期化</button>
       </div>
+      </section>
       <section class="csv-import-panel">
         <h2>CSV貼り付けインポート</h2>
         <p>CSVの問題マスタを貼り付けると、新規IDを追加し、既存IDは問題文・読み・答え・意味などだけ更新します。</p>
@@ -2040,6 +2060,8 @@ function renderDataMode() {
 
   app.querySelector('[data-action="home"]').addEventListener("click", renderHome);
   app.querySelector('[data-action="change-name"]').addEventListener("submit", changeUserName);
+  app.querySelector('[data-action="export-text"]').addEventListener("click", exportBackupText);
+  app.querySelector('[data-action="import-text"]').addEventListener("click", importBackupText);
   app.querySelector('[data-action="export"]').addEventListener("click", exportData);
   app.querySelector('[data-action="export-csv"]').addEventListener("click", exportCsvData);
   app.querySelector('[data-action="repair-csv"]').addEventListener("click", repairFromCsvSource);
@@ -2052,6 +2074,8 @@ function renderDataMode() {
     app.querySelector('[data-action="test-complete-today"]').addEventListener("click", testCompleteTodayForTreasure);
     app.querySelector('[data-action="test-reset-treasure"]').addEventListener("click", testResetTreasureShown);
     disableDataAction("change-name");
+    disableDataAction("export-text");
+    disableDataAction("import-text");
     disableDataAction("export");
     disableDataAction("export-csv");
     disableDataAction("import");
@@ -2136,6 +2160,62 @@ function exportData() {
   link.remove();
   URL.revokeObjectURL(url);
   setDataMessage("短縮版JSONを書き出しました。");
+}
+
+async function exportBackupText() {
+  if (IS_TEST_MODE) {
+    setDataMessage("テストモードでは本番バックアップを書き出しません。");
+    return;
+  }
+
+  const compactData = buildCompactSaveData();
+  const json = JSON.stringify(compactData);
+  const box = app.querySelector("#backup-json-box") || app.querySelector("#export-box");
+  if (!box) return;
+
+  box.value = json;
+  box.focus();
+  box.select();
+
+  try {
+    if (!navigator.clipboard || typeof navigator.clipboard.writeText !== "function") {
+      throw new Error("Clipboard is not available");
+    }
+    await navigator.clipboard.writeText(json);
+    setDataMessage("バックアップコードをコピーしました。メモなどに保存してください。");
+  } catch {
+    setDataMessage("バックアップコードを作成しました。コピーして保存してください。");
+  }
+}
+
+function importBackupText() {
+  if (IS_TEST_MODE) {
+    setDataMessage("テストモードではバックアップインポートを無効にしています。");
+    return;
+  }
+
+  const box = app.querySelector("#backup-json-box") || app.querySelector("#export-box");
+  const text = box ? box.value.trim() : "";
+  if (!text) {
+    setDataMessage("復元するバックアップコードを貼り付けてください。");
+    return;
+  }
+
+  try {
+    const imported = JSON.parse(text);
+    if (Array.isArray(imported)) {
+      importLegacyFullData(imported);
+      renderDataMode();
+      setDataMessage("従来形式JSONを読み込みました。");
+      return;
+    }
+
+    applyCompactSaveData(imported);
+    renderDataMode();
+    setDataMessage("バックアップコードから復元しました。");
+  } catch {
+    setDataMessage("JSONを読み込めませんでした。コード全体をコピーできているか確認してください。");
+  }
 }
 
 function exportCsvData() {

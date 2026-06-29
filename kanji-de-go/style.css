@@ -1676,6 +1676,8 @@ body.keyboard-mode .practice-note {
   font-weight: 700;
 }
 
+.backup-panel,
+.file-panel,
 .csv-import-panel {
   margin-top: 24px;
   padding: 18px;
@@ -1684,13 +1686,26 @@ body.keyboard-mode .practice-note {
   background: var(--white);
 }
 
+.backup-panel h2,
+.file-panel h2,
 .csv-import-panel h2 {
   margin: 0 0 8px;
   font-size: clamp(1.35rem, 4vw, 2rem);
 }
 
+.backup-panel p,
+.file-panel p,
 .csv-import-panel p {
   margin: 0 0 12px;
+}
+
+.backup-panel {
+  border-color: rgba(255, 211, 77, 0.86);
+  background: linear-gradient(180deg, #fffdf4, #fff8d7);
+}
+
+.backup-code-box {
+  min-height: 150px;
 }
 
 .file-import {
