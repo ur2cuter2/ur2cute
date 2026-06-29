@@ -1564,6 +1564,14 @@ body.keyboard-mode .practice-note {
   border: 4px solid var(--yellow);
 }
 
+.result-answer-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  margin: 0 0 16px;
+}
+
 .big-kanji {
   margin: 0;
   font-size: clamp(4rem, 18vw, 9rem);
@@ -1571,10 +1579,20 @@ body.keyboard-mode .practice-note {
   line-height: 1;
 }
 
-.correct-answer {
-  margin: 0 0 16px;
-  font-size: clamp(1.7rem, 6vw, 3rem);
+.correct-answer-label {
+  margin: 0 0 2px;
+  color: var(--deep-blue);
+  font-size: clamp(0.95rem, 2.4vw, 1.25rem);
   font-weight: 900;
+}
+
+.result-ruby-like {
+  margin: 0 0 -2px;
+  color: #42647f;
+  font-size: clamp(1rem, 2.8vw, 1.55rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: 0.08em;
 }
 
 .meaning {

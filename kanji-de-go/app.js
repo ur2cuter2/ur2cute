@@ -1,6 +1,6 @@
 ﻿"use strict";
 
-const APP_VERSION = "2026.06.23.6";
+const APP_VERSION = "2026.06.29.2";
 
 const STORAGE_KEY = "kanji-de-go-learning-data";
 const USER_NAME_KEY = "kanjiRushUserName";
@@ -1791,6 +1791,7 @@ function updateReview(id, isCorrect, hadRetry = false) {
 function renderResult(question, isCorrect, timedOut, skipped, isRetry, retryQueued, hadRetry = false) {
   const title = isCorrect ? (isRetry ? "リトライ成功！" : "正解！") : timedOut ? "時間切れ！" : skipped ? "スキップ！" : "ざんねん！";
   const resultClass = isCorrect ? "result-view success" : "result-view retry";
+  const readingHtml = question.reading ? `<p class="result-ruby-like">${escapeHtml(question.reading)}</p>` : "";
   app.className = `app-shell result-shell ${isCorrect ? "shake-success" : ""}`;
   app.innerHTML = `
     <section class="${resultClass}">
@@ -1798,7 +1799,11 @@ function renderResult(question, isCorrect, timedOut, skipped, isRetry, retryQueu
       <p class="result-kicker">${isCorrect ? (isRetry ? "その場で取り返したね" : "やったね") : "もう一回出るよ"}</p>
       <h1>${title}</h1>
       <div class="answer-card">
-        ${isCorrect ? `<p class="big-kanji">${escapeHtml(question.answer)}</p>` : `<p class="correct-answer">正解：<strong>${escapeHtml(question.answer)}</strong></p>`}
+        <div class="result-answer-block">
+          ${!isCorrect ? `<p class="correct-answer-label">正解</p>` : ""}
+          ${readingHtml}
+          <p class="big-kanji">${escapeHtml(question.answer)}</p>
+        </div>
         <p class="meaning"><span>意味：</span>${escapeHtml(question.meaning)}</p>
         ${!isCorrect && retryQueued ? `<p class="retry-note">あとで今日もう一回出るよ！</p>` : ""}
         ${isCorrect && isRetry ? `<p class="retry-note">明日ももう一度出るから、紙にも書いて確認しよう。</p>` : ""}
