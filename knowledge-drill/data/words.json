@@ -1148,5 +1148,105 @@
     "lesson_group": "chishiki_check_5zenki_06",
     "display_order": 11,
     "answer_note": "2:イ　3:イ　4:全部「楽あれば苦あり」　6:ア"
+  },
+  {
+    "id": "116",
+    "word": "二の句が継げない",
+    "reading": "にのくがつげない",
+    "category": "慣用句",
+    "planned_date": "2026-07-08",
+    "lesson_group": "navigation_moshi_20260621",
+    "display_order": 1,
+    "answer_note": "2:ア　3:イ　4:全部「二の句が継げない」　6:ウ"
+  },
+  {
+    "id": "117",
+    "word": "海に千年山に千年",
+    "reading": "うみにせんねんやまにせんねん",
+    "category": "ことわざ",
+    "planned_date": "2026-07-08",
+    "lesson_group": "navigation_moshi_20260621",
+    "display_order": 2,
+    "answer_note": "2:イ　3:ウ　4:全部「海に千年山に千年」　6:ア"
+  },
+  {
+    "id": "118",
+    "word": "二の足を踏む",
+    "reading": "にのあしをふむ",
+    "category": "慣用句",
+    "planned_date": "2026-07-09",
+    "lesson_group": "navigation_moshi_20260621",
+    "display_order": 3,
+    "answer_note": "2:ウ　3:ア　4:全部「二の足を踏む」　6:イ"
+  },
+  {
+    "id": "119",
+    "word": "岡目八目",
+    "reading": "おかめはちもく",
+    "category": "四字熟語",
+    "planned_date": "2026-07-09",
+    "lesson_group": "navigation_moshi_20260621",
+    "display_order": 4,
+    "answer_note": "2:ア　3:ウ　4:全部「岡目八目」　6:イ"
+  },
+  {
+    "id": "120",
+    "word": "悪事千里を走る",
+    "reading": "あくじせんりをはしる",
+    "category": "ことわざ",
+    "planned_date": "2026-07-09",
+    "lesson_group": "navigation_moshi_20260621",
+    "display_order": 5,
+    "answer_note": "2:イ　3:ア　4:全部「悪事千里を走る」　6:ウ"
+  },
+  {
+    "id": "121",
+    "word": "三日坊主",
+    "reading": "みっかぼうず",
+    "category": "四字熟語",
+    "planned_date": "2026-07-10",
+    "lesson_group": "navigation_moshi_20260621",
+    "display_order": 6,
+    "answer_note": "2:ウ　3:イ　4:全部「三日坊主」　6:ア"
+  },
+  {
+    "id": "122",
+    "word": "笑う門には福来る",
+    "reading": "わらうかどにはふくきたる",
+    "category": "ことわざ",
+    "planned_date": "2026-07-10",
+    "lesson_group": "navigation_moshi_20260621",
+    "display_order": 7,
+    "answer_note": "2:ア　3:イ　4:全部「笑う門には福来る」　6:ウ"
+  },
+  {
+    "id": "123",
+    "word": "飼い犬に手を噛まれる",
+    "reading": "かいいぬにてをかまれる",
+    "category": "ことわざ",
+    "planned_date": "2026-07-10",
+    "lesson_group": "navigation_moshi_20260621",
+    "display_order": 8,
+    "answer_note": "2:イ　3:ウ　4:全部「飼い犬に手を噛まれる」　6:ア"
+  },
+  {
+    "id": "124",
+    "word": "木に竹を接ぐ",
+    "reading": "きにたけをつぐ",
+    "category": "ことわざ",
+    "planned_date": "2026-07-11",
+    "lesson_group": "navigation_moshi_20260621",
+    "display_order": 9,
+    "answer_note": "2:ウ　3:ア　4:全部「木に竹を接ぐ」　6:イ"
+  },
+  {
+    "id": "125",
+    "word": "しのぎをけずる",
+    "reading": "しのぎをけずる",
+    "category": "慣用句",
+    "planned_date": "2026-07-11",
+    "lesson_group": "navigation_moshi_20260621",
+    "display_order": 10,
+    "answer_note": "2:ア　3:ウ　4:全部「しのぎをけずる」　6:イ"
   }
 ]
