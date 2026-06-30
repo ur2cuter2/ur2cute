@@ -7,7 +7,8 @@
     "planned_date": "2026-06-01",
     "lesson_group": "keimeikan_p33",
     "display_order": 1,
-    "answer_note": "2:イ　3:ア　4:全部「意気地」　6:ウ"
+    "answer_note": "2:イ　3:ア　4:全部「意気地」　6:ウ",
+    "image_filename": "001_意気地.png"
   },
   {
     "id": "002",
@@ -17,7 +18,8 @@
     "planned_date": "2026-06-01",
     "lesson_group": "keimeikan_p33",
     "display_order": 2,
-    "answer_note": "2:イ　3:ウ　4:全部「衣食住」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「衣食住」　6:ア",
+    "image_filename": "002_衣食住.png"
   },
   {
     "id": "003",
@@ -27,7 +29,8 @@
     "planned_date": "2026-05-31",
     "lesson_group": "keimeikan_p33",
     "display_order": 3,
-    "answer_note": "2:ア　3:ウ　4:全部「一目散」　6:イ"
+    "answer_note": "2:ア　3:ウ　4:全部「一目散」　6:イ",
+    "image_filename": "003_一目散.png"
   },
   {
     "id": "004",
@@ -37,7 +40,8 @@
     "planned_date": "2026-06-01",
     "lesson_group": "keimeikan_p33",
     "display_order": 4,
-    "answer_note": "2:イ　3:ア　4:全部「過保護」　6:ウ"
+    "answer_note": "2:イ　3:ア　4:全部「過保護」　6:ウ",
+    "image_filename": "004_過保護.png"
   },
   {
     "id": "005",
@@ -47,7 +51,8 @@
     "planned_date": "2026-05-31",
     "lesson_group": "keimeikan_p33",
     "display_order": 5,
-    "answer_note": "2:ウ　3:イ　4:全部「銀世界」　6:ア"
+    "answer_note": "2:ウ　3:イ　4:全部「銀世界」　6:ア",
+    "image_filename": "005_銀世界.png"
   },
   {
     "id": "006",
@@ -57,7 +62,8 @@
     "planned_date": "2026-05-31",
     "lesson_group": "keimeikan_p33",
     "display_order": 6,
-    "answer_note": "2:ア　3:ウ　4:全部「紅一点」　6:イ"
+    "answer_note": "2:ア　3:ウ　4:全部「紅一点」　6:イ",
+    "image_filename": "006_紅一点.png"
   },
   {
     "id": "007",
@@ -67,7 +73,8 @@
     "planned_date": "2026-06-02",
     "lesson_group": "keimeikan_p33",
     "display_order": 7,
-    "answer_note": "2:イ　3:ア　4:全部「先入観」　6:ウ"
+    "answer_note": "2:イ　3:ア　4:全部「先入観」　6:ウ",
+    "image_filename": "007_先入観.png"
   },
   {
     "id": "008",
@@ -77,7 +84,8 @@
     "planned_date": "2026-06-02",
     "lesson_group": "keimeikan_p33",
     "display_order": 8,
-    "answer_note": "2:ウ　3:イ　4:全部「大黒柱」　6:ア"
+    "answer_note": "2:ウ　3:イ　4:全部「大黒柱」　6:ア",
+    "image_filename": "008_大黒柱.png"
   },
   {
     "id": "009",
@@ -87,7 +95,8 @@
     "planned_date": "2026-06-02",
     "lesson_group": "keimeikan_p33",
     "display_order": 9,
-    "answer_note": "2:ア　3:ウ　4:全部「第三者」　6:イ"
+    "answer_note": "2:ア　3:ウ　4:全部「第三者」　6:イ",
+    "image_filename": "009_第三者.png"
   },
   {
     "id": "010",
@@ -97,7 +106,8 @@
     "planned_date": "2026-06-03",
     "lesson_group": "keimeikan_p33",
     "display_order": 10,
-    "answer_note": "2:イ　3:ア　4:全部「異口同音」　6:ウ"
+    "answer_note": "2:イ　3:ア　4:全部「異口同音」　6:ウ",
+    "image_filename": "010_異口同音.png"
   },
   {
     "id": "011",
@@ -107,7 +117,8 @@
     "planned_date": "2026-06-03",
     "lesson_group": "keimeikan_p33",
     "display_order": 11,
-    "answer_note": "2:ウ　3:イ　4:全部「一日千秋」　6:ア"
+    "answer_note": "2:ウ　3:イ　4:全部「一日千秋」　6:ア",
+    "image_filename": "011_一日千秋.png"
   },
   {
     "id": "012",
@@ -117,7 +128,8 @@
     "planned_date": "2026-06-03",
     "lesson_group": "keimeikan_p33",
     "display_order": 12,
-    "answer_note": "2:ア　3:ウ　4:全部「一望千里」　6:イ"
+    "answer_note": "2:ア　3:ウ　4:全部「一望千里」　6:イ",
+    "image_filename": "012_一望千里.png"
   },
   {
     "id": "013",
@@ -127,7 +139,8 @@
     "planned_date": "2026-06-04",
     "lesson_group": "keimeikan_p33",
     "display_order": 13,
-    "answer_note": "2:イ　3:ア　4:全部「一石二鳥」　6:ウ"
+    "answer_note": "2:イ　3:ア　4:全部「一石二鳥」　6:ウ",
+    "image_filename": "013_一石二鳥.png"
   },
   {
     "id": "014",
@@ -137,7 +150,8 @@
     "planned_date": "2026-06-04",
     "lesson_group": "keimeikan_p33",
     "display_order": 14,
-    "answer_note": "2:ウ　3:イ　4:全部「一進一退」　6:ア"
+    "answer_note": "2:ウ　3:イ　4:全部「一進一退」　6:ア",
+    "image_filename": "014_一進一退.png"
   },
   {
     "id": "015",
@@ -147,7 +161,8 @@
     "planned_date": "2026-06-04",
     "lesson_group": "keimeikan_p33",
     "display_order": 15,
-    "answer_note": "2:ア　3:ウ　4:全部「一心同体」　6:イ"
+    "answer_note": "2:ア　3:ウ　4:全部「一心同体」　6:イ",
+    "image_filename": "015_一心同体.png"
   },
   {
     "id": "016",
@@ -157,7 +172,8 @@
     "planned_date": "2026-06-05",
     "lesson_group": "keimeikan_p33",
     "display_order": 16,
-    "answer_note": "2:イ　3:ア　4:全部「一心不乱」　6:ウ"
+    "answer_note": "2:イ　3:ア　4:全部「一心不乱」　6:ウ",
+    "image_filename": "016_一心不乱.png"
   },
   {
     "id": "017",
@@ -167,7 +183,8 @@
     "planned_date": "2026-06-05",
     "lesson_group": "keimeikan_p33",
     "display_order": 17,
-    "answer_note": "2:ウ　3:イ　4:全部「一朝一夕」　6:ア"
+    "answer_note": "2:ウ　3:イ　4:全部「一朝一夕」　6:ア",
+    "image_filename": "017_一朝一夕.png"
   },
   {
     "id": "018",
@@ -177,7 +194,8 @@
     "planned_date": "2026-06-05",
     "lesson_group": "keimeikan_p33",
     "display_order": 18,
-    "answer_note": "2:ア　3:ウ　4:全部「一長一短」　6:イ"
+    "answer_note": "2:ア　3:ウ　4:全部「一長一短」　6:イ",
+    "image_filename": "018_一長一短.png"
   },
   {
     "id": "019",
@@ -187,7 +205,8 @@
     "planned_date": "2026-06-06",
     "lesson_group": "keimeikan_p33",
     "display_order": 19,
-    "answer_note": "2:イ　3:ア　4:全部「意味深長」　6:ウ"
+    "answer_note": "2:イ　3:ア　4:全部「意味深長」　6:ウ",
+    "image_filename": "019_意味深長.png"
   },
   {
     "id": "020",
@@ -197,7 +216,8 @@
     "planned_date": "2026-06-06",
     "lesson_group": "keimeikan_p33",
     "display_order": 20,
-    "answer_note": "2:ウ　3:イ　4:全部「海千山千」　6:ア"
+    "answer_note": "2:ウ　3:イ　4:全部「海千山千」　6:ア",
+    "image_filename": "020_海千山千.png"
   },
   {
     "id": "021",
@@ -207,7 +227,8 @@
     "planned_date": "2026-06-06",
     "lesson_group": "keimeikan_p33",
     "display_order": 21,
-    "answer_note": "2:ア　3:ウ　4:全部「我田引水」　6:イ"
+    "answer_note": "2:ア　3:ウ　4:全部「我田引水」　6:イ",
+    "image_filename": "021_我田引水.png"
   },
   {
     "id": "022",
@@ -217,7 +238,8 @@
     "planned_date": "2026-06-07",
     "lesson_group": "keimeikan_p33",
     "display_order": 22,
-    "answer_note": "2:イ　3:ア　4:全部「完全無欠」　6:ウ"
+    "answer_note": "2:イ　3:ア　4:全部「完全無欠」　6:ウ",
+    "image_filename": "022_完全無欠.png"
   },
   {
     "id": "023",
@@ -227,7 +249,8 @@
     "planned_date": "2026-06-07",
     "lesson_group": "keimeikan_p33",
     "display_order": 23,
-    "answer_note": "2:ウ　3:イ　4:全部「急転直下」　6:ア"
+    "answer_note": "2:ウ　3:イ　4:全部「急転直下」　6:ア",
+    "image_filename": "023_急転直下.png"
   },
   {
     "id": "024",
@@ -237,7 +260,8 @@
     "planned_date": "2026-06-07",
     "lesson_group": "keimeikan_p33",
     "display_order": 24,
-    "answer_note": "2:ア　3:ウ　4:全部「空前絶後」　6:イ"
+    "answer_note": "2:ア　3:ウ　4:全部「空前絶後」　6:イ",
+    "image_filename": "024_空前絶後.png"
   },
   {
     "id": "025",
@@ -247,7 +271,8 @@
     "planned_date": "2026-06-08",
     "lesson_group": "keimeikan_p33",
     "display_order": 25,
-    "answer_note": "2:イ　3:ア　4:全部「公平無私」　6:ウ"
+    "answer_note": "2:イ　3:ア　4:全部「公平無私」　6:ウ",
+    "image_filename": "025_公平無私.png"
   },
   {
     "id": "026",
@@ -257,7 +282,8 @@
     "planned_date": "2026-06-08",
     "lesson_group": "kakushu_20260531",
     "display_order": 1,
-    "answer_note": "2:ア　3:ア　4:全部「口車に乗る」　6:イ"
+    "answer_note": "2:ア　3:ア　4:全部「口車に乗る」　6:イ",
+    "image_filename": "026_口車に乗る.png"
   },
   {
     "id": "027",
@@ -267,7 +293,8 @@
     "planned_date": "2026-06-08",
     "lesson_group": "kakushu_20260531",
     "display_order": 2,
-    "answer_note": "2:ウ　3:イ　4:全部「横車を押す」　6:ウ"
+    "answer_note": "2:ウ　3:イ　4:全部「横車を押す」　6:ウ",
+    "image_filename": "027_横車を押す.png"
   },
   {
     "id": "028",
@@ -277,7 +304,8 @@
     "planned_date": "2026-06-09",
     "lesson_group": "kakushu_20260531",
     "display_order": 3,
-    "answer_note": "2:イ　3:イ　4:全部「虫の息」　6:ウ"
+    "answer_note": "2:イ　3:イ　4:全部「虫の息」　6:ウ",
+    "image_filename": "028_虫の息.png"
   },
   {
     "id": "029",
@@ -287,7 +315,8 @@
     "planned_date": "2026-06-09",
     "lesson_group": "kakushu_20260531",
     "display_order": 4,
-    "answer_note": "2:ア　3:イ　4:全部「虫が知らせる」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「虫が知らせる」　6:ウ",
+    "image_filename": "029_虫が知らせる.png"
   },
   {
     "id": "030",
@@ -297,7 +326,8 @@
     "planned_date": "2026-06-09",
     "lesson_group": "kakushu_20260531",
     "display_order": 5,
-    "answer_note": "2:イ　3:ア　4:全部「油を絞る」　6:ウ"
+    "answer_note": "2:イ　3:ア　4:全部「油を絞る」　6:ウ",
+    "image_filename": "030_油を絞る.png"
   },
   {
     "id": "031",
@@ -307,7 +337,8 @@
     "planned_date": "2026-06-10",
     "lesson_group": "kakushu_20260531",
     "display_order": 6,
-    "answer_note": "2:イ　3:ア　4:全部「二の足を踏む」　6:ウ"
+    "answer_note": "2:イ　3:ア　4:全部「二の足を踏む」　6:ウ",
+    "image_filename": "031_二の足を踏む.png"
   },
   {
     "id": "032",
@@ -317,7 +348,8 @@
     "planned_date": "2026-06-10",
     "lesson_group": "kakushu_20260531",
     "display_order": 7,
-    "answer_note": "2:ウ　3:ア　4:全部「木で鼻をくくる」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「木で鼻をくくる」　6:イ",
+    "image_filename": "032_木で鼻をくくる.png"
   },
   {
     "id": "033",
@@ -327,7 +359,8 @@
     "planned_date": "2026-06-10",
     "lesson_group": "kakushu_20260531",
     "display_order": 8,
-    "answer_note": "2:イ　3:ア　4:全部「竹を割ったような」　6:ウ"
+    "answer_note": "2:イ　3:ア　4:全部「竹を割ったような」　6:ウ",
+    "image_filename": "033_竹を割ったような.png"
   },
   {
     "id": "034",
@@ -337,7 +370,8 @@
     "planned_date": "2026-06-11",
     "lesson_group": "kakushu_20260531",
     "display_order": 9,
-    "answer_note": "2:ウ　3:ア　4:全部「おくびにも出さない」　6:ウ"
+    "answer_note": "2:ウ　3:ア　4:全部「おくびにも出さない」　6:ウ",
+    "image_filename": "034_おくびにも出さない.png"
   },
   {
     "id": "035",
@@ -347,7 +381,8 @@
     "planned_date": "2026-06-11",
     "lesson_group": "kakushu_20260531",
     "display_order": 10,
-    "answer_note": "2:ア　3:ア　4:全部「高をくくる」　6:イ"
+    "answer_note": "2:ア　3:ア　4:全部「高をくくる」　6:イ",
+    "image_filename": "035_高をくくる.png"
   },
   {
     "id": "036",
@@ -357,7 +392,8 @@
     "planned_date": "2026-06-11",
     "lesson_group": "kakushu_20260531",
     "display_order": 11,
-    "answer_note": "2:イ　3:ウ　4:全部「襟を正す」　6:イ"
+    "answer_note": "2:イ　3:ウ　4:全部「襟を正す」　6:イ",
+    "image_filename": "036_襟を正す.png"
   },
   {
     "id": "037",
@@ -367,7 +403,8 @@
     "planned_date": "2026-06-12",
     "lesson_group": "kakushu_20260531",
     "display_order": 12,
-    "answer_note": "2:ア　3:ア　4:全部「固唾をのむ」　6:ウ"
+    "answer_note": "2:ア　3:ア　4:全部「固唾をのむ」　6:ウ",
+    "image_filename": "037_固唾をのむ.png"
   },
   {
     "id": "038",
@@ -377,7 +414,8 @@
     "planned_date": "2026-06-12",
     "lesson_group": "kakushu_20260531",
     "display_order": 13,
-    "answer_note": "2:ウ　3:ア　4:全部「音を上げる」　6:ウ"
+    "answer_note": "2:ウ　3:ア　4:全部「音を上げる」　6:ウ",
+    "image_filename": "038_音を上げる.png"
   },
   {
     "id": "039",
@@ -387,7 +425,8 @@
     "planned_date": "2026-06-12",
     "lesson_group": "kakushu_20260531",
     "display_order": 14,
-    "answer_note": "2:ウ　3:イ　4:全部「らちが明かない」　6:ア"
+    "answer_note": "2:ウ　3:イ　4:全部「らちが明かない」　6:ア",
+    "image_filename": "039_らちが明かない.png"
   },
   {
     "id": "040",
@@ -397,7 +436,8 @@
     "planned_date": "2026-06-13",
     "lesson_group": "kakushu_20260531",
     "display_order": 15,
-    "answer_note": "2:イ　3:ア　4:全部「棚に上げる」　6:ウ"
+    "answer_note": "2:イ　3:ア　4:全部「棚に上げる」　6:ウ",
+    "image_filename": "040_棚に上げる.png"
   },
   {
     "id": "041",
@@ -407,7 +447,8 @@
     "planned_date": "2026-06-13",
     "lesson_group": "kakushu_20260531",
     "display_order": 16,
-    "answer_note": "2:イ　3:イ　4:全部「日進月歩」　6:ウ"
+    "answer_note": "2:イ　3:イ　4:全部「日進月歩」　6:ウ",
+    "image_filename": "041_日進月歩.png"
   },
   {
     "id": "042",
@@ -417,7 +458,8 @@
     "planned_date": "2026-06-13",
     "lesson_group": "kakushu_20260531",
     "display_order": 17,
-    "answer_note": "2:ア　3:ア　4:全部「温故知新」　6:イ"
+    "answer_note": "2:ア　3:ア　4:全部「温故知新」　6:イ",
+    "image_filename": "042_温故知新.png"
   },
   {
     "id": "043",
@@ -427,7 +469,8 @@
     "planned_date": "2026-06-14",
     "lesson_group": "keimeikan_p34",
     "display_order": 1,
-    "answer_note": "2:ア　3:イ　4:全部「公明正大」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「公明正大」　6:ウ",
+    "image_filename": "043_公明正大.png"
   },
   {
     "id": "044",
@@ -437,7 +480,8 @@
     "planned_date": "2026-06-14",
     "lesson_group": "keimeikan_p34",
     "display_order": 2,
-    "answer_note": "2:イ　3:ウ　4:全部「古今東西」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「古今東西」　6:ア",
+    "image_filename": "044_古今東西.png"
   },
   {
     "id": "045",
@@ -447,7 +491,8 @@
     "planned_date": "2026-06-14",
     "lesson_group": "keimeikan_p34",
     "display_order": 3,
-    "answer_note": "2:ウ　3:ア　4:全部「小春日和」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「小春日和」　6:イ",
+    "image_filename": "045_小春日和.png"
   },
   {
     "id": "046",
@@ -457,7 +502,8 @@
     "planned_date": "2026-06-15",
     "lesson_group": "keimeikan_p34",
     "display_order": 4,
-    "answer_note": "2:ア　3:イ　4:全部「言語道断」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「言語道断」　6:ウ",
+    "image_filename": "046_言語道断.png"
   },
   {
     "id": "047",
@@ -467,7 +513,8 @@
     "planned_date": "2026-06-15",
     "lesson_group": "keimeikan_p34",
     "display_order": 5,
-    "answer_note": "2:イ　3:ウ　4:全部「三寒四温」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「三寒四温」　6:ア",
+    "image_filename": "047_三寒四温.png"
   },
   {
     "id": "048",
@@ -477,7 +524,8 @@
     "planned_date": "2026-06-15",
     "lesson_group": "keimeikan_p34",
     "display_order": 6,
-    "answer_note": "2:ウ　3:ア　4:全部「自画自賛」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「自画自賛」　6:イ",
+    "image_filename": "048_自画自賛.png"
   },
   {
     "id": "049",
@@ -487,7 +535,8 @@
     "planned_date": "2026-06-16",
     "lesson_group": "keimeikan_p34",
     "display_order": 7,
-    "answer_note": "2:ア　3:イ　4:全部「自給自足」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「自給自足」　6:ウ",
+    "image_filename": "049_自給自足.png"
   },
   {
     "id": "050",
@@ -497,7 +546,8 @@
     "planned_date": "2026-06-16",
     "lesson_group": "keimeikan_p34",
     "display_order": 8,
-    "answer_note": "2:イ　3:ウ　4:全部「自業自得」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「自業自得」　6:ア",
+    "image_filename": "050_自業自得.png"
   },
   {
     "id": "051",
@@ -507,7 +557,8 @@
     "planned_date": "2026-06-16",
     "lesson_group": "keimeikan_p34",
     "display_order": 9,
-    "answer_note": "2:ウ　3:ア　4:全部「七転八起」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「七転八起」　6:イ",
+    "image_filename": "051_七転八起.png"
   },
   {
     "id": "052",
@@ -517,7 +568,8 @@
     "planned_date": "2026-06-17",
     "lesson_group": "keimeikan_p34",
     "display_order": 10,
-    "answer_note": "2:ア　3:イ　4:全部「自問自答」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「自問自答」　6:ウ",
+    "image_filename": "052_自問自答.png"
   },
   {
     "id": "053",
@@ -527,7 +579,8 @@
     "planned_date": "2026-06-17",
     "lesson_group": "keimeikan_p34",
     "display_order": 11,
-    "answer_note": "2:イ　3:ウ　4:全部「弱肉強食」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「弱肉強食」　6:ア",
+    "image_filename": "053_弱肉強食.png"
   },
   {
     "id": "054",
@@ -537,7 +590,8 @@
     "planned_date": "2026-06-17",
     "lesson_group": "keimeikan_p34",
     "display_order": 12,
-    "answer_note": "2:ウ　3:ア　4:全部「自由自在」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「自由自在」　6:イ",
+    "image_filename": "054_自由自在.png"
   },
   {
     "id": "055",
@@ -547,7 +601,8 @@
     "planned_date": "2026-06-18",
     "lesson_group": "keimeikan_p34",
     "display_order": 13,
-    "answer_note": "2:ア　3:イ　4:全部「十人十色」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「十人十色」　6:ウ",
+    "image_filename": "055_十人十色.png"
   },
   {
     "id": "056",
@@ -557,7 +612,8 @@
     "planned_date": "2026-06-18",
     "lesson_group": "keimeikan_p34",
     "display_order": 14,
-    "answer_note": "2:イ　3:ウ　4:全部「絶体絶命」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「絶体絶命」　6:ア",
+    "image_filename": "056_絶体絶命.png"
   },
   {
     "id": "057",
@@ -567,7 +623,8 @@
     "planned_date": "2026-06-18",
     "lesson_group": "keimeikan_p34",
     "display_order": 15,
-    "answer_note": "2:ウ　3:ア　4:全部「千差万別」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「千差万別」　6:イ",
+    "image_filename": "057_千差万別.png"
   },
   {
     "id": "058",
@@ -577,7 +634,8 @@
     "planned_date": "2026-06-19",
     "lesson_group": "keimeikan_p34",
     "display_order": 16,
-    "answer_note": "2:ア　3:イ　4:全部「前代未聞」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「前代未聞」　6:ウ",
+    "image_filename": "058_前代未聞.png"
   },
   {
     "id": "059",
@@ -587,7 +645,8 @@
     "planned_date": "2026-06-19",
     "lesson_group": "keimeikan_p34",
     "display_order": 17,
-    "answer_note": "2:イ　3:ウ　4:全部「大器晩成」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「大器晩成」　6:ア",
+    "image_filename": "059_大器晩成.png"
   },
   {
     "id": "060",
@@ -597,7 +656,8 @@
     "planned_date": "2026-06-19",
     "lesson_group": "keimeikan_p34",
     "display_order": 18,
-    "answer_note": "2:ウ　3:ア　4:全部「大義名分」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「大義名分」　6:イ",
+    "image_filename": "060_大義名分.png"
   },
   {
     "id": "061",
@@ -607,7 +667,8 @@
     "planned_date": "2026-06-20",
     "lesson_group": "keimeikan_p34",
     "display_order": 19,
-    "answer_note": "2:ア　3:イ　4:全部「大同小異」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「大同小異」　6:ウ",
+    "image_filename": "061_大同小異.png"
   },
   {
     "id": "062",
@@ -617,7 +678,8 @@
     "planned_date": "2026-06-20",
     "lesson_group": "keimeikan_p34",
     "display_order": 20,
-    "answer_note": "2:イ　3:ウ　4:全部「単刀直入」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「単刀直入」　6:ア",
+    "image_filename": "062_単刀直入.png"
   },
   {
     "id": "063",
@@ -627,7 +689,8 @@
     "planned_date": "2026-06-20",
     "lesson_group": "keimeikan_p34",
     "display_order": 21,
-    "answer_note": "2:ウ　3:ア　4:全部「朝三暮四」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「朝三暮四」　6:イ",
+    "image_filename": "063_朝三暮四.png"
   },
   {
     "id": "064",
@@ -637,7 +700,8 @@
     "planned_date": "2026-06-21",
     "lesson_group": "keimeikan_p34",
     "display_order": 22,
-    "answer_note": "2:ア　3:イ　4:全部「電光石火」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「電光石火」　6:ウ",
+    "image_filename": "064_電光石火.png"
   },
   {
     "id": "065",
@@ -647,7 +711,8 @@
     "planned_date": "2026-06-21",
     "lesson_group": "keimeikan_p34",
     "display_order": 23,
-    "answer_note": "2:イ　3:ウ　4:全部「天変地異」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「天変地異」　6:ア",
+    "image_filename": "065_天変地異.png"
   },
   {
     "id": "066",
@@ -657,7 +722,8 @@
     "planned_date": "2026-06-21",
     "lesson_group": "keimeikan_p34",
     "display_order": 24,
-    "answer_note": "2:ウ　3:ア　4:全部「南船北馬」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「南船北馬」　6:イ",
+    "image_filename": "066_南船北馬.png"
   },
   {
     "id": "067",
@@ -667,7 +733,8 @@
     "planned_date": "2026-06-22",
     "lesson_group": "keimeikan_p34",
     "display_order": 25,
-    "answer_note": "2:ア　3:イ　4:全部「日進月歩」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「日進月歩」　6:ウ",
+    "image_filename": "067_日進月歩.png"
   },
   {
     "id": "068",
@@ -677,7 +744,8 @@
     "planned_date": "2026-06-22",
     "lesson_group": "keimeikan_p34",
     "display_order": 26,
-    "answer_note": "2:イ　3:ウ　4:全部「馬耳東風」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「馬耳東風」　6:ア",
+    "image_filename": "068_馬耳東風.png"
   },
   {
     "id": "069",
@@ -687,7 +755,8 @@
     "planned_date": "2026-06-22",
     "lesson_group": "keimeikan_p34",
     "display_order": 27,
-    "answer_note": "2:ウ　3:ア　4:全部「八方美人」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「八方美人」　6:イ",
+    "image_filename": "069_八方美人.png"
   },
   {
     "id": "070",
@@ -697,7 +766,8 @@
     "planned_date": "2026-06-23",
     "lesson_group": "keimeikan_p34",
     "display_order": 28,
-    "answer_note": "2:ア　3:イ　4:全部「品行方正」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「品行方正」　6:ウ",
+    "image_filename": "070_品行方正.png"
   },
   {
     "id": "071",
@@ -707,7 +777,8 @@
     "planned_date": "2026-06-23",
     "lesson_group": "keimeikan_p34",
     "display_order": 29,
-    "answer_note": "2:イ　3:ウ　4:全部「無我夢中」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「無我夢中」　6:ア",
+    "image_filename": "071_無我夢中.png"
   },
   {
     "id": "072",
@@ -717,7 +788,8 @@
     "planned_date": "2026-06-23",
     "lesson_group": "keimeikan_p34",
     "display_order": 30,
-    "answer_note": "2:ウ　3:ア　4:全部「用意周到」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「用意周到」　6:イ",
+    "image_filename": "072_用意周到.png"
   },
   {
     "id": "073",
@@ -727,7 +799,8 @@
     "planned_date": "2026-06-24",
     "lesson_group": "keimeikan_p34",
     "display_order": 31,
-    "answer_note": "2:ア　3:イ　4:全部「臨機応変」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「臨機応変」　6:ウ",
+    "image_filename": "073_臨機応変.png"
   },
   {
     "id": "074",
@@ -737,7 +810,8 @@
     "planned_date": "2026-06-24",
     "lesson_group": "keimeikan_p35",
     "display_order": 1,
-    "answer_note": "2:ア　3:イ　4:全部「意固地」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「意固地」　6:ウ",
+    "image_filename": "074_意固地.png"
   },
   {
     "id": "075",
@@ -747,7 +821,8 @@
     "planned_date": "2026-06-24",
     "lesson_group": "keimeikan_p35",
     "display_order": 2,
-    "answer_note": "2:イ　3:ウ　4:全部「有頂天」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「有頂天」　6:ア",
+    "image_filename": "075_有頂天.png"
   },
   {
     "id": "076",
@@ -757,7 +832,8 @@
     "planned_date": "2026-06-25",
     "lesson_group": "keimeikan_p35",
     "display_order": 3,
-    "answer_note": "2:ウ　3:ア　4:全部「画期的」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「画期的」　6:イ",
+    "image_filename": "076_画期的.png"
   },
   {
     "id": "077",
@@ -767,7 +843,8 @@
     "planned_date": "2026-06-25",
     "lesson_group": "keimeikan_p35",
     "display_order": 4,
-    "answer_note": "2:ア　3:イ　4:全部「閑古鳥」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「閑古鳥」　6:ウ",
+    "image_filename": "077_閑古鳥.png"
   },
   {
     "id": "078",
@@ -777,7 +854,8 @@
     "planned_date": "2026-06-25",
     "lesson_group": "keimeikan_p35",
     "display_order": 5,
-    "answer_note": "2:イ　3:ウ　4:全部「几帳面」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「几帳面」　6:ア",
+    "image_filename": "078_几帳面.png"
   },
   {
     "id": "079",
@@ -787,7 +865,8 @@
     "planned_date": "2026-06-26",
     "lesson_group": "keimeikan_p35",
     "display_order": 6,
-    "answer_note": "2:ウ　3:ア　4:全部「金字塔」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「金字塔」　6:イ",
+    "image_filename": "079_金字塔.png"
   },
   {
     "id": "080",
@@ -797,7 +876,8 @@
     "planned_date": "2026-06-26",
     "lesson_group": "keimeikan_p35",
     "display_order": 7,
-    "answer_note": "2:ア　3:イ　4:全部「後遺症」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「後遺症」　6:ウ",
+    "image_filename": "080_後遺症.png"
   },
   {
     "id": "081",
@@ -807,7 +887,8 @@
     "planned_date": "2026-06-26",
     "lesson_group": "keimeikan_p35",
     "display_order": 8,
-    "answer_note": "2:イ　3:ウ　4:全部「後日談」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「後日談」　6:ア",
+    "image_filename": "081_後日談.png"
   },
   {
     "id": "082",
@@ -817,7 +898,8 @@
     "planned_date": "2026-06-27",
     "lesson_group": "keimeikan_p35",
     "display_order": 9,
-    "answer_note": "2:ウ　3:ア　4:全部「自尊心」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「自尊心」　6:イ",
+    "image_filename": "082_自尊心.png"
   },
   {
     "id": "083",
@@ -827,7 +909,8 @@
     "planned_date": "2026-06-27",
     "lesson_group": "keimeikan_p35",
     "display_order": 10,
-    "answer_note": "2:ア　3:イ　4:全部「真善美」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「真善美」　6:ウ",
+    "image_filename": "083_真善美.png"
   },
   {
     "id": "084",
@@ -837,7 +920,8 @@
     "planned_date": "2026-06-27",
     "lesson_group": "keimeikan_p35",
     "display_order": 11,
-    "answer_note": "2:イ　3:ウ　4:全部「善後策」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「善後策」　6:ア",
+    "image_filename": "084_善後策.png"
   },
   {
     "id": "085",
@@ -847,7 +931,8 @@
     "planned_date": "2026-06-28",
     "lesson_group": "keimeikan_p35",
     "display_order": 12,
-    "answer_note": "2:ウ　3:ア　4:全部「千里眼」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「千里眼」　6:イ",
+    "image_filename": "085_千里眼.png"
   },
   {
     "id": "086",
@@ -857,7 +942,8 @@
     "planned_date": "2026-06-28",
     "lesson_group": "keimeikan_p35",
     "display_order": 13,
-    "answer_note": "2:ア　3:イ　4:全部「前奏曲」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「前奏曲」　6:ウ",
+    "image_filename": "086_前奏曲.png"
   },
   {
     "id": "087",
@@ -867,7 +953,8 @@
     "planned_date": "2026-06-28",
     "lesson_group": "keimeikan_p35",
     "display_order": 14,
-    "answer_note": "2:イ　3:ウ　4:全部「第六感」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「第六感」　6:ア",
+    "image_filename": "087_第六感.png"
   },
   {
     "id": "088",
@@ -877,7 +964,8 @@
     "planned_date": "2026-06-29",
     "lesson_group": "keimeikan_p35",
     "display_order": 15,
-    "answer_note": "2:ウ　3:ア　4:全部「登竜門」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「登竜門」　6:イ",
+    "image_filename": "088_登竜門.png"
   },
   {
     "id": "089",
@@ -887,7 +975,8 @@
     "planned_date": "2026-06-29",
     "lesson_group": "keimeikan_p35",
     "display_order": 16,
-    "answer_note": "2:ア　3:イ　4:全部「土下座」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「土下座」　6:ウ",
+    "image_filename": "089_土下座.png"
   },
   {
     "id": "090",
@@ -897,7 +986,8 @@
     "planned_date": "2026-06-29",
     "lesson_group": "keimeikan_p35",
     "display_order": 17,
-    "answer_note": "2:イ　3:ウ　4:全部「白眼視」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「白眼視」　6:ア",
+    "image_filename": "090_白眼視.png"
   },
   {
     "id": "091",
@@ -907,7 +997,8 @@
     "planned_date": "2026-06-30",
     "lesson_group": "keimeikan_p35",
     "display_order": 18,
-    "answer_note": "2:ウ　3:ア　4:全部「風物詩」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「風物詩」　6:イ",
+    "image_filename": "091_風物詩.png"
   },
   {
     "id": "092",
@@ -917,7 +1008,8 @@
     "planned_date": "2026-06-30",
     "lesson_group": "keimeikan_p35",
     "display_order": 19,
-    "answer_note": "2:ア　3:イ　4:全部「副作用」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「副作用」　6:ウ",
+    "image_filename": "092_副作用.png"
   },
   {
     "id": "093",
@@ -927,7 +1019,8 @@
     "planned_date": "2026-06-30",
     "lesson_group": "keimeikan_p35",
     "display_order": 20,
-    "answer_note": "2:イ　3:ウ　4:全部「胸算用」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「胸算用」　6:ア",
+    "image_filename": "093_胸算用.png"
   },
   {
     "id": "094",
@@ -937,7 +1030,8 @@
     "planned_date": "2026-07-01",
     "lesson_group": "keimeikan_p35",
     "display_order": 21,
-    "answer_note": "2:ウ　3:ア　4:全部「門外漢」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「門外漢」　6:イ",
+    "image_filename": "094_門外漢.png"
   },
   {
     "id": "095",
@@ -947,7 +1041,8 @@
     "planned_date": "2026-07-01",
     "lesson_group": "kakushu_20260614",
     "display_order": 1,
-    "answer_note": "2:ア　3:イ　4:全部「百聞は一見にしかず」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「百聞は一見にしかず」　6:ウ",
+    "image_filename": "095_百聞は一見にしかず.png"
   },
   {
     "id": "096",
@@ -957,7 +1052,8 @@
     "planned_date": "2026-07-01",
     "lesson_group": "kakushu_20260614",
     "display_order": 2,
-    "answer_note": "2:イ　3:ウ　4:全部「三つ子の魂百まで」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「三つ子の魂百まで」　6:ア",
+    "image_filename": "096_三つ子の魂百まで.png"
   },
   {
     "id": "097",
@@ -967,7 +1063,8 @@
     "planned_date": "2026-07-02",
     "lesson_group": "kakushu_20260614",
     "display_order": 3,
-    "answer_note": "2:ウ　3:ア　4:全部「雀百まで踊り忘れず」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「雀百まで踊り忘れず」　6:イ",
+    "image_filename": "097_雀百まで踊り忘れず.png"
   },
   {
     "id": "098",
@@ -977,7 +1074,8 @@
     "planned_date": "2026-07-02",
     "lesson_group": "kakushu_20260614",
     "display_order": 4,
-    "answer_note": "2:ア　3:ウ　4:全部「捕らぬ狸の皮算用」　6:イ"
+    "answer_note": "2:ア　3:ウ　4:全部「捕らぬ狸の皮算用」　6:イ",
+    "image_filename": "098_捕らぬ狸の皮算用.png"
   },
   {
     "id": "099",
@@ -987,7 +1085,8 @@
     "planned_date": "2026-07-02",
     "lesson_group": "kakushu_20260614",
     "display_order": 5,
-    "answer_note": "2:イ　3:ア　4:全部「竹馬の友」　6:ウ"
+    "answer_note": "2:イ　3:ア　4:全部「竹馬の友」　6:ウ",
+    "image_filename": "099_竹馬の友.png"
   },
   {
     "id": "100",
@@ -997,7 +1096,8 @@
     "planned_date": "2026-07-03",
     "lesson_group": "kakushu_20260614",
     "display_order": 6,
-    "answer_note": "2:ウ　3:イ　4:全部「付け焼き刃」　6:ア"
+    "answer_note": "2:ウ　3:イ　4:全部「付け焼き刃」　6:ア",
+    "image_filename": "100_付け焼き刃.png"
   },
   {
     "id": "101",
@@ -1007,7 +1107,8 @@
     "planned_date": "2026-07-03",
     "lesson_group": "kakushu_20260614",
     "display_order": 7,
-    "answer_note": "2:ア　3:イ　4:全部「諸刃の剣」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「諸刃の剣」　6:ウ",
+    "image_filename": "101_諸刃の剣.png"
   },
   {
     "id": "102",
@@ -1017,7 +1118,8 @@
     "planned_date": "2026-07-03",
     "lesson_group": "kakushu_20260614",
     "display_order": 8,
-    "answer_note": "2:イ　3:ウ　4:全部「焼け石に水」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「焼け石に水」　6:ア",
+    "image_filename": "102_焼け石に水.png"
   },
   {
     "id": "103",
@@ -1027,7 +1129,8 @@
     "planned_date": "2026-07-04",
     "lesson_group": "kakushu_20260614",
     "display_order": 9,
-    "answer_note": "2:ウ　3:ア　4:全部「疑心暗鬼」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「疑心暗鬼」　6:イ",
+    "image_filename": "103_疑心暗鬼.png"
   },
   {
     "id": "104",
@@ -1037,7 +1140,8 @@
     "planned_date": "2026-07-04",
     "lesson_group": "kakushu_20260614",
     "display_order": 10,
-    "answer_note": "2:ア　3:ウ　4:全部「一夜漬け」　6:イ"
+    "answer_note": "2:ア　3:ウ　4:全部「一夜漬け」　6:イ",
+    "image_filename": "104_一夜漬け.png"
   },
   {
     "id": "105",
@@ -1047,7 +1151,8 @@
     "planned_date": "2026-07-04",
     "lesson_group": "chishiki_check_5zenki_06",
     "display_order": 1,
-    "answer_note": "2:イ　3:ア　4:全部「後悔先に立たず」　6:ウ"
+    "answer_note": "2:イ　3:ア　4:全部「後悔先に立たず」　6:ウ",
+    "image_filename": "105_後悔先に立たず.png"
   },
   {
     "id": "106",
@@ -1057,7 +1162,8 @@
     "planned_date": "2026-07-05",
     "lesson_group": "chishiki_check_5zenki_06",
     "display_order": 2,
-    "answer_note": "2:イ　3:ア　4:全部「言わぬが花」　6:ウ"
+    "answer_note": "2:イ　3:ア　4:全部「言わぬが花」　6:ウ",
+    "image_filename": "106_言わぬが花.png"
   },
   {
     "id": "107",
@@ -1067,7 +1173,8 @@
     "planned_date": "2026-07-05",
     "lesson_group": "chishiki_check_5zenki_06",
     "display_order": 3,
-    "answer_note": "2:イ　3:ウ　4:全部「渡りに船」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「渡りに船」　6:ア",
+    "image_filename": "107_渡りに船.png"
   },
   {
     "id": "108",
@@ -1077,7 +1184,8 @@
     "planned_date": "2026-07-05",
     "lesson_group": "chishiki_check_5zenki_06",
     "display_order": 4,
-    "answer_note": "2:イ　3:ア　4:全部「医者の不養生」　6:イ"
+    "answer_note": "2:イ　3:ア　4:全部「医者の不養生」　6:イ",
+    "image_filename": "108_医者の不養生.png"
   },
   {
     "id": "109",
@@ -1087,7 +1195,8 @@
     "planned_date": "2026-07-06",
     "lesson_group": "chishiki_check_5zenki_06",
     "display_order": 5,
-    "answer_note": "2:ア　3:イ　4:全部「紺屋の白袴」　6:ア"
+    "answer_note": "2:ア　3:イ　4:全部「紺屋の白袴」　6:ア",
+    "image_filename": "109_紺屋の白袴.png"
   },
   {
     "id": "110",
@@ -1097,7 +1206,8 @@
     "planned_date": "2026-07-06",
     "lesson_group": "chishiki_check_5zenki_06",
     "display_order": 6,
-    "answer_note": "2:ウ　3:ア　4:全部「弘法も筆の誤り」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「弘法も筆の誤り」　6:イ",
+    "image_filename": "110_弘法も筆の誤り.png"
   },
   {
     "id": "111",
@@ -1107,7 +1217,8 @@
     "planned_date": "2026-07-06",
     "lesson_group": "chishiki_check_5zenki_06",
     "display_order": 7,
-    "answer_note": "2:ア　3:イ　4:全部「下手の横好き」　6:ア"
+    "answer_note": "2:ア　3:イ　4:全部「下手の横好き」　6:ア",
+    "image_filename": "111_下手の横好き.png"
   },
   {
     "id": "112",
@@ -1117,7 +1228,8 @@
     "planned_date": "2026-07-07",
     "lesson_group": "chishiki_check_5zenki_06",
     "display_order": 8,
-    "answer_note": "2:イ　3:ア　4:全部「好きこそ物の上手なれ」　6:イ"
+    "answer_note": "2:イ　3:ア　4:全部「好きこそ物の上手なれ」　6:イ",
+    "image_filename": "112_好きこそ物の上手なれ.png"
   },
   {
     "id": "113",
@@ -1127,7 +1239,8 @@
     "planned_date": "2026-07-07",
     "lesson_group": "chishiki_check_5zenki_06",
     "display_order": 9,
-    "answer_note": "2:ウ　3:ア　4:全部「目は口ほどに物を言う」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「目は口ほどに物を言う」　6:イ",
+    "image_filename": "113_目は口ほどに物を言う.png"
   },
   {
     "id": "114",
@@ -1137,7 +1250,8 @@
     "planned_date": "2026-07-07",
     "lesson_group": "chishiki_check_5zenki_06",
     "display_order": 10,
-    "answer_note": "2:ア　3:イ　4:全部「暑さ寒さも彼岸まで」　6:ア"
+    "answer_note": "2:ア　3:イ　4:全部「暑さ寒さも彼岸まで」　6:ア",
+    "image_filename": "114_暑さ寒さも彼岸まで.png"
   },
   {
     "id": "115",
@@ -1147,7 +1261,8 @@
     "planned_date": "2026-07-08",
     "lesson_group": "chishiki_check_5zenki_06",
     "display_order": 11,
-    "answer_note": "2:イ　3:イ　4:全部「楽あれば苦あり」　6:ア"
+    "answer_note": "2:イ　3:イ　4:全部「楽あれば苦あり」　6:ア",
+    "image_filename": "115_楽あれば苦あり.png"
   },
   {
     "id": "116",
@@ -1157,7 +1272,8 @@
     "planned_date": "2026-07-08",
     "lesson_group": "navigation_moshi_20260621",
     "display_order": 1,
-    "answer_note": "2:ア　3:イ　4:全部「二の句が継げない」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「二の句が継げない」　6:ウ",
+    "image_filename": "116_二の句が継げない.png"
   },
   {
     "id": "117",
@@ -1167,7 +1283,8 @@
     "planned_date": "2026-07-08",
     "lesson_group": "navigation_moshi_20260621",
     "display_order": 2,
-    "answer_note": "2:イ　3:ウ　4:全部「海に千年山に千年」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「海に千年山に千年」　6:ア",
+    "image_filename": "117_海に千年山に千年.png"
   },
   {
     "id": "118",
@@ -1177,7 +1294,8 @@
     "planned_date": "2026-07-09",
     "lesson_group": "navigation_moshi_20260621",
     "display_order": 3,
-    "answer_note": "2:ウ　3:ア　4:全部「二の足を踏む」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「二の足を踏む」　6:イ",
+    "image_filename": "118_二の足を踏む.png"
   },
   {
     "id": "119",
@@ -1187,7 +1305,8 @@
     "planned_date": "2026-07-09",
     "lesson_group": "navigation_moshi_20260621",
     "display_order": 4,
-    "answer_note": "2:ア　3:ウ　4:全部「岡目八目」　6:イ"
+    "answer_note": "2:ア　3:ウ　4:全部「岡目八目」　6:イ",
+    "image_filename": "119_岡目八目.png"
   },
   {
     "id": "120",
@@ -1197,7 +1316,8 @@
     "planned_date": "2026-07-09",
     "lesson_group": "navigation_moshi_20260621",
     "display_order": 5,
-    "answer_note": "2:イ　3:ア　4:全部「悪事千里を走る」　6:ウ"
+    "answer_note": "2:イ　3:ア　4:全部「悪事千里を走る」　6:ウ",
+    "image_filename": "120_悪事千里を走る.png"
   },
   {
     "id": "121",
@@ -1207,7 +1327,8 @@
     "planned_date": "2026-07-10",
     "lesson_group": "navigation_moshi_20260621",
     "display_order": 6,
-    "answer_note": "2:ウ　3:イ　4:全部「三日坊主」　6:ア"
+    "answer_note": "2:ウ　3:イ　4:全部「三日坊主」　6:ア",
+    "image_filename": "121_三日坊主.png"
   },
   {
     "id": "122",
@@ -1217,7 +1338,8 @@
     "planned_date": "2026-07-10",
     "lesson_group": "navigation_moshi_20260621",
     "display_order": 7,
-    "answer_note": "2:ア　3:イ　4:全部「笑う門には福来る」　6:ウ"
+    "answer_note": "2:ア　3:イ　4:全部「笑う門には福来る」　6:ウ",
+    "image_filename": "122_笑う門には福来る.png"
   },
   {
     "id": "123",
@@ -1227,7 +1349,8 @@
     "planned_date": "2026-07-10",
     "lesson_group": "navigation_moshi_20260621",
     "display_order": 8,
-    "answer_note": "2:イ　3:ウ　4:全部「飼い犬に手を噛まれる」　6:ア"
+    "answer_note": "2:イ　3:ウ　4:全部「飼い犬に手を噛まれる」　6:ア",
+    "image_filename": "123_飼い犬に手をかまれる.png"
   },
   {
     "id": "124",
@@ -1237,7 +1360,8 @@
     "planned_date": "2026-07-11",
     "lesson_group": "navigation_moshi_20260621",
     "display_order": 9,
-    "answer_note": "2:ウ　3:ア　4:全部「木に竹を接ぐ」　6:イ"
+    "answer_note": "2:ウ　3:ア　4:全部「木に竹を接ぐ」　6:イ",
+    "image_filename": "124_木に竹を接ぐ.png"
   },
   {
     "id": "125",
@@ -1247,6 +1371,7 @@
     "planned_date": "2026-07-11",
     "lesson_group": "navigation_moshi_20260621",
     "display_order": 10,
-    "answer_note": "2:ア　3:ウ　4:全部「しのぎをけずる」　6:イ"
+    "answer_note": "2:ア　3:ウ　4:全部「しのぎをけずる」　6:イ",
+    "image_filename": "125_しのぎを削る.png"
   }
 ]

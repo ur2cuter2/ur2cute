@@ -202,6 +202,27 @@
       align-items: start;
     }
 
+    .card-main {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .card-text {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .word-card-thumbnail {
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      flex: 0 0 auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
     .word-title {
       margin: 0;
       font-size: 26px;
@@ -315,6 +336,13 @@
       .reset-button { margin-left: 0; }
       .field { width: 100%; }
       .filter-button, .download-button, .reset-button { flex: 1 1 150px; }
+    }
+
+    @media (max-width: 520px) {
+      .word-card-thumbnail {
+        width: 56px;
+        height: 56px;
+      }
     }
   </style>
 </head>
@@ -560,20 +588,26 @@
       const record = getRecord(word.id);
       const status = getStatus(word.id);
       const isAnswerVisible = state.visibleAnswers.has(word.id);
+      const imageSrc = getImageSrc(word);
       const answerId = `answer-${word.id}`;
       const article = document.createElement("article");
       article.className = "word-card";
       article.dataset.wordId = word.id;
 
       article.innerHTML = `
-        <div class="card-head">
-          <h2 class="word-title"><small>No.${escapeHtml(word.id)}</small>${escapeHtml(word.word)}</h2>
-          <span class="status-label status-${status.key}">${status.label}</span>
+        <div class="card-main">
+          <div class="card-text">
+            <div class="card-head">
+              <h2 class="word-title"><small>No.${escapeHtml(word.id)}</small>${escapeHtml(word.word)}</h2>
+              <span class="status-label status-${status.key}">${status.label}</span>
+            </div>
+            <dl class="meta">
+              <div><dt>読み：</dt><dd>${escapeHtml(word.reading)}</dd></div>
+              <div><dt>カテゴリ：</dt><dd>${escapeHtml(word.category)}</dd></div>
+            </dl>
+          </div>
+          ${imageSrc ? `<img class="word-card-thumbnail" src="${escapeHtml(imageSrc)}" alt="${escapeHtml(word.word)}のイメージ画像">` : ""}
         </div>
-        <dl class="meta">
-          <div><dt>読み：</dt><dd>${escapeHtml(word.reading)}</dd></div>
-          <div><dt>カテゴリ：</dt><dd>${escapeHtml(word.category)}</dd></div>
-        </dl>
         <button class="answer-toggle" type="button" aria-expanded="${isAnswerVisible ? "true" : "false"}" aria-controls="${answerId}">
           ${isAnswerVisible ? "答えを隠す" : "答えを見る"}
         </button>
@@ -598,6 +632,11 @@
 
       article.querySelectorAll("input[type='checkbox']").forEach((checkbox) => {
         checkbox.addEventListener("change", (event) => updateCheck(word.id, event.target.dataset.kind, event.target.checked));
+      });
+      article.querySelectorAll(".word-card-thumbnail").forEach((image) => {
+        image.addEventListener("error", () => {
+          image.style.display = "none";
+        });
       });
       article.querySelector(".answer-toggle").addEventListener("click", () => toggleAnswer(word.id));
       return article;
@@ -854,6 +893,11 @@
       const text = String(value ?? "");
       if (/[",\r\n]/.test(text)) return `"${text.replace(/"/g, '""')}"`;
       return text;
+    }
+
+    function getImageSrc(word) {
+      const filename = String(word.image_filename || "").trim();
+      return filename ? `images/${encodeURIComponent(filename)}` : "";
     }
 
     function getTodayText() {
