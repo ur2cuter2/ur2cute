@@ -2181,14 +2181,14 @@ function hasPicrossDailyTicketToday() {
   if (reward.dailyTicketDate === today) return true;
   // よみときミッション日だけは、旧キー単独では解放済み扱いにしない。
   // 旧版で誤って picrossRewardDate が残っていても、よみとき未完了ならリンクを出さないため。
-  if (typeof isBonusDay === 'function' && isBonusDay(today)) return false;
+  if (isYomiMissionRequiredForPicross(today)) return false;
   // 旧キー互換。古いpicross.htmlや古い語彙クエストから発行済みの場合も拾う。
   try { return localStorage.getItem(PICROSS_LEGACY_DATE_KEY) === today; } catch(e) { return false; }
 }
 
 function grantPicrossRewardFromBattleComplete() {
   const today = todayStr();
-  const yomiRequired = isBonusDay(today);
+  const yomiRequired = isYomiMissionRequiredForPicross(today);
 
   // よみときミッションがある日は、語彙バトル側ではピクロスチケットを出さない。
   // よみとき完全クリア時に vocab-quest-boss.html 側で発行する。
@@ -2226,7 +2226,7 @@ function grantPicrossRewardFromBattleComplete() {
 
 function getTodayRewardGuidanceHtml() {
   const today = todayStr();
-  const yomiRequired = isBonusDay(today);
+  const yomiRequired = isYomiMissionRequiredForPicross(today);
   const hasTicket = hasPicrossDailyTicketToday();
 
   if (yomiRequired && !hasTicket) {
@@ -2492,9 +2492,27 @@ function buildTodaySet() {
     state.todaySet = state.todaySet.slice(0, 5);
   }
 
-  if (state.todaySet.length > 0 && state.playLog && state.playLog[today] === 'all') {
+  if (
+    state.todaySet.length > 0 &&
+    state.playLog &&
+    state.playLog[today] === 'all' &&
+    state.todaySet.some(isTodayBattleWordPending)
+  ) {
     delete state.playLog[today];
   }
+}
+
+function isTodayBattleWordPending(id) {
+  const prog = state.wordProgress[id];
+  if (!prog) return false;
+  if (prog.isReview) return true;
+  return !prog.defeated;
+}
+
+function areIssuedBattleTicketsComplete(dateStr = todayStr()) {
+  if (!Array.isArray(state.todaySet) || state.todaySet.length === 0) return false;
+  if (state.todaySetDate !== dateStr) return false;
+  return !state.todaySet.some(isTodayBattleWordPending);
 }
 
 
@@ -2504,12 +2522,7 @@ function getTodayWords() {
   const picked = state.todaySet
     .map(id => words.find(w => w.id === id))
     .filter(Boolean)
-    .filter(w => {
-      const prog = state.wordProgress[w.id];
-      if (!prog) return false;
-      if (prog.isReview) return true;
-      return !prog.defeated;
-    });
+    .filter(w => isTodayBattleWordPending(w.id));
 
   const todayNew = [];
   const todayReview = [];
@@ -2598,7 +2611,7 @@ function buildBattleCards() {
   const todayWords = getTodayWords();
 
   if (todayWords.length === 0) {
-    const isTodayMissionComplete = state.playLog && state.playLog[todayStr()] === 'all';
+    const isTodayMissionComplete = areIssuedBattleTicketsComplete(todayStr());
     if (isTodayMissionComplete) grantPicrossRewardFromBattleComplete();
     container.innerHTML = `
       <div class="today-done-banner">
@@ -2989,12 +3002,7 @@ async function applyDamage(wordId, damage, action) {
       scheduleNextReview(prog, true);  // isReview が false になる
 
       // 全撃破判定（復習語が最後の1枚だった場合）
-      const remaining = state.todaySet.filter(id => {
-        const p = state.wordProgress[id];
-        if (!p) return false;
-        if (p.isReview) return true;
-        return !p.defeated;
-      }).length;
+      const remaining = state.todaySet.filter(isTodayBattleWordPending).length;
       if (remaining === 0 && state.todaySet.length > 0) {
         state.playLog[today] = 'all';
         state._pendingAllClear = true;
@@ -3011,12 +3019,7 @@ async function applyDamage(wordId, damage, action) {
       state.defeatedWords.push({ id: wordId, date: new Date().toLocaleDateString('ja-JP'), defeatedDate: todayStr() });
 
       // 全撃破判定：今日のセットに残っているバトル対象（新語・復習語とも）がゼロになったか
-      const remaining = state.todaySet.filter(id => {
-        const p = state.wordProgress[id];
-        if (!p) return false;
-        if (p.isReview) return true;   // 復習語はまだ残っている
-        return !p.defeated;            // 新語は未撃破なら残っている
-      }).length;
+      const remaining = state.todaySet.filter(isTodayBattleWordPending).length;
       if (remaining === 0 && state.todaySet.length > 0) {
         state.playLog[today] = 'all';
         state._pendingAllClear = true;
@@ -4146,7 +4149,7 @@ function showAllClear() {
   let idx;
   do { idx = Math.floor(Math.random() * ALL_CLEAR_MESSAGES.length); } while (idx === prev);
   el.dataset.last = idx;
-  const yomiRequired = isBonusDay(todayStr());
+  const yomiRequired = isYomiMissionRequiredForPicross(todayStr());
   const hasTicket = hasPicrossDailyTicketToday();
   document.getElementById('allClearMsg').innerHTML = yomiRequired && !hasTicket
     ? 'すごい！全部のモンスターをたおしたよ！<br>次はよみときミッションに挑戦しよう ✨'
@@ -4430,6 +4433,20 @@ function isBonusDay(dateStr) {
   if (JP_HOLIDAYS.has(dateStr)) return true;
   if (state.longVacationMode) return true;  // 管理タブの手動フラグ
   return false;
+}
+
+function isYomiTicketIssuedForDate(dateStr) {
+  return isBonusDay(dateStr);
+}
+
+function getRequiredQuestTicketsForDate(dateStr) {
+  const tickets = ['battle'];
+  if (isYomiTicketIssuedForDate(dateStr)) tickets.push('yomi');
+  return tickets;
+}
+
+function isYomiMissionRequiredForPicross(dateStr) {
+  return getRequiredQuestTicketsForDate(dateStr).includes('yomi');
 }
 
 function updateBonusLink() {
