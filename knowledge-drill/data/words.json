@@ -1350,7 +1350,7 @@
     "lesson_group": "navigation_moshi_20260621",
     "display_order": 8,
     "answer_note": "2:イ　3:ウ　4:全部「飼い犬に手を噛まれる」　6:ア",
-    "image_filename": "123_飼い犬に手をかまれる.png"
+    "image_filename": "123_飼い犬に手を噛まれる.png"
   },
   {
     "id": "124",
@@ -1372,6 +1372,358 @@
     "lesson_group": "navigation_moshi_20260621",
     "display_order": 10,
     "answer_note": "2:ア　3:ウ　4:全部「しのぎをけずる」　6:イ",
-    "image_filename": "125_しのぎを削る.png"
+    "image_filename": "125_しのぎをけずる.png"
+  },
+  {
+    "id": "126",
+    "word": "意気消沈",
+    "reading": "いきしょうちん",
+    "category": "四字熟語",
+    "planned_date": "2026-07-11",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 1,
+    "answer_note": "2:ア　3:イ　4:全部「意気消沈」　6:ウ",
+    "image_filename": "126_意気消沈.png"
+  },
+  {
+    "id": "127",
+    "word": "意気投合",
+    "reading": "いきとうごう",
+    "category": "四字熟語",
+    "planned_date": "2026-07-12",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 2,
+    "answer_note": "2:イ　3:ウ　4:全部「意気投合」　6:ア",
+    "image_filename": "127_意気投合.png"
+  },
+  {
+    "id": "128",
+    "word": "以心伝心",
+    "reading": "いしんでんしん",
+    "category": "四字熟語",
+    "planned_date": "2026-07-12",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 3,
+    "answer_note": "2:ウ　3:ア　4:全部「以心伝心」　6:イ",
+    "image_filename": "128_以心伝心.png"
+  },
+  {
+    "id": "129",
+    "word": "一期一会",
+    "reading": "いちごいちえ",
+    "category": "四字熟語",
+    "planned_date": "2026-07-12",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 4,
+    "answer_note": "2:ア　3:イ　4:全部「一期一会」　6:ウ",
+    "image_filename": "129_一期一会.png"
+  },
+  {
+    "id": "130",
+    "word": "一言半句",
+    "reading": "いちごんはんく",
+    "category": "四字熟語",
+    "planned_date": "2026-07-13",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 5,
+    "answer_note": "2:イ　3:ウ　4:全部「一言半句」　6:ア",
+    "image_filename": "130_一言半句.png"
+  },
+  {
+    "id": "131",
+    "word": "一部始終",
+    "reading": "いちぶしじゅう",
+    "category": "四字熟語",
+    "planned_date": "2026-07-13",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 6,
+    "answer_note": "2:ウ　3:ア　4:全部「一部始終」　6:イ",
+    "image_filename": "131_一部始終.png"
+  },
+  {
+    "id": "132",
+    "word": "一喜一憂",
+    "reading": "いっきいちゆう",
+    "category": "四字熟語",
+    "planned_date": "2026-07-13",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 7,
+    "answer_note": "2:ア　3:イ　4:全部「一喜一憂」　6:ウ",
+    "image_filename": "132_一喜一憂.png"
+  },
+  {
+    "id": "133",
+    "word": "一騎当千",
+    "reading": "いっきとうせん",
+    "category": "四字熟語",
+    "planned_date": "2026-07-14",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 8,
+    "answer_note": "2:イ　3:ウ　4:全部「一騎当千」　6:ア",
+    "image_filename": "133_一騎当千.png"
+  },
+  {
+    "id": "134",
+    "word": "一刻千金",
+    "reading": "いっこくせんきん",
+    "category": "四字熟語",
+    "planned_date": "2026-07-14",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 9,
+    "answer_note": "2:ウ　3:ア　4:全部「一刻千金」　6:イ",
+    "image_filename": "134_一刻千金.png"
+  },
+  {
+    "id": "135",
+    "word": "一所懸命",
+    "reading": "いっしょけんめい",
+    "category": "四字熟語",
+    "planned_date": "2026-07-14",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 10,
+    "answer_note": "2:ア　3:イ　4:全部「一所懸命」　6:ウ",
+    "image_filename": "135_一所懸命.png"
+  },
+  {
+    "id": "136",
+    "word": "一世一代",
+    "reading": "いっせいちだい",
+    "category": "四字熟語",
+    "planned_date": "2026-07-15",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 11,
+    "answer_note": "2:イ　3:ウ　4:全部「一世一代」　6:ア",
+    "image_filename": "136_一世一代.png"
+  },
+  {
+    "id": "137",
+    "word": "一刀両断",
+    "reading": "いっとうりょうだん",
+    "category": "四字熟語",
+    "planned_date": "2026-07-15",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 12,
+    "answer_note": "2:ウ　3:ア　4:全部「一刀両断」　6:イ",
+    "image_filename": "137_一刀両断.png"
+  },
+  {
+    "id": "138",
+    "word": "右往左往",
+    "reading": "うおうさおう",
+    "category": "四字熟語",
+    "planned_date": "2026-07-15",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 13,
+    "answer_note": "2:ア　3:イ　4:全部「右往左往」　6:ウ",
+    "image_filename": "138_右往左往.png"
+  },
+  {
+    "id": "139",
+    "word": "花鳥風月",
+    "reading": "かちょうふうげつ",
+    "category": "四字熟語",
+    "planned_date": "2026-07-16",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 14,
+    "answer_note": "2:イ　3:ウ　4:全部「花鳥風月」　6:ア",
+    "image_filename": "139_花鳥風月.png"
+  },
+  {
+    "id": "140",
+    "word": "危機一髪",
+    "reading": "ききいっぱつ",
+    "category": "四字熟語",
+    "planned_date": "2026-07-16",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 15,
+    "answer_note": "2:ウ　3:ア　4:全部「危機一髪」　6:イ",
+    "image_filename": "140_危機一髪.png"
+  },
+  {
+    "id": "141",
+    "word": "起死回生",
+    "reading": "きしかいせい",
+    "category": "四字熟語",
+    "planned_date": "2026-07-16",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 16,
+    "answer_note": "2:ア　3:イ　4:全部「起死回生」　6:ウ",
+    "image_filename": "141_起死回生.png"
+  },
+  {
+    "id": "142",
+    "word": "奇想天外",
+    "reading": "きそうてんがい",
+    "category": "四字熟語",
+    "planned_date": "2026-07-17",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 17,
+    "answer_note": "2:イ　3:ウ　4:全部「奇想天外」　6:ア",
+    "image_filename": "142_奇想天外.png"
+  },
+  {
+    "id": "143",
+    "word": "五里霧中",
+    "reading": "ごりむちゅう",
+    "category": "四字熟語",
+    "planned_date": "2026-07-17",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 18,
+    "answer_note": "2:ウ　3:ア　4:全部「五里霧中」　6:イ",
+    "image_filename": "143_五里霧中.png"
+  },
+  {
+    "id": "144",
+    "word": "三々五々",
+    "reading": "さんさんごご",
+    "category": "四字熟語",
+    "planned_date": "2026-07-17",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 19,
+    "answer_note": "2:ア　3:イ　4:全部「三々五々」　6:ウ",
+    "image_filename": "144_三々五々.png"
+  },
+  {
+    "id": "145",
+    "word": "四苦八苦",
+    "reading": "しくはっく",
+    "category": "四字熟語",
+    "planned_date": "2026-07-18",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 20,
+    "answer_note": "2:イ　3:ウ　4:全部「四苦八苦」　6:ア",
+    "image_filename": "145_四苦八苦.png"
+  },
+  {
+    "id": "146",
+    "word": "七転八倒",
+    "reading": "しちてんばっとう",
+    "category": "四字熟語",
+    "planned_date": "2026-07-18",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 21,
+    "answer_note": "2:ウ　3:ア　4:全部「七転八倒」　6:イ",
+    "image_filename": "146_七転八倒.png"
+  },
+  {
+    "id": "147",
+    "word": "終始一貫",
+    "reading": "しゅうしいっかん",
+    "category": "四字熟語",
+    "planned_date": "2026-07-18",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 22,
+    "answer_note": "2:ア　3:イ　4:全部「終始一貫」　6:ウ",
+    "image_filename": "147_終始一貫.png"
+  },
+  {
+    "id": "148",
+    "word": "主客転倒",
+    "reading": "しゅかくてんとう",
+    "category": "四字熟語",
+    "planned_date": "2026-07-19",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 23,
+    "answer_note": "2:イ　3:ウ　4:全部「主客転倒」　6:ア",
+    "image_filename": "148_主客転倒.png"
+  },
+  {
+    "id": "149",
+    "word": "取捨選択",
+    "reading": "しゅしゃせんたく",
+    "category": "四字熟語",
+    "planned_date": "2026-07-19",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 24,
+    "answer_note": "2:ウ　3:ア　4:全部「取捨選択」　6:イ",
+    "image_filename": "149_取捨選択.png"
+  },
+  {
+    "id": "150",
+    "word": "首尾一貫",
+    "reading": "しゅびいっかん",
+    "category": "四字熟語",
+    "planned_date": "2026-07-19",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 25,
+    "answer_note": "2:ア　3:イ　4:全部「首尾一貫」　6:ウ",
+    "image_filename": "150_首尾一貫.png"
+  },
+  {
+    "id": "151",
+    "word": "枝葉末節",
+    "reading": "しようまっせつ",
+    "category": "四字熟語",
+    "planned_date": "2026-07-20",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 26,
+    "answer_note": "2:イ　3:ウ　4:全部「枝葉末節」　6:ア",
+    "image_filename": "151_枝葉末節.png"
+  },
+  {
+    "id": "152",
+    "word": "津々浦々",
+    "reading": "つつうらうら",
+    "category": "四字熟語",
+    "planned_date": "2026-07-20",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 27,
+    "answer_note": "2:ウ　3:ア　4:全部「津々浦々」　6:イ",
+    "image_filename": "152_津々浦々.png"
+  },
+  {
+    "id": "153",
+    "word": "適材適所",
+    "reading": "てきざいてきしょ",
+    "category": "四字熟語",
+    "planned_date": "2026-07-20",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 28,
+    "answer_note": "2:ア　3:イ　4:全部「適材適所」　6:ウ",
+    "image_filename": "153_適材適所.png"
+  },
+  {
+    "id": "154",
+    "word": "徹頭徹尾",
+    "reading": "てっとうてつび",
+    "category": "四字熟語",
+    "planned_date": "2026-07-21",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 29,
+    "answer_note": "2:イ　3:ウ　4:全部「徹頭徹尾」　6:ア",
+    "image_filename": "154_徹頭徹尾.png"
+  },
+  {
+    "id": "155",
+    "word": "東奔西走",
+    "reading": "とうほんせいそう",
+    "category": "四字熟語",
+    "planned_date": "2026-07-21",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 30,
+    "answer_note": "2:ウ　3:ア　4:全部「東奔西走」　6:イ",
+    "image_filename": "155_東奔西走.png"
+  },
+  {
+    "id": "156",
+    "word": "独立独歩",
+    "reading": "どくりつどっぽ",
+    "category": "四字熟語",
+    "planned_date": "2026-07-21",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 31,
+    "answer_note": "2:ア　3:イ　4:全部「独立独歩」　6:ウ",
+    "image_filename": "156_独立独歩.png"
+  },
+  {
+    "id": "157",
+    "word": "二束三文",
+    "reading": "にそくさんもん",
+    "category": "四字熟語",
+    "planned_date": "2026-07-22",
+    "lesson_group": "keimeikan_p36",
+    "display_order": 32,
+    "answer_note": "2:イ　3:ウ　4:全部「二束三文」　6:ア",
+    "image_filename": "157_二束三文.png"
   }
 ]
