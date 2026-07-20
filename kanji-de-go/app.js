@@ -1,6 +1,6 @@
 ﻿"use strict";
 
-const APP_VERSION = "2026.06.29.3";
+const APP_VERSION = "2026.07.20.2";
 
 const STORAGE_KEY = "kanji-de-go-learning-data";
 const USER_NAME_KEY = "kanjiRushUserName";
@@ -1079,7 +1079,7 @@ function renderDailyAdventurePanel(adventureState, dailyCompleted, retryCount, u
   const normalSetFinished = adventureState.normalSetFinished || progress >= MAX_DAILY_QUESTIONS;
   const waitingForRetry = !dailyCompleted && normalSetFinished && retryCount > 0;
   const status = dailyCompleted
-    ? "クリア！ また明日やろう！"
+    ? "クリア！"
     : waitingForRetry
       ? `今日の5問クリア！ リベンジあと${retryCount}問`
       : progress === 0
@@ -1858,16 +1858,32 @@ function renderSessionComplete() {
   markDailyPracticeCompleted();
   app.className = "app-shell";
   app.innerHTML = `
-    <section class="message-view">
-      <h1>今日の練習、おしまい！</h1>
-      <p>間違えた問題もその場でリトライしたよ。</p>
-      <div class="session-summary">
-        <p>正解数：<strong>${correctCount}</strong>問</p>
-        <p>リトライ成功数：<strong>${retrySuccessCount}</strong>問</p>
-        <p>明日もう一度出る問題：<strong>${tomorrowReviewIds.size}</strong>問</p>
-        <p>スコア：<strong>${score}</strong>点</p>
+    <section class="message-view session-complete-view">
+      <div class="session-result-heading">
+        <p class="session-kicker">今日の練習</p>
+        <h1>クリア！</h1>
+        <p class="session-message">今日もよくがんばったね！</p>
       </div>
-      <button class="primary-button" data-action="home">ホームへ戻る</button>
+      <p class="session-retry-note">間違えた問題もその場でリトライしたよ。</p>
+      <div class="session-summary" aria-label="今日の成績">
+        <article class="score-card score-card-correct">
+          <p class="score-card-label"><span aria-hidden="true">✦</span> 正解</p>
+          <p class="score-card-value"><strong>${correctCount}</strong><span>問</span></p>
+        </article>
+        <article class="score-card score-card-retry">
+          <p class="score-card-label"><span aria-hidden="true">↺</span> リトライ成功</p>
+          <p class="score-card-value"><strong>${retrySuccessCount}</strong><span>問</span></p>
+        </article>
+        <article class="score-card score-card-review">
+          <p class="score-card-label"><span aria-hidden="true">☀</span> 明日の復習</p>
+          <p class="score-card-value"><strong>${tomorrowReviewIds.size}</strong><span>問</span></p>
+        </article>
+        <article class="score-card score-card-score">
+          <p class="score-card-label"><span aria-hidden="true">★</span> スコア</p>
+          <p class="score-card-value"><strong>${score}</strong><span>点</span></p>
+        </article>
+      </div>
+      <button class="primary-button session-home-button" data-action="home">ホームへ戻る</button>
     </section>
   `;
   app.querySelector('[data-action="home"]').addEventListener("click", renderHome);
