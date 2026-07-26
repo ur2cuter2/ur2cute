@@ -1945,5 +1945,192 @@
     "display_order": 20,
     "answer_note": "2:イ　3:ウ　4:全部「表裏一体」　6:ア",
     "image_filename": "177_表裏一体.png"
+  },
+  {
+    "id": "178",
+    "word": "あごを出す",
+    "reading": "あごをだす",
+    "category": "慣用句",
+    "planned_date": "2026-07-29",
+    "lesson_group": "keimeikan_p38",
+    "display_order": 1,
+    "answer_note": "2:ア　3:イ　4:全部「あごを出す」　6:ウ",
+    "image_filename": "178_あごを出す.png"
+  },
+  {
+    "id": "179",
+    "word": "あごで使う",
+    "reading": "あごでつかう",
+    "category": "慣用句",
+    "planned_date": "2026-07-29",
+    "lesson_group": "keimeikan_p38",
+    "display_order": 2,
+    "answer_note": "2:イ　3:ウ　4:全部「あごで使う」　6:ア",
+    "image_filename": "179_あごで使う.png"
+  },
+  {
+    "id": "180",
+    "word": "あごが落ちる",
+    "reading": "あごがおちる",
+    "category": "慣用句",
+    "planned_date": "2026-07-29",
+    "lesson_group": "keimeikan_p38",
+    "display_order": 3,
+    "answer_note": "2:ウ　3:ア　4:全部「あごが落ちる」　6:イ",
+    "image_filename": "180_あごが落ちる.png"
+  },
+  {
+    "id": "181",
+    "word": "足が出る",
+    "reading": "あしがでる",
+    "category": "慣用句",
+    "planned_date": "2026-07-30",
+    "lesson_group": "keimeikan_p38",
+    "display_order": 4,
+    "answer_note": "2:ア　3:イ　4:全部「足が出る」　6:ウ",
+    "image_filename": "181_足が出る.png"
+  },
+  {
+    "id": "182",
+    "word": "足が棒になる",
+    "reading": "あしがぼうになる",
+    "category": "慣用句",
+    "planned_date": "2026-07-30",
+    "lesson_group": "keimeikan_p38",
+    "display_order": 5,
+    "answer_note": "2:イ　3:ウ　4:全部「足が棒になる」　6:ア",
+    "image_filename": "182_足が棒になる.png"
+  },
+  {
+    "id": "183",
+    "word": "足をあらう",
+    "reading": "あしをあらう",
+    "category": "慣用句",
+    "planned_date": "2026-07-30",
+    "lesson_group": "keimeikan_p38",
+    "display_order": 6,
+    "answer_note": "2:ウ　3:ア　4:全部「足をあらう」　6:イ",
+    "image_filename": "183_足をあらう.png"
+  },
+  {
+    "id": "184",
+    "word": "足をのばす",
+    "reading": "あしをのばす",
+    "category": "慣用句",
+    "planned_date": "2026-07-31",
+    "lesson_group": "keimeikan_p38",
+    "display_order": 7,
+    "answer_note": "2:ア　3:イ　4:全部「足をのばす」　6:ウ",
+    "image_filename": "184_足をのばす.png"
+  },
+  {
+    "id": "185",
+    "word": "足をひっぱる",
+    "reading": "あしをひっぱる",
+    "category": "慣用句",
+    "planned_date": "2026-07-31",
+    "lesson_group": "keimeikan_p38",
+    "display_order": 8,
+    "answer_note": "2:イ　3:ウ　4:全部「足をひっぱる」　6:ア",
+    "image_filename": "185_足をひっぱる.png"
+  },
+  {
+    "id": "186",
+    "word": "足もとに火がつく",
+    "reading": "あしもとにひがつく",
+    "category": "慣用句",
+    "planned_date": "2026-07-31",
+    "lesson_group": "keimeikan_p38",
+    "display_order": 9,
+    "answer_note": "2:ウ　3:ア　4:全部「足もとに火がつく」　6:イ",
+    "image_filename": "186_足もとに火がつく.png"
+  },
+  {
+    "id": "187",
+    "word": "足もとから鳥が立つ",
+    "reading": "あしもとからとりがたつ",
+    "category": "慣用句",
+    "planned_date": "2026-08-01",
+    "lesson_group": "keimeikan_p38",
+    "display_order": 10,
+    "answer_note": "2:ア　3:イ　4:全部「足もとから鳥が立つ」　6:ウ",
+    "image_filename": "187_足もとから鳥が立つ.png"
+  },
+  {
+    "id": "188",
+    "word": "足もとにもおよばない",
+    "reading": "あしもとにもおよばない",
+    "category": "慣用句",
+    "planned_date": "2026-08-01",
+    "lesson_group": "keimeikan_p38",
+    "display_order": 11,
+    "answer_note": "2:イ　3:ウ　4:全部「足もとにもおよばない」　6:ア",
+    "image_filename": "188_足もとにもおよばない.png"
+  },
+  {
+    "id": "189",
+    "word": "足もとを見る",
+    "reading": "あしもとをみる",
+    "category": "慣用句",
+    "planned_date": "2026-08-01",
+    "lesson_group": "keimeikan_p38",
+    "display_order": 12,
+    "answer_note": "2:ウ　3:ア　4:全部「足もとを見る」　6:イ",
+    "image_filename": "189_足もとを見る.png"
+  },
+  {
+    "id": "190",
+    "word": "頭があがらない",
+    "reading": "あたまがあがらない",
+    "category": "慣用句",
+    "planned_date": "2026-08-02",
+    "lesson_group": "keimeikan_p38",
+    "display_order": 13,
+    "answer_note": "2:ア　3:イ　4:全部「頭があがらない」　6:ウ",
+    "image_filename": "190_頭があがらない.png"
+  },
+  {
+    "id": "191",
+    "word": "頭がさがる",
+    "reading": "あたまがさがる",
+    "category": "慣用句",
+    "planned_date": "2026-08-02",
+    "lesson_group": "keimeikan_p38",
+    "display_order": 14,
+    "answer_note": "2:イ　3:ウ　4:全部「頭がさがる」　6:ア",
+    "image_filename": "191_頭がさがる.png"
+  },
+  {
+    "id": "192",
+    "word": "頭がいたい",
+    "reading": "あたまがいたい",
+    "category": "慣用句",
+    "planned_date": "2026-08-02",
+    "lesson_group": "keimeikan_p38",
+    "display_order": 15,
+    "answer_note": "2:ウ　3:ア　4:全部「頭がいたい」　6:イ",
+    "image_filename": "192_頭がいたい.png"
+  },
+  {
+    "id": "193",
+    "word": "頭をかかえる",
+    "reading": "あたまをかかえる",
+    "category": "慣用句",
+    "planned_date": "2026-08-03",
+    "lesson_group": "keimeikan_p38",
+    "display_order": 16,
+    "answer_note": "2:ア　3:イ　4:全部「頭をかかえる」　6:ウ",
+    "image_filename": "193_頭をかかえる.png"
+  },
+  {
+    "id": "194",
+    "word": "頭をしぼる",
+    "reading": "あたまをしぼる",
+    "category": "慣用句",
+    "planned_date": "2026-08-03",
+    "lesson_group": "keimeikan_p38",
+    "display_order": 17,
+    "answer_note": "2:イ　3:ウ　4:全部「頭をしぼる」　6:ア",
+    "image_filename": "194_頭をしぼる.png"
   }
 ]
