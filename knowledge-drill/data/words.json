@@ -3144,5 +3144,169 @@
     "display_order": 21,
     "answer_note": "2:ア　3:ア　4:①目と鼻の先　②目と鼻の先　③目と鼻の先　6:イ",
     "image_filename": "286_目と鼻の先.png"
+  },
+  {
+    "id": "287",
+    "word": "目にあまる",
+    "reading": "めにあまる",
+    "category": "慣用句",
+    "planned_date": "2026-09-03",
+    "display_order": 1,
+    "answer_note": "2:イ　3:イ　4:①目にあまる　②目にあまる　③目にあまる　6:ウ",
+    "image_filename": "287_目にあまる.png"
+  },
+  {
+    "id": "288",
+    "word": "目のかたき",
+    "reading": "めのかたき",
+    "category": "慣用句",
+    "planned_date": "2026-09-03",
+    "lesson_group": "keimeikan_p43",
+    "display_order": 2,
+    "answer_note": "2:ウ　3:イ　4:①目のかたき　②目のかたき　③目のかたき　6:ア",
+    "image_filename": "288_目のかたき.png"
+  },
+  {
+    "id": "289",
+    "word": "目の色を変える",
+    "reading": "めのいろをかえる",
+    "category": "慣用句",
+    "planned_date": "2026-09-04",
+    "lesson_group": "keimeikan_p43",
+    "display_order": 3,
+    "answer_note": "2:ア　3:イ　4:①目の色を変える　②目の色を変える　③目の色を変える　6:イ",
+    "image_filename": "289_目の色を変える.png"
+  },
+  {
+    "id": "290",
+    "word": "目の黒いうち",
+    "reading": "めのくろいうち",
+    "category": "慣用句",
+    "planned_date": "2026-09-04",
+    "lesson_group": "keimeikan_p43",
+    "display_order": 4,
+    "answer_note": "2:イ　3:イ　4:①目の黒いうち　②目の黒いうち　③目の黒いうち　6:ウ",
+    "image_filename": "290_目の黒いうち.png"
+  },
+  {
+    "id": "291",
+    "word": "目をうばう",
+    "reading": "めをうばう",
+    "category": "慣用句",
+    "planned_date": "2026-09-04",
+    "lesson_group": "keimeikan_p43",
+    "display_order": 5,
+    "answer_note": "2:ウ　3:イ　4:①目をうばう　②目をうばう　③目をうばう　6:ア",
+    "image_filename": "291_目をうばう.png"
+  },
+  {
+    "id": "292",
+    "word": "目を丸くする",
+    "reading": "めをまるくする",
+    "category": "慣用句",
+    "planned_date": "2026-09-05",
+    "lesson_group": "keimeikan_p43",
+    "display_order": 6,
+    "answer_note": "2:ア　3:イ　4:①目を丸くする　②目を丸くする　③目を丸くする　6:イ",
+    "image_filename": "292_目を丸くする.png"
+  },
+  {
+    "id": "293",
+    "word": "目を光らす",
+    "reading": "めをひからす",
+    "category": "慣用句",
+    "planned_date": "2026-09-05",
+    "lesson_group": "keimeikan_p43",
+    "display_order": 7,
+    "answer_note": "2:イ　3:イ　4:①目を光らす　②目を光らす　③目を光らす　6:ウ",
+    "image_filename": "293_目を光らす.png"
+  },
+  {
+    "id": "294",
+    "word": "目をうたがう",
+    "reading": "めをうたがう",
+    "category": "慣用句",
+    "planned_date": "2026-09-05",
+    "lesson_group": "keimeikan_p43",
+    "display_order": 8,
+    "answer_note": "2:ウ　3:イ　4:①目をうたがう　②目をうたがう　③目をうたがう　6:ア",
+    "image_filename": "294_目をうたがう.png"
+  },
+  {
+    "id": "295",
+    "word": "目をつぶる",
+    "reading": "めをつぶる",
+    "category": "慣用句",
+    "planned_date": "2026-09-06",
+    "lesson_group": "keimeikan_p43",
+    "display_order": 9,
+    "answer_note": "2:ア　3:イ　4:①目をつぶる　②目をつぶる　③目をつぶる　6:イ",
+    "image_filename": "295_目をつぶる.png"
+  },
+  {
+    "id": "296",
+    "word": "目を通す",
+    "reading": "めをとおす",
+    "category": "慣用句",
+    "planned_date": "2026-09-06",
+    "lesson_group": "keimeikan_p43",
+    "display_order": 10,
+    "answer_note": "2:イ　3:イ　4:①目を通す　②目を通す　③目を通す　6:ウ",
+    "image_filename": "296_目を通す.png"
+  },
+  {
+    "id": "297",
+    "word": "目をかける",
+    "reading": "めをかける",
+    "category": "慣用句",
+    "planned_date": "2026-09-06",
+    "lesson_group": "keimeikan_p43",
+    "display_order": 11,
+    "answer_note": "2:ウ　3:イ　4:①目をかける　②目をかける　③目をかける　6:ア",
+    "image_filename": "297_目をかける.png"
+  },
+  {
+    "id": "298",
+    "word": "目を皿にする",
+    "reading": "めをさらにする",
+    "category": "慣用句",
+    "planned_date": "2026-09-07",
+    "lesson_group": "keimeikan_p43",
+    "display_order": 12,
+    "answer_note": "2:ア　3:イ　4:①目を皿にする　②目を皿にする　③目を皿にする　6:イ",
+    "image_filename": "298_目を皿にする.png"
+  },
+  {
+    "id": "299",
+    "word": "目を三角にする",
+    "reading": "めをさんかくにする",
+    "category": "慣用句",
+    "planned_date": "2026-09-07",
+    "lesson_group": "keimeikan_p43",
+    "display_order": 13,
+    "answer_note": "2:イ　3:イ　4:①目を三角にする　②目を三角にする　③目を三角にする　6:ウ",
+    "image_filename": "299_目を三角にする.png"
+  },
+  {
+    "id": "300",
+    "word": "目をはなす",
+    "reading": "めをはなす",
+    "category": "慣用句",
+    "planned_date": "2026-09-07",
+    "lesson_group": "keimeikan_p43",
+    "display_order": 14,
+    "answer_note": "2:ウ　3:イ　4:①目をはなす　②目をはなす　③目をはなす　6:ア",
+    "image_filename": "300_目をはなす.png"
+  },
+  {
+    "id": "301",
+    "word": "目をぬすむ",
+    "reading": "めをぬすむ",
+    "category": "慣用句",
+    "planned_date": "2026-09-08",
+    "lesson_group": "keimeikan_p43",
+    "display_order": 15,
+    "answer_note": "2:ア　3:イ　4:①目をぬすむ　②目をぬすむ　③目をぬすむ　6:イ",
+    "image_filename": "301_目をぬすむ.png"
   }
 ]
