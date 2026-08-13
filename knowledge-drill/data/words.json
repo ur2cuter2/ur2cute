@@ -2647,7 +2647,7 @@
     "planned_date": "2026-08-19",
     "lesson_group": "keimeikan_p41",
     "display_order": 1,
-    "answer_note": "2:ア　3:イ　4:①腹を割って　②腹を割って　③腹を割っ　6:ア",
+    "answer_note": "2:ア　3:イ　4:①腹を割って　②腹を割って　③腹を割って　6:ウ",
     "image_filename": "241_腹を割る.png"
   },
   {
@@ -2658,7 +2658,7 @@
     "planned_date": "2026-08-19",
     "lesson_group": "keimeikan_p41",
     "display_order": 2,
-    "answer_note": "2:イ　3:ア　4:①腹を決め　②腹を決める　③腹を決め　6:イ",
+    "answer_note": "2:イ　3:ウ　4:①腹を決めて　②腹を決めた　③腹を決めて　6:イ",
     "image_filename": "242_腹を決める.png"
   },
   {
@@ -2669,7 +2669,7 @@
     "planned_date": "2026-08-19",
     "lesson_group": "keimeikan_p41",
     "display_order": 3,
-    "answer_note": "2:ア　3:イ　4:①腹をさぐった　②腹をさぐる　③腹をさぐ　6:ア",
+    "answer_note": "2:ウ　3:ア　4:①腹をさぐった　②腹をさぐった　③腹をさぐり合って　6:ア",
     "image_filename": "243_腹をさぐる.png"
   },
   {
@@ -2680,7 +2680,7 @@
     "planned_date": "2026-08-20",
     "lesson_group": "keimeikan_p41",
     "display_order": 4,
-    "answer_note": "2:ア　3:イ　4:①腹をかかえて　②腹をかかえる　③腹をかか　6:ア",
+    "answer_note": "2:イ　3:イ　4:①腹をかかえて　②腹をかかえる　③腹をかかえて　6:ア",
     "image_filename": "244_腹をかかえる.png"
   },
   {
@@ -2691,7 +2691,7 @@
     "planned_date": "2026-08-20",
     "lesson_group": "keimeikan_p41",
     "display_order": 5,
-    "answer_note": "2:イ　3:ア　4:①鼻につく　②鼻につく　③鼻につ　6:イ",
+    "answer_note": "2:ウ　3:ア　4:①鼻について　②鼻につく　③鼻についた　6:ア",
     "image_filename": "245_鼻につく.png"
   },
   {
@@ -2702,7 +2702,7 @@
     "planned_date": "2026-08-20",
     "lesson_group": "keimeikan_p41",
     "display_order": 6,
-    "answer_note": "2:ウ　3:ア　4:①鼻をあかした　②鼻をあかす　③鼻をあか　6:イ",
+    "answer_note": "2:ウ　3:ア　4:①鼻をあかした　②鼻をあかした　③鼻をあかした　6:ア",
     "image_filename": "246_鼻をあかす.png"
   },
   {
@@ -2713,7 +2713,7 @@
     "planned_date": "2026-08-21",
     "lesson_group": "keimeikan_p41",
     "display_order": 7,
-    "answer_note": "2:ア　3:イ　4:①鼻が高い　②鼻が高い　③鼻が高　6:イ",
+    "answer_note": "2:イ　3:イ　4:①鼻が高かった　②鼻が高い　③鼻が高い　6:ア",
     "image_filename": "247_鼻が高い.png"
   },
   {
@@ -2724,7 +2724,7 @@
     "planned_date": "2026-08-21",
     "lesson_group": "keimeikan_p41",
     "display_order": 8,
-    "answer_note": "2:ア　3:ア　4:①鼻をおら　②鼻をおら　③鼻をおら　6:ア",
+    "answer_note": "2:イ　3:ア　4:①鼻をおった　②鼻をおられた　③鼻をおった　6:イ",
     "image_filename": "248_鼻をおる.png"
   },
   {
@@ -2735,7 +2735,7 @@
     "planned_date": "2026-08-21",
     "lesson_group": "keimeikan_p41",
     "display_order": 9,
-    "answer_note": "2:ア　3:ア　4:①鼻であしら　②鼻であしら　③鼻であしら　6:ア",
+    "answer_note": "2:ア　3:イ　4:①鼻であしらった　②鼻であしらって　③鼻であしらわれて　6:イ",
     "image_filename": "249_鼻であしらう.png"
   },
   {
@@ -2746,7 +2746,7 @@
     "planned_date": "2026-08-22",
     "lesson_group": "keimeikan_p41",
     "display_order": 10,
-    "answer_note": "2:ア　3:ア　4:①鼻にかけ　②鼻にかけ　③鼻にかけ　6:ア",
+    "answer_note": "2:イ　3:ア　4:①鼻にかけて　②鼻にかけた　③鼻にかける　6:ア",
     "image_filename": "250_鼻にかける.png"
   },
   {
@@ -2757,7 +2757,7 @@
     "planned_date": "2026-08-22",
     "lesson_group": "keimeikan_p41",
     "display_order": 11,
-    "answer_note": "2:ア　3:ア　4:①鼻息が荒　②鼻息が荒　③鼻息が荒　6:ア",
+    "answer_note": "2:ウ　3:ア　4:①鼻息が荒い　②鼻息が荒かった　③鼻息が荒く　6:イ",
     "image_filename": "251_鼻息が荒い.png"
   },
   {
@@ -2768,7 +2768,7 @@
     "planned_date": "2026-08-22",
     "lesson_group": "keimeikan_p41",
     "display_order": 12,
-    "answer_note": "2:ア　3:ア　4:①ひざを打っ　②ひざを打っ　③ひざを打っ　6:ア",
+    "answer_note": "2:ウ　3:イ　4:①ひざを打った　②ひざを打った　③ひざを打って　6:ア",
     "image_filename": "252_ひざを打つ.png"
   },
   {
@@ -2779,7 +2779,7 @@
     "planned_date": "2026-08-23",
     "lesson_group": "keimeikan_p41",
     "display_order": 13,
-    "answer_note": "2:ア　3:ア　4:①ひざをのりだし　②ひざをのりだし　③ひざをのりだし　6:ア",
+    "answer_note": "2:イ　3:ア　4:①ひざをのりだして　②ひざをのりだした　③ひざをのりだして　6:イ",
     "image_filename": "253_ひざをのりだす.png"
   },
   {
@@ -2790,7 +2790,7 @@
     "planned_date": "2026-08-23",
     "lesson_group": "keimeikan_p41",
     "display_order": 14,
-    "answer_note": "2:ア　3:ア　4:①ひざをまじえ　②ひざをまじえ　③ひざをまじえ　6:ア",
+    "answer_note": "2:ウ　3:イ　4:①ひざをまじえて　②ひざをまじえる　③ひざをまじえて　6:ア",
     "image_filename": "254_ひざをまじえる.png"
   },
   {
@@ -2801,7 +2801,7 @@
     "planned_date": "2026-08-23",
     "lesson_group": "keimeikan_p41",
     "display_order": 15,
-    "answer_note": "2:ア　3:ア　4:①骨を折っ　②骨を折っ　③骨を折っ　6:ア",
+    "answer_note": "2:イ　3:ア　4:①骨を折った　②骨を折った　③骨を折った　6:ア",
     "image_filename": "255_骨を折る.png"
   },
   {
@@ -2812,7 +2812,7 @@
     "planned_date": "2026-08-24",
     "lesson_group": "keimeikan_p41",
     "display_order": 16,
-    "answer_note": "2:ア　3:ア　4:①骨ぬきにし　②骨ぬきにし　③骨ぬきにし　6:ア",
+    "answer_note": "2:ア　3:ア　4:①骨ぬきにして　②骨ぬきにされる　③骨ぬきにする　6:イ",
     "image_filename": "256_骨ぬきにする.png"
   },
   {
@@ -2823,7 +2823,7 @@
     "planned_date": "2026-08-24",
     "lesson_group": "keimeikan_p41",
     "display_order": 17,
-    "answer_note": "2:ア　3:ア　4:①骨身にこたえる　②骨身にこたえる　③骨身にこたえる　6:ア",
+    "answer_note": "2:イ　3:ア　4:①骨身にこたえて　②骨身にこたえた　③骨身にこたえる　6:ア",
     "image_filename": "257_骨身にこたえる.png"
   },
   {
@@ -2834,7 +2834,7 @@
     "planned_date": "2026-08-24",
     "lesson_group": "keimeikan_p41",
     "display_order": 18,
-    "answer_note": "2:ア　3:ア　4:①骨身をおしまず　②骨身をおしまず　③骨身をおしまず　6:ア",
+    "answer_note": "2:イ　3:ア　4:①骨身をおしまず　②骨身をおしまず　③骨身をおしまず　6:ア",
     "image_filename": "258_骨身をおしまず.png"
   },
   {
@@ -2845,7 +2845,7 @@
     "planned_date": "2026-08-25",
     "lesson_group": "keimeikan_p41",
     "display_order": 19,
-    "answer_note": "2:ア　3:ア　4:①骨身をけず　②骨身をけず　③骨身をけず　6:ア",
+    "answer_note": "2:イ　3:ウ　4:①骨身をけずって　②骨身をけずって　③骨身をけずって働いた　6:ア",
     "image_filename": "259_骨身をけずる.png"
   },
   {
@@ -2856,7 +2856,7 @@
     "planned_date": "2026-08-25",
     "lesson_group": "keimeikan_p41",
     "display_order": 20,
-    "answer_note": "2:ア　3:ア　4:①骨休め　②骨休め　③骨休め　6:ア",
+    "answer_note": "2:ウ　3:ア　4:①骨休め　②骨休め　③骨休め　6:イ",
     "image_filename": "260_骨休め.png"
   },
   {
@@ -2867,7 +2867,7 @@
     "planned_date": "2026-08-25",
     "lesson_group": "keimeikan_p41",
     "display_order": 21,
-    "answer_note": "2:ア　3:ア　4:①身につまされた　②身につまされた　③身につまされた　6:ア",
+    "answer_note": "2:ア　3:イ　4:①身につまされる　②身につまされる　③身につまされた　6:ウ",
     "image_filename": "261_身につまされる.png"
   },
   {
@@ -2878,7 +2878,7 @@
     "planned_date": "2026-08-26",
     "lesson_group": "keimeikan_p41",
     "display_order": 22,
-    "answer_note": "2:ア　3:ア　4:①身の毛もよだつ　②身の毛もよだつ　③身の毛もよだつ　6:ア",
+    "answer_note": "2:イ　3:ア　4:①身の毛もよだつ　②身の毛もよだつ　③身の毛もよだった　6:ウ",
     "image_filename": "262_身の毛もよだつ.png"
   },
   {
@@ -2889,7 +2889,7 @@
     "planned_date": "2026-08-26",
     "lesson_group": "keimeikan_p41",
     "display_order": 23,
-    "answer_note": "2:ア　3:ア　4:①身もふたもない　②身もふたもない　③身もふたもない　6:ア",
+    "answer_note": "2:ウ　3:イ　4:①身もふたもない　②身もふたもない　③身もふたもない　6:ア",
     "image_filename": "263_身もふたもない.png"
   },
   {
@@ -2900,7 +2900,7 @@
     "planned_date": "2026-08-26",
     "lesson_group": "keimeikan_p41",
     "display_order": 24,
-    "answer_note": "2:ア　3:ア　4:①身を入れる　②身を入れる　③身を入れる　6:ア",
+    "answer_note": "2:ア　3:ウ　4:①身を入れている　②身を入れて　③身を入れた　6:イ",
     "image_filename": "264_身を入れる.png"
   },
   {
@@ -2911,7 +2911,238 @@
     "planned_date": "2026-08-27",
     "lesson_group": "keimeikan_p41",
     "display_order": 25,
-    "answer_note": "2:ア　3:ア　4:①身を粉にし　②身を粉にし　③身を粉にし　6:ア",
+    "answer_note": "2:イ　3:ア　4:①身を粉にして　②身を粉にして　③身を粉にして働いた　6:ウ",
     "image_filename": "265_身を粉にする.png"
+  },
+  {
+    "id": "266",
+    "word": "身を立てる",
+    "reading": "みをたてる",
+    "category": "慣用句",
+    "planned_date": "2026-08-27",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 1,
+    "answer_note": "2:イ　3:ア　4:①身を立てている　②身を立てようとしている　③身を立てたいと考えている　6:ア",
+    "image_filename": "266_身を立てる.png"
+  },
+  {
+    "id": "267",
+    "word": "身につける",
+    "reading": "みにつける",
+    "category": "慣用句",
+    "planned_date": "2026-08-27",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 2,
+    "answer_note": "2:ア　3:ア　4:①身につけた　②身につけた　③身につけよう　6:イ",
+    "image_filename": "267_身につける.png"
+  },
+  {
+    "id": "268",
+    "word": "耳がいたい",
+    "reading": "みみがいたい",
+    "category": "慣用句",
+    "planned_date": "2026-08-28",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 3,
+    "answer_note": "2:イ　3:ア　4:①耳がいたい　②耳がいたい話に聞こえる　③耳がいたい　6:ア",
+    "image_filename": "268_耳がいたい.png"
+  },
+  {
+    "id": "269",
+    "word": "耳が早い",
+    "reading": "みみがはやい",
+    "category": "慣用句",
+    "planned_date": "2026-08-28",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 4,
+    "answer_note": "2:ア　3:ア　4:①耳が早い　②耳が早い　③耳が早い　6:イ",
+    "image_filename": "269_耳が早い.png"
+  },
+  {
+    "id": "270",
+    "word": "耳にたこができる",
+    "reading": "みみにたこができる",
+    "category": "慣用句",
+    "planned_date": "2026-08-28",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 5,
+    "answer_note": "2:イ　3:ア　4:①耳にたこができた　②耳にたこができる　③耳にたこができそうだ　6:ア",
+    "image_filename": "270_耳にたこができる.png"
+  },
+  {
+    "id": "271",
+    "word": "耳にはさむ",
+    "reading": "みみにはさむ",
+    "category": "慣用句",
+    "planned_date": "2026-08-29",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 6,
+    "answer_note": "2:ア　3:ア　4:①耳にはさんだ　②耳にはさんだ　③耳にはさんだ　6:イ",
+    "image_filename": "271_耳にはさむ.png"
+  },
+  {
+    "id": "272",
+    "word": "耳をかたむける",
+    "reading": "みみをかたむける",
+    "category": "慣用句",
+    "planned_date": "2026-08-29",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 7,
+    "answer_note": "2:ア　3:ア　4:①耳をかたむけよう　②耳をかたむけた　③耳をかたむけた　6:イ",
+    "image_filename": "272_耳をかたむける.png"
+  },
+  {
+    "id": "273",
+    "word": "耳をそろえる",
+    "reading": "みみをそろえる",
+    "category": "慣用句",
+    "planned_date": "2026-08-29",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 8,
+    "answer_note": "2:イ　3:ア　4:①耳をそろえて　②耳をそろえて　③耳をそろえた　6:ア",
+    "image_filename": "273_耳をそろえる.png"
+  },
+  {
+    "id": "274",
+    "word": "胸がいっぱいになる",
+    "reading": "むねがいっぱいになる",
+    "category": "慣用句",
+    "planned_date": "2026-08-30",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 9,
+    "answer_note": "2:ア　3:ア　4:①胸がいっぱいになった　②胸がいっぱいになった　③胸がいっぱいになった　6:イ",
+    "image_filename": "274_胸がいっぱいになる.png"
+  },
+  {
+    "id": "275",
+    "word": "胸にきざむ",
+    "reading": "むねにきざむ",
+    "category": "慣用句",
+    "planned_date": "2026-08-30",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 10,
+    "answer_note": "2:イ　3:ア　4:①胸にきざんで　②胸にきざんだ　③胸にきざんでいる　6:ア",
+    "image_filename": "275_胸にきざむ.png"
+  },
+  {
+    "id": "276",
+    "word": "胸に手をあてる",
+    "reading": "むねにてをあてる",
+    "category": "慣用句",
+    "planned_date": "2026-08-30",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 11,
+    "answer_note": "2:ア　3:ア　4:①胸に手をあてて　②胸に手をあてて考えた　③胸に手をあててふり返った　6:イ",
+    "image_filename": "276_胸に手をあてる.png"
+  },
+  {
+    "id": "277",
+    "word": "胸を打つ",
+    "reading": "むねをうつ",
+    "category": "慣用句",
+    "planned_date": "2026-08-31",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 12,
+    "answer_note": "2:ア　3:ア　4:①胸を打った　②胸を打った　③胸を打たれた　6:イ",
+    "image_filename": "277_胸を打つ.png"
+  },
+  {
+    "id": "278",
+    "word": "胸をおどらせる",
+    "reading": "むねをおどらせる",
+    "category": "慣用句",
+    "planned_date": "2026-08-31",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 13,
+    "answer_note": "2:イ　3:ア　4:①胸をおどらせて　②胸をおどらせていた　③胸をおどらせて待った　6:ア",
+    "image_filename": "278_胸をおどらせる.png"
+  },
+  {
+    "id": "279",
+    "word": "胸をなでおろす",
+    "reading": "むねをなでおろす",
+    "category": "慣用句",
+    "planned_date": "2026-08-31",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 14,
+    "answer_note": "2:ア　3:ア　4:①胸をなでおろした　②胸をなでおろした　③胸をなでおろした　6:イ",
+    "image_filename": "279_胸をなでおろす.png"
+  },
+  {
+    "id": "280",
+    "word": "胸をふくらませる",
+    "reading": "むねをふくらませる",
+    "category": "慣用句",
+    "planned_date": "2026-09-01",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 15,
+    "answer_note": "2:ア　3:ア　4:①胸をふくらませて　②胸をふくらませていた　③胸をふくらませた　6:イ",
+    "image_filename": "280_胸をふくらませる.png"
+  },
+  {
+    "id": "281",
+    "word": "目がきく",
+    "reading": "めがきく",
+    "category": "慣用句",
+    "planned_date": "2026-09-01",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 16,
+    "answer_note": "2:ア　3:ア　4:①目がきく　②目がきく　③目がきく　6:イ",
+    "image_filename": "281_目がきく.png"
+  },
+  {
+    "id": "282",
+    "word": "目が高い",
+    "reading": "めがたかい",
+    "category": "慣用句",
+    "planned_date": "2026-09-01",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 17,
+    "answer_note": "2:ア　3:ア　4:①目が高い　②目が高い　③目が高い　6:イ",
+    "image_filename": "282_目が高い.png"
+  },
+  {
+    "id": "283",
+    "word": "目がない",
+    "reading": "めがない",
+    "category": "慣用句",
+    "planned_date": "2026-09-02",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 18,
+    "answer_note": "2:ア　3:ア　4:①目がない　②目がない　③目がない　6:イ",
+    "image_filename": "283_目がない.png"
+  },
+  {
+    "id": "284",
+    "word": "目がまわる",
+    "reading": "めがまわる",
+    "category": "慣用句",
+    "planned_date": "2026-09-02",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 19,
+    "answer_note": "2:ア　3:ア　4:①目がまわるほど忙しかった　②目がまわるほど忙しそうだった　③目がまわりそうだった　6:イ",
+    "image_filename": "284_目がまわる.png"
+  },
+  {
+    "id": "285",
+    "word": "目から鼻にぬける",
+    "reading": "めからはなにぬける",
+    "category": "慣用句",
+    "planned_date": "2026-09-02",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 20,
+    "answer_note": "2:ア　3:ア　4:①目から鼻にぬけるようだ　②目から鼻にぬけるように　③目から鼻にぬける　6:イ",
+    "image_filename": "285_目から鼻にぬける.png"
+  },
+  {
+    "id": "286",
+    "word": "目と鼻の先",
+    "reading": "めとはなのさき",
+    "category": "慣用句",
+    "planned_date": "2026-09-03",
+    "lesson_group": "keimeikan_p42",
+    "display_order": 21,
+    "answer_note": "2:ア　3:ア　4:①目と鼻の先　②目と鼻の先　③目と鼻の先　6:イ",
+    "image_filename": "286_目と鼻の先.png"
   }
 ]
