@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>算数15分チャレンジ｜道順・場合の数</title>
+  <style>
+    :root { --blue:#1769c2; --deep:#104d91; --pale:#eef7ff; --ink:#18324b; --purple:#7453b7; --yellow:#f6c542; --line:#b9d6ed; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:#f5f9fc; font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif; line-height:1.65; overflow-x:hidden; }
+    header { background:linear-gradient(135deg,#1677d2,#1356a2); color:#fff; padding:20px max(18px,calc((100% - 740px)/2)); box-shadow:0 2px 8px #0c4b8a44; }
+    header h1 { margin:0; font-size:22px; letter-spacing:.04em; } header p { margin:1px 0 0; font-size:13px; opacity:.9; }
+    main { max-width:740px; margin:auto; padding:20px 16px 32px; }
+    .progress { font-size:30px; font-weight:800; color:var(--deep); margin:0 0 10px; }
+    .tags { display:flex; gap:8px; margin-bottom:12px; } .tag { border-radius:999px; padding:3px 11px; font-weight:700; font-size:13px; } .category { background:#eee8ff; color:#6241a4; } .level { background:#fff2bf; color:#805900; }
+    .card { background:#fff; border-radius:18px; padding:20px; box-shadow:0 3px 12px #1c54821a; margin-bottom:16px; }
+    .question { margin:0; font-size:clamp(24px,6.4vw,28px); font-weight:800; line-height:1.55; letter-spacing:.01em; }
+    .diagram { width:100%; display:block; margin:14px auto 4px; max-width:500px; } .road { stroke:#607b91; stroke-width:7; stroke-linecap:round; } .node { fill:#fff; stroke:#296ea9; stroke-width:2.5; } .label { fill:#123d66; font-size:18px; font-weight:800; } .count { fill:#1269b0; font-size:16px; font-weight:800; paint-order:stroke; stroke:#fff; stroke-width:4px; }
+    .paper { background:#edf8ff; border-left:5px solid #5ea6dd; padding:11px 13px; border-radius:10px; font-weight:700; font-size:15px; }
+    .actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; } button { font:inherit; font-weight:800; border:0; border-radius:13px; min-height:52px; padding:10px 12px; cursor:pointer; } .hint-btn { background:#e8f4ff; color:#115c9f; } .answer-btn { background:#1769c2; color:#fff; } button:disabled { opacity:.43; cursor:default; }
+    .hint { border-left:5px solid #f3bd28; background:#fff9e6; } .hint h2,.answer h2 { margin:0 0 7px; font-size:18px; } .hint p { margin:0; font-size:17px; }.answer { border:2px solid #a9cfee; }.answer-value { background:#eaf6ff; color:#075594; border-radius:12px; padding:12px; text-align:center; font-size:27px; font-weight:900; margin:12px 0; }.explain-list { padding-left:1.25em; margin:10px 0; }.explain-list li { margin:5px 0; }.point { background:#f1edff; border-left:5px solid var(--purple); border-radius:10px; padding:12px; font-weight:700; }.formula { text-align:center; color:#075594; font-size:26px; font-weight:900; margin:14px 0 4px; }
+    .nav { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px; }.prev { background:#e6eef5; color:#31516d; }.next { background:#1769c2; color:#fff; }
+    .finish { text-align:center; padding:35px 20px; }.finish h2 { color:var(--deep); font-size:30px; margin:0 0 8px; }.finish p { font-size:19px; }.finish .finish-buttons { display:grid; gap:12px; margin-top:28px; }.restart { background:#1769c2; color:#fff; }.shuffle { background:#fff1bd; color:#765500; }
+    @media(max-width:440px){ main{padding:16px 12px 28px}.card{padding:16px}.actions{grid-template-columns:1fr}.road{stroke-width:8}.count{font-size:14px}.label{font-size:17px} }
+  </style>
+</head>
+<body>
+<header><h1>算数15分チャレンジ</h1><p>道順・場合の数</p></header>
+<main id="app"></main>
+<script>
+const questions = [
+ {id:1,category:'道順',difficulty:1,question:'右の図のような、ごばんの目の形をした道があります。A地点からB地点まで、遠回りをしないで行く道順は、全部で何通りありますか。',hint1:'「遠回りをしない」ということは、AからBへ向かって、右に進むか、上に進むかだけを考えればOKです。まずAのすぐ右と、Aのすぐ上には、それぞれ何通りで行けるでしょう？',hint2:'交差点に数字を書いてみましょう。ある交差点に来る方法は、「左から来る方法」＋「下から来る方法」です。Aに近いところから順番に数字を書いてみよう。',answer:'15通り',explanation:['まず、一番下と一番左の交差点には、行き方が1通りだけなので「1」と書きます。','内側の交差点には、左から来る方法と下から来る方法があります。','だから、その交差点までの通り数は「左の数＋下の数」です。','B地点は10＋5＝15。答えは15通りです。'],point:'道順の問題では、「その場所に来る方法は何通り？」と考え、Aに近いところから数字を書いていくと整理しやすいです。',diagramType:'grid2'},
+ {id:2,category:'道順',difficulty:2,question:'右の図のような、ごばんの目のような形をした道があります。A地点からB地点まで最も短い道のりで行くとき、必ずC地点を通る道順は何通りありますか。',hint1:'AからBまでを一気に考えなくて大丈夫です。「必ずCを通る」のだから、AからCまで、CからBまでの2つに分けて考えてみよう。',hint2:'AからCまでの行き方が3通りあり、そのそれぞれについてCからBまでの行き方が5通りあったら、全部でどうなるでしょう？',answer:'15通り',explanation:['「必ずCを通る」ので、道をA→CとC→Bの2つに分けます。','AからCまでの行き方は3通りです。','次に、Cを新しいスタートと考えると、CからBまでは5通りです。','前半の3通りのそれぞれに後半5通りがつながるので、3×5＝15です。'],point:'「必ず○○を通る」問題では、その地点で道を分け、「前半の通り数 × 後半の通り数」で考えます。',diagramType:'step'},
+ {id:3,category:'道順',difficulty:2,question:'右の図のように、道がごばんの目のようになった町があります。A地点からB地点まで、遠回りをしないで行く方法は全部で何通りありますか。',hint1:'問題1と同じ考え方です。Aに近い交差点から、「左から来る通り数＋下から来る通り数」を書いていこう。図が少し大きくなっただけです。',hint2:'一番下の横道と、一番左の縦道は、すべて1通りです。そこから内側へ「左＋下」を順番に計算してみよう。',answer:'35通り',explanation:['遠回りをしないので、右または上にだけ進みます。','一番下と一番左はすべて1通りです。','内側は「左＋下」で順に計算します。','B地点には20＋15＝35通りで来られます。'],point:'マスが増えても方法は同じです。全部の道を線で書き出さず、交差点に「ここまで何通り？」を書いていくと数えられます。',diagramType:'grid3'},
+ {id:4,category:'道順',difficulty:3,question:'問題3の図で、×印のところは工事中で通れないものとします。A地点からB地点まで、遠回りをしないで行く方法は何通りありますか。',hint1:'最初から全部数え直す方法もあります。でも、問題3では全部で35通りと分かっています。「35通りのうち、×の道を通ってしまうものは何通り？」と考える方法もあります。',hint2:'×の道の下まで来る方法は3通り。×の道の上からBまで行く方法も3通りです。×を通ってしまう道順は全部で何通りでしょう？',answer:'26通り',explanation:['工事がなければ、AからBまでは35通りです。','その中から、×の道を通る道順だけを取り除きます。','×の直前までは3通り、×の直後からBまでも3通りです。','×を通る道順は3×3＝9通り。','35−9＝26なので、答えは26通りです。'],point:'「ここは通れません」では、「全部 − 通ってはいけない道順」と考えると簡単になることがあります。',diagramType:'blocked'}
+];
+let order=[...questions], index=0, hints=0, showingAnswer=false;
+const app=document.getElementById('app');
+function svgFor(q, explain=false){
+  const isStep=q.diagramType==='step', blocked=q.diagramType==='blocked'; const cols=isStep?3:4, rows=isStep?3:3, x0=52,y0=220,dx=78,dy=55, w=cols*dx+104,h=260;
+  let s=`<svg class="diagram" viewBox="0 0 ${w} ${h}" role="img" aria-label="道順の図">`;
+  for(let r=0;r<=rows;r++) s+=`<line class="road" x1="${x0}" y1="${y0-r*dy}" x2="${x0+cols*dx}" y2="${y0-r*dy}"/>`;
+  for(let c=0;c<=cols;c++) s+=`<line class="road" x1="${x0+c*dx}" y1="${y0}" x2="${x0+c*dx}" y2="${y0-rows*dy-(isStep&&c===cols?dy:0)}"/>`;
+  if(isStep) s+=`<line class="road" x1="${x0+cols*dx}" y1="${y0-rows*dy-dy}" x2="${x0+cols*dx}" y2="${y0-rows*dy}"/>`;
+  for(let r=0;r<=rows;r++) for(let c=0;c<=cols;c++) s+=`<circle class="node" cx="${x0+c*dx}" cy="${y0-r*dy}" r="4"/>`;
+  if(isStep) s+=`<circle class="node" cx="${x0+cols*dx}" cy="${y0-rows*dy-dy}" r="4"/>`;
+  s+=`<text class="label" x="${x0-28}" y="${y0+7}">A</text>`;
+  const bx=x0+cols*dx, by=isStep?y0-rows*dy-dy:y0-rows*dy; s+=`<text class="label" x="${bx+10}" y="${by+7}">B</text>`;
+  if(isStep){ const cx=x0+dx,cy=y0-2*dy; s+=`<circle cx="${cx}" cy="${cy}" r="13" fill="#f2e9ff" stroke="#744db1" stroke-width="3"/><text x="${cx-6}" y="${cy+6}" fill="#6241a4" font-size="17" font-weight="800">C</text>`; }
+  if(blocked){ const xx=x0+2*dx, yy=y0-dy/2; s+=`<line x1="${xx-12}" y1="${yy-12}" x2="${xx+12}" y2="${yy+12}" stroke="#dc3434" stroke-width="6"/><line x1="${xx+12}" y1="${yy-12}" x2="${xx-12}" y2="${yy+12}" stroke="#dc3434" stroke-width="6"/>`; }
+  if(explain){
+    if(q.diagramType==='grid2'){ const a=[[0,1,1,1,1],[1,2,3,4,5],[1,3,6,10,15]]; s+=counts(a,x0,y0,dx,dy); }
+    if(q.diagramType==='grid3'){ const a=[[0,1,1,1,1],[1,2,3,4,5],[1,3,6,10,15],[1,4,10,20,35]]; s+=counts(a,x0,y0,dx,dy); }
+    if(isStep){ s+=`<text class="count" x="${x0+dx-8}" y="${y0-2*dy-20}">3</text><text class="count" x="${bx-7}" y="${by-20}">5</text><text x="${w/2-48}" y="25" fill="#075594" font-size="24" font-weight="900">3 × 5 = 15</text>`; }
+    if(blocked){ s+=`<text class="count" x="${x0+2*dx-8}" y="${y0-dy+25}">3</text><text class="count" x="${bx-42}" y="${by+32}">3</text><text x="${w/2-73}" y="25" fill="#075594" font-size="23" font-weight="900">35 − (3 × 3) = 26</text>`; }
+  }
+  return s+'</svg>';
+}
+function counts(a,x0,y0,dx,dy){let out=''; a.forEach((row,r)=>row.forEach((n,c)=>{if(r||c) out+=`<text class="count" x="${x0+c*dx-7}" y="${y0-r*dy-10}">${n}</text>`;})); return out;}
+function render(){
+  if(index>=order.length){ app.innerHTML=`<section class="card finish"><div aria-hidden="true" style="font-size:52px">🎉</div><h2>おつかれさまでした！</h2><p>全4問終わりました！</p><div class="finish-buttons"><button class="restart" onclick="restart(false)">最初から</button><button class="shuffle" onclick="restart(true)">問題をシャッフル</button></div></section>`; return; }
+  const q=order[index]; let extra=''; if(hints>0) extra+=`<section class="card hint"><h2>💡 ヒント1</h2><p>${q.hint1}</p></section>`; if(hints>1) extra+=`<section class="card hint"><h2>💡 ヒント2</h2><p>${q.hint2}</p></section>`;
+  if(showingAnswer) extra+=`<section class="card answer"><h2>答え</h2><div class="answer-value">${q.answer}</div><h2>くわしい解説</h2><ol class="explain-list">${q.explanation.map(x=>`<li>${x}</li>`).join('')}</ol>${svgFor(q,true)}${q.diagramType==='blocked'?'<div class="formula">35 − (3 × 3) = 26</div>':''}<div class="point">★ ポイント<br>${q.point}</div></section>`;
+  app.innerHTML=`<div class="progress">${index+1} / 4</div><div class="tags"><span class="tag category">${q.category}</span><span class="tag level">レベル${q.difficulty}</span></div><section class="card"><p class="question">${q.question}</p>${svgFor(q)}<div class="paper">✏️ 手元の紙に図や数字を書きながら考えてみよう！</div></section><div class="actions">${hints<2?`<button class="hint-btn" onclick="showHint()">💡 ${hints?'もう少しヒント':'ヒントを見る'}</button>`:'<button class="hint-btn" disabled>💡 ヒントを見ました</button>'}<button class="answer-btn" onclick="showAnswer()">👁 答えと解説を見る</button></div>${extra}<nav class="nav"><button class="prev" onclick="move(-1)" ${index===0?'disabled':''}>← 前へ</button><button class="next" onclick="move(1)">次へ →</button></nav>`;
+}
+function showHint(){hints++;render();} function showAnswer(){showingAnswer=true;render();setTimeout(()=>document.querySelector('.answer')?.scrollIntoView({behavior:'smooth',block:'start'}),0);} function move(n){index+=n;hints=0;showingAnswer=false;render();window.scrollTo({top:0,behavior:'smooth'});} function restart(shuffle){order=[...questions];if(shuffle)for(let i=order.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];}index=0;hints=0;showingAnswer=false;render();window.scrollTo(0,0);} render();
+</script>
+</body></html>
