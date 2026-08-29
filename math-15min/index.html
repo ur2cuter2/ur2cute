@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>算数15分チャレンジ</title>
+  <style>
+    :root {
+      --blue: #1769d1;
+      --blue-dark: #0e4fa5;
+      --blue-pale: #eaf3ff;
+      --ink: #17345a;
+      --muted: #5d6e85;
+      --line: #d9e4f2;
+      --purple: #7652bc;
+      --purple-pale: #f0eafd;
+      --yellow: #7b5700;
+      --yellow-pale: #fff1b8;
+      --green: #147a54;
+      --green-pale: #e4f7ee;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { background: #f5f8fc; }
+
+    body {
+      margin: 0;
+      min-width: 0;
+      background: #f5f8fc;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic", sans-serif;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    button {
+      font: inherit;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .site-header {
+      background: var(--blue);
+      color: #fff;
+      padding: max(18px, env(safe-area-inset-top)) 20px 18px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(20, 66, 126, .18);
+    }
+
+    .site-header h1 { margin: 0; font-size: 24px; letter-spacing: .04em; }
+
+    main { width: min(100%, 640px); margin: 0 auto; padding: 24px 16px 32px; }
+
+    .progress {
+      margin: 0 0 12px;
+      color: var(--blue);
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: .04em;
+    }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+
+    .tag { border-radius: 999px; padding: 6px 12px; font-size: 15px; font-weight: 700; }
+    .tag-category { background: var(--purple-pale); color: var(--purple); }
+    .tag-difficulty { background: var(--yellow-pale); color: var(--yellow); }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: clamp(22px, 6vw, 32px);
+      box-shadow: 0 5px 16px rgba(39, 73, 117, .09);
+    }
+
+    .question-label, .answer-label { margin: 0 0 10px; font-size: 17px; font-weight: 800; }
+    .question-label { color: var(--blue); }
+    .question-text { margin: 0; font-size: clamp(24px, 6.5vw, 28px); font-weight: 800; line-height: 1.65; overflow-wrap: anywhere; }
+    .paper-note { margin: 15px 2px 0; color: var(--muted); font-size: 18px; line-height: 1.6; }
+
+    .reveal-button, .nav-button, .restart-button {
+      min-height: 52px;
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      cursor: pointer;
+      font-weight: 800;
+      transition: transform .15s ease, background-color .15s ease, opacity .15s ease;
+    }
+
+    .reveal-button { display: block; width: min(100%, 320px); margin: 24px auto; background: var(--blue); color: #fff; font-size: 20px; box-shadow: 0 4px 10px rgba(23, 105, 209, .24); }
+    .reveal-button:hover, .reveal-button:focus-visible { background: var(--blue-dark); }
+    button:not(:disabled):active { transform: translateY(1px); }
+    button:focus-visible { outline: 3px solid #8fc3ff; outline-offset: 3px; }
+
+    .answer-card { margin-top: 18px; background: var(--green-pale); border-color: #a8ddc6; }
+    .answer-label { color: var(--green); }
+    .answer-text { margin: 0; color: #075c3b; font-size: 30px; font-weight: 800; line-height: 1.4; }
+
+    .explanation-card { margin-top: 16px; }
+    .explanation-card h2 { margin: 0 0 14px; color: var(--blue); font-size: 21px; }
+    .explanation-list { margin: 0; padding-left: 1.4em; font-size: 18px; line-height: 1.8; }
+    .explanation-list li + li { margin-top: 5px; }
+    .explanation-list strong { color: var(--blue-dark); }
+
+    .navigation { display: flex; gap: 12px; justify-content: space-between; margin-top: 26px; }
+    .nav-button { flex: 1 1 0; background: #fff; border: 2px solid var(--blue); color: var(--blue); font-size: 18px; }
+    .nav-button.next { background: var(--blue); color: #fff; }
+    .nav-button:disabled { cursor: not-allowed; opacity: .42; }
+
+    .finish { text-align: center; }
+    .finish h2 { margin: 0 0 12px; color: var(--blue); font-size: clamp(27px, 7vw, 34px); }
+    .finish p { margin: 0; font-size: 20px; line-height: 1.7; }
+    .finish-actions { display: grid; gap: 14px; margin-top: 28px; }
+    .restart-button { background: var(--blue); color: #fff; font-size: 19px; }
+    .restart-button.secondary { background: #fff; border: 2px solid var(--blue); color: var(--blue); }
+
+    [hidden] { display: none !important; }
+
+    @media (max-width: 360px) {
+      main { padding-inline: 12px; }
+      .card { border-radius: 16px; padding: 20px; }
+      .navigation { gap: 8px; }
+      .nav-button { padding-inline: 10px; font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header"><h1>算数15分チャレンジ</h1></header>
+  <main>
+    <section id="drill" aria-live="polite">
+      <p id="progress" class="progress"></p>
+      <div id="tags" class="tags"></div>
+      <article class="card">
+        <p class="question-label">問題</p>
+        <p id="question" class="question-text"></p>
+        <p class="paper-note">✏️ 手元の紙に式や考え方を書いてみよう！</p>
+      </article>
+      <button id="revealButton" class="reveal-button" type="button">答えを見る</button>
+      <section id="answerSection" hidden>
+        <article class="card answer-card">
+          <p class="answer-label">答え</p>
+          <p id="answer" class="answer-text"></p>
+        </article>
+        <article class="card explanation-card">
+          <h2>解説</h2>
+          <ul id="explanation" class="explanation-list"></ul>
+        </article>
+      </section>
+      <nav class="navigation" aria-label="問題の移動">
+        <button id="previousButton" class="nav-button" type="button">← 前へ</button>
+        <button id="nextButton" class="nav-button next" type="button">次へ →</button>
+      </nav>
+    </section>
+
+    <section id="finish" class="finish" hidden>
+      <article class="card">
+        <h2>おつかれさまでした！</h2>
+        <p>全12問終わりました！</p>
+        <div class="finish-actions">
+          <button id="restartButton" class="restart-button" type="button">最初から</button>
+          <button id="shuffleButton" class="restart-button secondary" type="button">問題をシャッフル</button>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const originalQuestions = [
+      { id: 1, category: "割合", difficulty: 1, question: "800円の25％はいくらですか。", answer: "200円", explanation: ["800円の25％を求めます。", "25％は小数で0.25です。", "800 × 0.25 = 200", "したがって、200円です。"] },
+      { id: 2, category: "単価", difficulty: 1, question: "7本で980円のペンは、1本いくらですか。", answer: "140円", explanation: ["7本分の値段が980円です。", "1本分の値段を求めるので、全部の値段を本数で割ります。", "980 ÷ 7 = 140", "したがって、1本140円です。"] },
+      { id: 3, category: "割合", difficulty: 1, question: "1,200円の15％はいくらですか。", answer: "180円", explanation: ["1,200円の15％を求めます。", "15％は小数で0.15です。", "1,200 × 0.15 = 180", "したがって、180円です。"] },
+      { id: 4, category: "単価", difficulty: 2, question: "6個で1,080円のお菓子を15個買うと、いくらですか。", answer: "2,700円", explanation: ["まず、お菓子1個の値段を求めます。", "1,080 ÷ 6 = 180", "1個180円です。", "15個買うので、180 × 15 = 2,700", "したがって、2,700円です。"] },
+      { id: 5, category: "割合", difficulty: 2, question: "2,400円の商品を30％引きで買います。支払う金額はいくらですか。", answer: "1,680円", explanation: ["30％引きということは、もとの値段の70％を払うということです。", "100％ − 30％ = 70％", "70％は小数で0.7です。", "2,400 × 0.7 = 1,680", "したがって、1,680円です。"] },
+      { id: 6, category: "割合", difficulty: 2, question: "ある本の定価は1,600円です。1,280円で売られています。定価の何％引きですか。", answer: "20％", explanation: ["まず、何円安くなったかを求めます。", "1,600 − 1,280 = 320", "320円安くなっています。", "次に、320円が定価1,600円のどれくらいかを求めます。", "320 ÷ 1,600 = 0.2", "0.2は20％です。", "したがって、20％引きです。"] },
+      { id: 7, category: "単価", difficulty: 2, question: "8個で1,440円のパンがあります。同じ値段で5個買うと、いくらですか。", answer: "900円", explanation: ["まず、パン1個の値段を求めます。", "1,440 ÷ 8 = 180", "1個180円です。", "5個買うので、180 × 5 = 900", "したがって、900円です。"] },
+      { id: 8, category: "割合", difficulty: 2, question: "あるクラス40人のうち、30％が眼鏡をかけています。眼鏡をかけていない人は何人ですか。", answer: "28人", explanation: ["まず、眼鏡をかけている人の人数を求めます。", "40人の30％なので、40 × 0.3 = 12", "眼鏡をかけている人は12人です。", "クラス全体は40人なので、40 − 12 = 28", "したがって、眼鏡をかけていない人は28人です。"] },
+      { id: 9, category: "割合", difficulty: 3, question: "ある商品を20％引きで買ったところ、代金は2,400円でした。定価はいくらですか。", answer: "3,000円", explanation: ["20％引きということは、定価の80％を払ったということです。", "100％ − 20％ = 80％", "つまり、「定価の80％ = 2,400円」です。", "80％は小数で0.8です。", "定価を求めるので、2,400 ÷ 0.8 = 3,000", "したがって、定価は3,000円です。", "今回は「定価 × 0.8 = 2,400」を逆算しています。"] },
+      { id: 10, category: "単価・割合", difficulty: 3, question: "5個で750円のお菓子を12個買います。合計金額から20％引きされると、いくら払いますか。", answer: "1,440円", explanation: ["まず、お菓子1個の値段を求めます。", "750 ÷ 5 = 150", "1個150円です。", "12個買うので、150 × 12 = 1,800", "もとの合計金額は1,800円です。", "20％引きということは、80％を払います。", "1,800 × 0.8 = 1,440", "したがって、1,440円です。"] },
+      { id: 11, category: "割合", difficulty: 3, question: "ある商品を25％引きで買うと1,800円でした。この商品の定価に10％の消費税を加えるといくらですか。", answer: "2,640円", explanation: ["まず、定価を求めます。", "25％引きということは、定価の75％を払ったということです。", "100％ − 25％ = 75％", "つまり、「定価の75％ = 1,800円」です。", "定価は、1,800 ÷ 0.75 = 2,400", "したがって、定価は2,400円です。", "次に、定価に10％の消費税を加えます。", "10％の税を加えるということは、110％を払うということです。", "2,400 × 1.1 = 2,640", "したがって、2,640円です。"] },
+      { id: 12, category: "単価・割合", difficulty: 4, question: "6本で900円のジュースを20本買います。代金の10％引きになり、その後、残った金額に10％の消費税がかかります。支払額はいくらですか。", answer: "2,970円", explanation: ["まず、ジュース1本の値段を求めます。", "900 ÷ 6 = 150", "1本150円です。", "20本買うので、150 × 20 = 3,000", "もとの代金は3,000円です。", "次に10％引きになるので、90％を払います。", "3,000 × 0.9 = 2,700", "割引後の金額は2,700円です。", "その2,700円に10％の消費税がかかります。", "10％の税を加えるということは、110％を払います。", "2,700 × 1.1 = 2,970", "したがって、支払額は2,970円です。", "10％引きのあとに10％を加えても、元の3,000円には戻りません。", "最初の10％は3,000円をもとに計算しますが、その後の10％は2,700円をもとに計算するからです。"] }
+    ];
+
+    let questions = [...originalQuestions];
+    let currentIndex = 0;
+
+    const drill = document.getElementById("drill");
+    const finish = document.getElementById("finish");
+    const progress = document.getElementById("progress");
+    const tags = document.getElementById("tags");
+    const question = document.getElementById("question");
+    const answer = document.getElementById("answer");
+    const explanation = document.getElementById("explanation");
+    const answerSection = document.getElementById("answerSection");
+    const revealButton = document.getElementById("revealButton");
+    const previousButton = document.getElementById("previousButton");
+    const nextButton = document.getElementById("nextButton");
+
+    function emphasizeMath(text) {
+      return text.replace(/(\d[\d,]*\s*[×÷＋−=]\s*[\d,.]+|\d[\d,]*％|\d[\d,]*(?:円|人|個|本))/g, "<strong>$1</strong>");
+    }
+
+    function renderQuestion() {
+      const item = questions[currentIndex];
+      drill.hidden = false;
+      finish.hidden = true;
+      progress.textContent = `${currentIndex + 1} / ${questions.length}`;
+      tags.replaceChildren();
+      [["tag tag-category", item.category], ["tag tag-difficulty", `レベル${item.difficulty}`]].forEach(([className, text]) => {
+        const tag = document.createElement("span");
+        tag.className = className;
+        tag.textContent = text;
+        tags.append(tag);
+      });
+      question.textContent = item.question;
+      answer.textContent = item.answer;
+      explanation.replaceChildren();
+      item.explanation.forEach((line) => {
+        const li = document.createElement("li");
+        li.innerHTML = emphasizeMath(line);
+        explanation.append(li);
+      });
+      answerSection.hidden = true;
+      revealButton.hidden = false;
+      previousButton.disabled = currentIndex === 0;
+      nextButton.textContent = currentIndex === questions.length - 1 ? "次へ →" : "次へ →";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function showFinish() {
+      drill.hidden = true;
+      finish.hidden = false;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    revealButton.addEventListener("click", () => {
+      answerSection.hidden = false;
+      revealButton.hidden = true;
+    });
+
+    previousButton.addEventListener("click", () => {
+      if (currentIndex > 0) { currentIndex -= 1; renderQuestion(); }
+    });
+
+    nextButton.addEventListener("click", () => {
+      if (currentIndex === questions.length - 1) { showFinish(); }
+      else { currentIndex += 1; renderQuestion(); }
+    });
+
+    document.getElementById("restartButton").addEventListener("click", () => {
+      questions = [...originalQuestions];
+      currentIndex = 0;
+      renderQuestion();
+    });
+
+    document.getElementById("shuffleButton").addEventListener("click", () => {
+      questions = [...originalQuestions];
+      for (let i = questions.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [questions[i], questions[j]] = [questions[j], questions[i]];
+      }
+      currentIndex = 0;
+      renderQuestion();
+    });
+
+    renderQuestion();
+  </script>
+</body>
+</html>
