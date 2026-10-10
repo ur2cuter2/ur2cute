@@ -1,0 +1,12 @@
+import {mergeSessions,validateBackup,validateSession,validateSessionForMaster} from './validation.js';
+import {interrupt} from './engine.js';
+let dbPromise;
+export function openDB() {
+  return dbPromise??=new Promise((resolve,reject)=>{const r=indexedDB.open('taiga-historia',1);r.onupgradeneeded=()=>{for(const name of ['sessions','masters']) r.result.createObjectStore(name,{keyPath:'id'});};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);r.onblocked=()=>reject(new Error('他のタブを閉じて再読み込みしてください'));});
+}
+const request=r=>new Promise((resolve,reject)=>{r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
+export async function allSessions(){const db=await openDB();return request(db.transaction('sessions').objectStore('sessions').getAll());}
+export async function getMasters(){const db=await openDB();return (await request(db.transaction('masters').objectStore('masters').get('bundle')))?.value;}
+export async function saveSession(s){validateSession(s);const db=await openDB();return new Promise((resolve,reject)=>{const tx=db.transaction('sessions','readwrite');tx.objectStore('sessions').put(s);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);});}
+export async function installMasters(bundle){const db=await openDB();return new Promise((resolve,reject)=>{const tx=db.transaction(['sessions','masters'],'readwrite');const store=tx.objectStore('sessions');const r=store.getAll();r.onsuccess=()=>{for(const s of r.result){const m=bundle.masters[s.chapterId];if(s.status==='active'&&(!m||m.contentVersion!==s.contentVersion)) store.put(interrupt(s,'master-update'));}tx.objectStore('masters').put({id:'bundle',value:bundle});};tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);});}
+export async function importHistory(backup,mode){validateBackup(backup);const db=await openDB();return new Promise((resolve,reject)=>{const tx=db.transaction(['sessions','masters'],'readwrite');const store=tx.objectStore('sessions');const r=store.getAll();let failure;r.onsuccess=()=>{const mr=tx.objectStore('masters').get('bundle');mr.onsuccess=()=>{try{const merged=mergeSessions(r.result,backup.sessions,mode);for(const s of merged){const m=mr.result?.value.masters[s.chapterId];if(s.status==='active'&&m?.contentVersion===s.contentVersion)validateSessionForMaster(s,m);}store.clear();merged.forEach(s=>store.put(s));}catch(e){failure=e;tx.abort();}};};tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(failure??tx.error);});}

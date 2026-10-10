@@ -1,0 +1,5 @@
+const CACHE='taiga-shell-v2';
+const ASSETS=['./','./index.html','./css/style.css','./js/app.js','./js/engine.js','./js/grader.js','./js/review.js','./js/storage.js','./js/data-loader.js','./js/validation.js','./js/authoring-validator.js','./js/chapter-schema.js','./js/schema-validator.js','./js/strict-json.js','./assets/Taiga_Historia_Logo.png','./icons/apple-touch-icon-180.png'];
+self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS))));
+self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('taiga-shell-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',event=>{const url=new URL(event.request.url);if(event.request.method!=='GET'||url.origin!==location.origin||url.pathname.endsWith('.json'))return;event.respondWith(fetch(event.request).catch(()=>caches.match(event.request).then(cached=>cached??(event.request.mode==='navigate'?caches.match('./index.html'):Response.error()))));});

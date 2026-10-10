@@ -1,0 +1,498 @@
+{
+  "schemaVersion": "1.0",
+  "chapterId": "heian",
+  "chapterName": "平安時代",
+  "contentVersion": "1.0.0",
+  "sourceQuestions": [
+    {
+      "id": "heian_001",
+      "question": "794年に新しい都になったのはどこか。",
+      "answer": "平安京",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_002",
+      "question": "平安京に都を移した天皇はだれか。",
+      "answer": "桓武天皇",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_003",
+      "question": "桓武天皇が東北地方を平定するために征夷大将軍にしたのはだれか。",
+      "answer": "坂上田村麻呂",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_004",
+      "question": "征夷大将軍のように、律令に定められていない官職を何というか。",
+      "answer": "令外の官",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_005",
+      "question": "延暦寺を建立した僧はだれか。",
+      "answer": "最澄",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_006",
+      "question": "最澄がはじめた仏教を何宗というか。",
+      "answer": "天台宗",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_007",
+      "question": "金剛峯寺を建立した僧はだれか。",
+      "answer": "空海",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_008",
+      "question": "空海がはじめた仏教を何宗というか。",
+      "answer": "真言宗",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_009",
+      "question": "娘を天皇のきさきにし、生まれた子を天皇として勢力をのばした藤原氏の政治を、何政治というか。",
+      "answer": "摂関政治",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_010",
+      "question": "藤原氏は天皇が幼少のときは、何という役職についたか。",
+      "answer": "摂政",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_011",
+      "question": "藤原氏で最初に摂政になったのはだれか。",
+      "answer": "藤原良房",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_012",
+      "question": "藤原氏は天皇が成人した後は、何という役職についたか。",
+      "answer": "関白",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_013",
+      "question": "藤原氏で最初に関白になったのはだれか。",
+      "answer": "藤原基経",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_014",
+      "question": "荘園で、税を納めなくてもよい権利を何というか。",
+      "answer": "不輸の権",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_015",
+      "question": "荘園で、国司の立ち入りをことわる権利を何というか。",
+      "answer": "不入の権",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_016",
+      "question": "藤原氏でもっとも力があり、「この世をば　わが世とぞ思う」と和歌を詠んだのはだれか。",
+      "answer": "藤原道長",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_017",
+      "question": "藤原道長の子で平等院鳳凰堂を建立したのはだれか。",
+      "answer": "藤原頼通",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_018",
+      "question": "10世紀に関東地方で反乱をおこし、新皇と称したのはだれか。",
+      "answer": "平将門",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_019",
+      "question": "10世紀に瀬戸内地方で反乱をおこしたのはだれか。",
+      "answer": "藤原純友",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_020",
+      "question": "尾張の国司で農民たちから訴えられ、解任されたのはだれか。",
+      "answer": "藤原元命",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_021",
+      "question": "1086年に院政をはじめたのはだれか。",
+      "answer": "白河上皇",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_022",
+      "question": "1156年に、天皇と上皇の対立からおきた乱は何か。",
+      "answer": "保元の乱",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_023",
+      "question": "1159年に、平清盛と源義朝の対立からおきた乱は何か。",
+      "answer": "平治の乱",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_024",
+      "question": "平清盛は、武士では最初となる何という役職についたか。",
+      "answer": "太政大臣",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_025",
+      "question": "平清盛が中国と貿易をするために改築した港はどこか。",
+      "answer": "大輪田泊",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_026",
+      "question": "平清盛が貿易をしたとき、中国は何という王朝だったか。",
+      "answer": "宋",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_027",
+      "question": "平氏をほろぼすために、伊豆で挙兵したのはだれか。",
+      "answer": "源頼朝",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_028",
+      "question": "屋島などで平氏をやぶったのはだれか。",
+      "answer": "源義経",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_029",
+      "question": "1185年に、平氏がほろびた戦いを何というか。",
+      "answer": "壇ノ浦の戦い",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_030",
+      "question": "壇ノ浦は、何県にあるか。",
+      "answer": "山口県",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_031",
+      "question": "平氏がほろびた後、源頼朝は国ごとに何を置いたか。",
+      "answer": "守護",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_032",
+      "question": "平氏がほろびた後、源頼朝は荘園に何を置いたか。",
+      "answer": "地頭",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_033",
+      "question": "守護や地頭に任命された、源頼朝の家来を何というか。",
+      "answer": "御家人",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_034",
+      "question": "遣唐使の廃止から栄えた文化を、何というか。",
+      "answer": "国風文化",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_035",
+      "question": "『源氏物語』の作者はだれか。",
+      "answer": "紫式部",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_036",
+      "question": "『枕草子』の作者はだれか。",
+      "answer": "清少納言",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_037",
+      "question": "藤原頼通が建立した建物は。",
+      "answer": "平等院鳳凰堂",
+      "acceptedAnswers": []
+    },
+    {
+      "id": "heian_038",
+      "question": "平安時代の貴族の住む屋敷の建築様式は何か。",
+      "answer": "寝殿造",
+      "acceptedAnswers": []
+    }
+  ],
+  "passages": [
+    {
+      "id": "heian_p001",
+      "half": "first",
+      "order": 1,
+      "title": "平安京と東北地方の平定",
+      "text": "794年に新しい都となったのは{{b1}}で、都を移した天皇は{{b2}}である。この天皇は東北地方の平定のために{{b3}}を征夷大将軍に任命した。征夷大将軍のように、律令に定められていない官職を{{b4}}という。",
+      "blanks": [
+        {
+          "id": "b1",
+          "sourceId": "heian_001"
+        },
+        {
+          "id": "b2",
+          "sourceId": "heian_002"
+        },
+        {
+          "id": "b3",
+          "sourceId": "heian_003"
+        },
+        {
+          "id": "b4",
+          "sourceId": "heian_004"
+        }
+      ]
+    },
+    {
+      "id": "heian_p002",
+      "half": "first",
+      "order": 2,
+      "title": "平安時代の新しい仏教",
+      "text": "{{b1}}は延暦寺を建立し、{{b2}}を広めた。一方、{{b3}}は金剛峯寺を建立し、{{b4}}を広めた。",
+      "blanks": [
+        {
+          "id": "b1",
+          "sourceId": "heian_005"
+        },
+        {
+          "id": "b2",
+          "sourceId": "heian_006"
+        },
+        {
+          "id": "b3",
+          "sourceId": "heian_007"
+        },
+        {
+          "id": "b4",
+          "sourceId": "heian_008"
+        }
+      ]
+    },
+    {
+      "id": "heian_p003",
+      "half": "first",
+      "order": 3,
+      "title": "藤原氏の政治と摂政",
+      "text": "藤原氏は、娘を天皇のきさきにし、生まれた子を天皇として勢力を伸ばした。この政治を{{b1}}という。天皇が幼少のときにつく役職は{{b2}}で、藤原氏で最初にこの役職についたのは{{b3}}である。",
+      "blanks": [
+        {
+          "id": "b1",
+          "sourceId": "heian_009"
+        },
+        {
+          "id": "b2",
+          "sourceId": "heian_010"
+        },
+        {
+          "id": "b3",
+          "sourceId": "heian_011"
+        }
+      ]
+    },
+    {
+      "id": "heian_p004",
+      "half": "first",
+      "order": 4,
+      "title": "関白の始まり",
+      "text": "藤原氏が成人した天皇を助けるためについた役職は{{b1}}である。藤原氏で初めてこの役職についたのは{{b2}}である。",
+      "blanks": [
+        {
+          "id": "b1",
+          "sourceId": "heian_012"
+        },
+        {
+          "id": "b2",
+          "sourceId": "heian_013"
+        }
+      ]
+    },
+    {
+      "id": "heian_p005",
+      "half": "first",
+      "order": 5,
+      "title": "荘園と藤原氏の最盛期",
+      "text": "荘園では、税を納めなくてもよい{{b1}}や、国司の立ち入りを拒む{{b2}}という権利が認められるようになった。また、藤原氏で最も力を持ち、「この世をば　わが世とぞ思う」と詠んだのは{{b3}}であり、その子で平等院鳳凰堂を建立したのは{{b4}}である。",
+      "blanks": [
+        {
+          "id": "b1",
+          "sourceId": "heian_014"
+        },
+        {
+          "id": "b2",
+          "sourceId": "heian_015"
+        },
+        {
+          "id": "b3",
+          "sourceId": "heian_016"
+        },
+        {
+          "id": "b4",
+          "sourceId": "heian_017"
+        }
+      ]
+    },
+    {
+      "id": "heian_p006",
+      "half": "first",
+      "order": 6,
+      "title": "10世紀の地方の反乱",
+      "text": "10世紀、関東地方で反乱を起こし、新皇と称したのは{{b1}}である。また、瀬戸内地方で反乱を起こしたのは{{b2}}である。",
+      "blanks": [
+        {
+          "id": "b1",
+          "sourceId": "heian_018"
+        },
+        {
+          "id": "b2",
+          "sourceId": "heian_019"
+        }
+      ]
+    },
+    {
+      "id": "heian_p007",
+      "half": "second",
+      "order": 1,
+      "title": "地方政治の乱れと院政・争乱",
+      "text": "尾張の国司だった{{b1}}は、農民たちに訴えられ、解任された。その後、1086年に{{b2}}が院政を始めた。1156年には天皇と上皇の対立から{{b3}}が起こり、1159年には平清盛と源義朝の対立から{{b4}}が起こった。",
+      "blanks": [
+        {
+          "id": "b1",
+          "sourceId": "heian_020"
+        },
+        {
+          "id": "b2",
+          "sourceId": "heian_021"
+        },
+        {
+          "id": "b3",
+          "sourceId": "heian_022"
+        },
+        {
+          "id": "b4",
+          "sourceId": "heian_023"
+        }
+      ]
+    },
+    {
+      "id": "heian_p008",
+      "half": "second",
+      "order": 2,
+      "title": "平清盛と中国との貿易",
+      "text": "平清盛は武士として初めて{{b1}}の役職についた。また、中国との貿易のために港の{{b2}}を改築した。当時、交易相手の中国の王朝は{{b3}}であった。",
+      "blanks": [
+        {
+          "id": "b1",
+          "sourceId": "heian_024"
+        },
+        {
+          "id": "b2",
+          "sourceId": "heian_025"
+        },
+        {
+          "id": "b3",
+          "sourceId": "heian_026"
+        }
+      ]
+    },
+    {
+      "id": "heian_p009",
+      "half": "second",
+      "order": 3,
+      "title": "源平の戦い",
+      "text": "平氏を滅ぼすため、伊豆で挙兵したのは{{b1}}である。屋島などで平氏を破ったのは{{b2}}であり、1185年に平氏は{{b3}}で滅びた。この戦いの舞台となった壇ノ浦があるのは現在の{{b4}}である。",
+      "blanks": [
+        {
+          "id": "b1",
+          "sourceId": "heian_027"
+        },
+        {
+          "id": "b2",
+          "sourceId": "heian_028"
+        },
+        {
+          "id": "b3",
+          "sourceId": "heian_029"
+        },
+        {
+          "id": "b4",
+          "sourceId": "heian_030"
+        }
+      ]
+    },
+    {
+      "id": "heian_p010",
+      "half": "second",
+      "order": 4,
+      "title": "源頼朝と武士のしくみ",
+      "text": "平氏が滅んだ後、源頼朝は国ごとに{{b1}}を置き、荘園には{{b2}}を置いた。これらに任命された源頼朝の家来を{{b3}}という。",
+      "blanks": [
+        {
+          "id": "b1",
+          "sourceId": "heian_031"
+        },
+        {
+          "id": "b2",
+          "sourceId": "heian_032"
+        },
+        {
+          "id": "b3",
+          "sourceId": "heian_033"
+        }
+      ]
+    },
+    {
+      "id": "heian_p011",
+      "half": "second",
+      "order": 5,
+      "title": "国風文化と文学",
+      "text": "遣唐使の廃止後、日本の風土や生活に合った{{b1}}が栄えた。文学では、「源氏物語」を{{b2}}が書き、「枕草子」を{{b3}}が書いた。",
+      "blanks": [
+        {
+          "id": "b1",
+          "sourceId": "heian_034"
+        },
+        {
+          "id": "b2",
+          "sourceId": "heian_035"
+        },
+        {
+          "id": "b3",
+          "sourceId": "heian_036"
+        }
+      ]
+    },
+    {
+      "id": "heian_p012",
+      "half": "second",
+      "order": 6,
+      "title": "平安時代の建築",
+      "text": "藤原頼通が建立した建物は{{b1}}である。また、平安時代の貴族の屋敷に見られた建築様式を{{b2}}という。",
+      "blanks": [
+        {
+          "id": "b1",
+          "sourceId": "heian_037"
+        },
+        {
+          "id": "b2",
+          "sourceId": "heian_038"
+        }
+      ]
+    }
+  ]
+}

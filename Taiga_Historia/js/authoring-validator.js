@@ -1,0 +1,39 @@
+import {chapterSchema} from './chapter-schema.js';
+import {schemaErrors} from './schema-validator.js';
+import {parseStrictJSON} from './strict-json.js';
+const string=v=>typeof v==='string'&&v.trim().length>0;
+const object=v=>v!==null&&typeof v==='object'&&!Array.isArray(v);
+export function validateAuthoring(input,{balanceThreshold=.6}={}){
+ if(!Number.isFinite(balanceThreshold)||balanceThreshold<.5||balanceThreshold>1)throw new Error('balanceThresholdは0.5〜1の数値を指定してください');
+ const findings=[];let m=input;
+ const add=(code,severity,location,targetId,message,expected,actual,sourceIds=[])=>findings.push({code,rule:code,severity,location,targetId:targetId??null,sourceIds,message,expected:expected??null,actual:actual??null,autoFixable:code==='V1_ORDER'&&Array.isArray(actual)&&actual.every(Number.isInteger)&&new Set(actual).size===actual.length,suggestedAction:severity==='ERROR'?'元資料を確認し、変更差分を記録して再検証する':severity==='WARNING'?'保護者レビューで確認する':'確認記録として保持する'});
+ if(typeof input==='string'){try{const parsed=parseStrictJSON(input);m=parsed.value;parsed.duplicates.forEach(d=>add('V1_JSON_PARSE','ERROR',d.location,d.key,'JSONオブジェクト内のキーが重複しています','unique keys',d.key));}catch(e){add('V1_JSON_PARSE','ERROR','',null,e.message,'valid UTF-8 JSON',null);m=null;}}
+ const schemaFindings=schemaErrors(chapterSchema,m);schemaFindings.forEach(e=>add('V1_SCHEMA','ERROR',e.location,null,e.message,e.expected,e.actual));
+ const sources=Array.isArray(m?.sourceQuestions)?m.sourceQuestions:[],passages=Array.isArray(m?.passages)?m.passages:[];
+ const sourceById=new Map(),usage=new Map(),passageIds=new Set(),orders={first:[],second:[]};
+ if(!object(m)||m.schemaVersion!=='1.0'||!['chapterId','chapterName','contentVersion'].every(k=>string(m[k])))add('V1_META','ERROR','',m?.chapterId,'章名・ID・版が不正です','schemaVersion 1.0 and nonempty metadata',m?.schemaVersion);
+ sources.forEach((q,i)=>{const location=`/sourceQuestions/${i}`;if(!object(q)){add('V1_SOURCE_ID','ERROR',location,null,'元設問はオブジェクトである必要があります','object',q);return;}if(!string(q.id)||!string(q.question)||!string(q.answer)||sourceById.has(q.id))add('V1_SOURCE_ID','ERROR',location,q.id,'設問ID重複または設問文・正答・IDが空です','unique ID and nonempty question/answer',q.id);if(string(q.id)&&!sourceById.has(q.id))sourceById.set(q.id,q);
+  if(!Array.isArray(q.acceptedAnswers)||!q.acceptedAnswers.every(string)||new Set(q.acceptedAnswers).size!==q.acceptedAnswers.length||q.acceptedAnswers.includes(q.answer))add('V1_ACCEPTED','ERROR',`${location}/acceptedAnswers`,q.id,'許容解答は非空・重複なし・正答と異なる表記にしてください','unique nonempty aliases excluding answer',q.acceptedAnswers);
+  for(const [j,a]of [q.answer,...(Array.isArray(q.acceptedAnswers)?q.acceptedAnswers:[])].entries())if(typeof a==='string'&&(!a.trim()||a!==a.trim()||/[\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/u.test(a)))add('V1_SUSPICIOUS_INPUT','WARNING',j?`${location}/acceptedAnswers/${j-1}`:`${location}/answer`,q.id,'採点不能な空白や不可視文字の疑いがあります。自動正規化しません','explicit parent-reviewed spelling',a,[q.id]);
+ });
+ const answerIds=new Map();for(const q of sources.filter(object)){if(string(q.answer)){if(!answerIds.has(q.answer))answerIds.set(q.answer,[]);answerIds.get(q.answer).push(q.id);}}for(const [answer,ids]of answerIds)if(ids.length>1)add('V1_DUPLICATE_ANSWER','INFO','/sourceQuestions',null,'異なる元設問IDの同一正答は許可され、各設問を出題します','allowed',answer,ids);
+ let blanks=0,first=0,second=0;let firstPassages=0,secondPassages=0;
+ passages.forEach((p,i)=>{const location=`/passages/${i}`;if(!object(p)){add('V1_PASSAGE_ID','ERROR',location,null,'文章はオブジェクトである必要があります','object',p);return;}if(!string(p.id)||!string(p.title)||!string(p.text)||passageIds.has(p.id))add('V1_PASSAGE_ID','ERROR',location,p.id,'文章ID重複または文章ID・タイトル・本文が空です','unique ID and nonempty title/text',p.id);passageIds.add(p.id);
+  if(!['first','second'].includes(p.half))add('V1_HALF','ERROR',`${location}/half`,p.id,'前半／後半の値が不正です',['first','second'],p.half);else{orders[p.half].push({value:p.order,id:p.id,location:`${location}/order`});if(p.half==='first')firstPassages++;else secondPassages++;}
+  const bs=Array.isArray(p.blanks)?p.blanks:[];blanks+=bs.length;if(p.half==='first')first+=bs.length;if(p.half==='second')second+=bs.length;
+  if(!Array.isArray(p.blanks)||bs.length<1||bs.length>4)add('V1_BLANK_RANGE','ERROR',`${location}/blanks`,p.id,'穴数は1〜4です','1..4',bs.length);else if(bs.length===1)add('V1_SINGLE_BLANK','WARNING',`${location}/blanks`,p.id,'1穴文章の例外理由を内容レビューに記録してください','2..4 preferred; 1 allowed',1);
+  const ids=bs.map(b=>object(b)?b.id:null);const duplicateBlank=ids.filter((id,j)=>ids.indexOf(id)!==j);
+  if(bs.some(b=>!object(b)||!string(b.id))||duplicateBlank.length)add('V1_BLANK_ID','ERROR',`${location}/blanks`,p.id,'穴IDは文章内で非空・一意である必要があります','unique nonempty blank IDs',ids);
+  const text=typeof p.text==='string'?p.text:'';const markers=[...text.matchAll(/\{\{([^{}]+)\}\}/g)].map(match=>match[1]);
+  if(markers.length!==ids.length||ids.some(id=>markers.filter(x=>x===id).length!==1)||markers.some(id=>!ids.includes(id))||/[{}]/.test(text.replace(/\{\{[^{}]+\}\}/g,'')))add('V1_PLACEHOLDER','ERROR',`${location}/text`,p.id,'穴とプレースホルダーの1対1対応が崩れています',ids,markers);
+  const visible={title:typeof p.title==='string'?p.title:'',text:text.replace(/\{\{[^{}]+\}\}/g,'')};
+  bs.forEach((b,j)=>{if(!object(b))return;if(!string(b.sourceId)||!sourceById.has(b.sourceId))add('V1_FOREIGN_KEY','ERROR',`${location}/blanks/${j}/sourceId`,p.id,'参照先の元設問がありません','existing source ID',b.sourceId,[b.sourceId].filter(string));usage.set(b.sourceId,(usage.get(b.sourceId)??0)+1);const q=sourceById.get(b.sourceId);if(!q||!string(q.answer))return;
+   for(const [field,visibleText]of Object.entries(visible))if(visibleText.includes(q.answer))add('V1_ANSWER_EXPOSURE',[...q.answer].length===1?'WARNING':'ERROR',`${location}/${field}`,p.id,[...q.answer].length===1?'1文字正答の全文一致を検出しました。誤検出か保護者確認が必要です':'同じ文章のタイトルまたは本文に正答全文が露出しています','answer hidden in this passage',q.answer,[q.id]);
+  });
+ });
+ for(const half of ['first','second']){if(!orders[half].length)add('V1_HALF','ERROR','/passages',m?.chapterId,`${half}に文章がありません`,'at least one passage',0);const values=orders[half].map(x=>x.value);if(values.some(x=>!Number.isInteger(x)||x<1)||new Set(values).size!==values.length||[...values].sort((a,b)=>a-b).some((x,i)=>x!==i+1))for(const row of orders[half])add('V1_ORDER','ERROR',row.location,row.id,`${half}のorderは1から連番で重複なしにしてください`,'1..N per half',values);}
+ const missing=[],duplicated=[];for(const id of sourceById.keys()){const count=usage.get(id)??0;if(count===0)missing.push(id);if(count>1)duplicated.push(id);if(count!==1)add('V1_COVERAGE','ERROR','/passages',id,'元設問はちょうど1回出題してください',1,count,[id]);}
+ const firstRatio=first+second?first/(first+second):0;if(first+second&&Math.max(firstRatio,1-firstRatio)>balanceThreshold)add('V1_BALANCE_WARN','WARNING','/passages',m?.chapterId,'前後半の穴数差が設定した警告閾値を超えています',balanceThreshold,{first,second});
+ const counts={sourceQuestions:sources.length,blanks,passages:passages.length,first,second,firstPassages,secondPassages,coveredSourceQuestions:[...sourceById.keys()].filter(id=>(usage.get(id)??0)>0).length,coverageRate:sourceById.size?[...sourceById.keys()].filter(id=>(usage.get(id)??0)>0).length/sourceById.size*100:0,missingSourceIds:missing,duplicatedSourceIds:duplicated,ERROR:findings.filter(f=>f.severity==='ERROR').length,WARNING:findings.filter(f=>f.severity==='WARNING').length,INFO:findings.filter(f=>f.severity==='INFO').length};
+ return {validatorVersion:'1.0.0',chapterId:m?.chapterId??null,contentVersion:m?.contentVersion??null,structuralStatus:counts.ERROR?'FAIL':'PASS',runtimeStructureStatus:findings.some(f=>f.severity==='ERROR'&&f.code!=='V1_ANSWER_EXPOSURE')?'FAIL':'PASS',contentStatus:'REVIEW_REQUIRED',approvalStatus:'APPROVAL_PENDING',parameters:{balanceThreshold,shortAnswerExposure:'single-character => WARNING',orderScope:'per-half'},counts,findings};
+}
