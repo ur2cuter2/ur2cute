@@ -70,3 +70,16 @@ CSV由来のマスタ情報（単語本文・意味・文脈・クイズ・ス�
 - セーブ→リロード後も進捗が維持される
 - 壊れたJSONをインポートしても現在データが壊れない
 - 朝に新語0枚・復習2枚、夕方に新語追加した場合、新語3枚が補充される
+
+## 見積書作成ツール（Excel）
+`create_estimate_workbook.py` は **.xlsx のみ** を生成します。`.xlsm` は生成しません。
+
+運用手順：
+1. Pythonで `create_estimate_workbook.py` を実行して `.xlsx` を作成する。
+2. Excelで作成した `.xlsx` を開く。
+3. VBAモジュール `modEstimateTool.bas` をインポートする。
+4. Excel上で `.xlsm` として保存する。
+
+補足：
+- `--output` 省略時の既定値は `estimate_tool/見積書作成ツール_v0.1.xlsx`。
+- `--output` に `.xlsm` を指定するとエラーになります（`.xlsx` を指定してください）。
