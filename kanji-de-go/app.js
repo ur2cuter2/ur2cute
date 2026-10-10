@@ -1,10 +1,14 @@
-﻿"use strict";
+"use strict";
 
-const APP_VERSION = "2026.07.20.2";
+const APP_VERSION = "2026.10.10.2";
 
 const STORAGE_KEY = "kanji-de-go-learning-data";
 const USER_NAME_KEY = "kanjiRushUserName";
 const RETRY_STORAGE_KEY = "kanji-de-go-today-retry";
+const STREAK_STORAGE_KEY = "kanji-de-go-learning-streak";
+let testStreakState = { d: [] };
+let sessionHasQuestions = false;
+let currentQuestionHadAnswer = false;
 const DAILY_COMPLETED_KEY = "kanji-de-go-daily-completed-date";
 const DAILY_ADVENTURE_KEY = "kanji-de-go-daily-adventure";
 const DAILY_TREASURE_KEY = "kanji-de-go-daily-treasure";
@@ -519,8 +523,9 @@ function buildCompactSaveData() {
   });
 
   return {
-    v: 1,
+    v: 3,
     u: currentUserName || getStoredUserName(),
+    s: loadStreakState(),
     p: progress
   };
 }
@@ -548,9 +553,11 @@ function applyCompactSaveData(saveData) {
     throw new Error("Import is disabled in test mode");
   }
 
-  if (!saveData || saveData.v !== 1 || typeof saveData.p !== "object" || saveData.p === null) {
+  if (!saveData || ![1, 2, 3].includes(saveData.v) || typeof saveData.p !== "object" || saveData.p === null || Array.isArray(saveData.p)) {
     throw new Error("Unsupported save data");
   }
+
+  if (saveData.v >= 2) LearningStreak.validate(saveData.s, saveData.v === 3);
 
   if (typeof saveData.u === "string" && saveData.u.trim()) {
     saveUserName(saveData.u.trim());
@@ -572,6 +579,7 @@ function applyCompactSaveData(saveData) {
     };
   });
   saveLearningData();
+  if (saveData.v >= 2) saveStreakState(LearningStreak.merge(loadStreakState(), saveData.s));
 }
 
 function importLegacyFullData(records) {
@@ -589,10 +597,41 @@ function saveLearningData(data = learningData) {
 }
 
 function todayString() {
-  const now = new Date();
-  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
-  return local.toISOString().slice(0, 10);
+  return LearningStreak.today();
 }
+
+function loadStreakState() {
+  if (IS_TEST_MODE) return LearningStreak.normalize(testStreakState);
+  try { return LearningStreak.normalize(JSON.parse(localStorage.getItem(STREAK_STORAGE_KEY))); }
+  catch { return { d: [] }; }
+}
+
+function saveStreakState(state) {
+  if (IS_TEST_MODE) { testStreakState = state; return; }
+  localStorage.setItem(STREAK_STORAGE_KEY, JSON.stringify(state));
+}
+
+function renderStreakPanel() {
+  const today = todayString();
+  const state = loadStreakState();
+  const stats = LearningStreak.stats(state, today);
+  const days = Array.from({ length: 7 }, (_, index) => {
+    const date = addDays(today, index - 6);
+    const status = LearningStreak.calendarStatus(state, date, today);
+    const icons = { full: "🌸", answered: "○", revival: "⚡", empty: "" };
+    const labels = { full: "復習まですべてクリア", answered: "最低1問はやった", revival: date === today ? "今日1問解答すれば連続記録を守れる" : "復活可能だった日", empty: date === today ? "今日・これから" : "お休み" };
+    return `<li class="streak-day is-${status} ${date === today ? "is-today" : ""}" aria-label="${date} ${labels[status]}"><span>${Number(date.slice(5, 7))}/${Number(date.slice(8))}</span><strong aria-hidden="true">${icons[status]}</strong></li>`;
+  }).join("");
+  return `<section class="streak-panel" aria-label="冒険の学習記録"><div class="streak-numbers"><span>🔥 連続記録 <strong>${stats.current}日</strong></span><span>🏆 自己ベスト <strong>${stats.best}日</strong></span><span>⭐ 累計学習 <strong>${stats.total}日</strong></span></div><ol class="streak-calendar">${days}</ol><div class="streak-legend" aria-label="学習記録の凡例"><span>🌸 復習まですべてクリア</span><span>○ 最低1問はやった</span><span>⚡ 復活可能だった日</span></div><p>${LearningStreak.calendarStatus(state, today, today) === "revival" ? "今日1問解答すれば連続記録を守れるよ！ " : ""}1日のお休みは大丈夫。自分のペースで冒険しよう！</p></section>`;
+}
+
+// Refresh a home screen left open overnight, including a sleeping iPad.
+function refreshHomeDate() {
+  if (app.querySelector(".home-view") && app.dataset.homeDate !== todayString()) renderHome();
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshHomeDate(); });
+window.addEventListener("focus", refreshHomeDate);
+window.setInterval(refreshHomeDate, 30000);
 
 function getDailyCompletedDate() {
   if (IS_TEST_MODE) return testDailyCompletedDate;
@@ -1124,6 +1163,7 @@ function renderHome() {
   const treasure = dailyCompleted ? getOrCreateDailyTreasure() : null;
   const treasureOpened = Boolean(treasure && treasure.state.shownDate === todayString());
   const waitingForRetry = !dailyCompleted && adventureState.normalSetFinished && retryCount > 0;
+  app.dataset.homeDate = todayString();
   app.className = "app-shell home-shell";
   app.innerHTML = `
     <section class="home-view">
@@ -1141,6 +1181,8 @@ function renderHome() {
       </div>
 
       ${renderDailyAdventurePanel(adventureState, dailyCompleted, retryCount, currentUserName, treasureOpened)}
+
+      ${renderStreakPanel()}
 
       <div class="home-actions">
         ${dailyCompleted ? `
@@ -1284,11 +1326,13 @@ function startPractice() {
   score = 0;
   combo = 0;
 
+  sessionHasQuestions = false;
   if (dailyQuestions.length === 0 && retryQueue.length === 0) {
     renderEmptyPractice();
     return;
   }
 
+  sessionHasQuestions = true;
   showNextQuestion();
 }
 
@@ -1341,6 +1385,7 @@ function renderQuestion() {
   questionStartedAt = Date.now();
   currentAttemptCount = 0;
   currentQuestionHadRetry = false;
+  currentQuestionHadAnswer = false;
   app.className = "app-shell game-shell";
   app.innerHTML = `
     <section class="game-view">
@@ -1541,6 +1586,7 @@ async function judgeAnswer(timedOut, skipped = false) {
   const userAnswer = normalizeAnswer(submittedAnswer);
   if (!timedOut && !skipped) {
     currentAttemptCount += 1;
+    if (submittedAnswer) currentQuestionHadAnswer = true;
   }
   const validAnswers = [question.answer, ...(question.acceptable_answers || [])].map(normalizeAnswer);
   const isCorrect = !timedOut && !skipped && validAnswers.includes(userAnswer);
@@ -1565,6 +1611,11 @@ async function judgeAnswer(timedOut, skipped = false) {
     showAttemptFeedback(attemptsRemaining, submittedAnswer);
     prepareNextAttempt();
     return;
+  }
+
+  if (currentQuestionHadAnswer) {
+    const answerRecord = LearningStreak.complete(loadStreakState());
+    if (answerRecord.added) saveStreakState(answerRecord.state);
   }
 
   if (input) input.blur();
@@ -1856,13 +1907,17 @@ function nextQuestion() {
 function renderSessionComplete() {
   clearKeyboardMode();
   markDailyPracticeCompleted();
+  const completion = sessionHasQuestions ? LearningStreak.finish(loadStreakState()) : null;
+  sessionHasQuestions = false;
+  if (completion?.added) saveStreakState(completion.state);
   app.className = "app-shell";
   app.innerHTML = `
     <section class="message-view session-complete-view">
       <div class="session-result-heading">
         <p class="session-kicker">今日の練習</p>
         <h1>クリア！</h1>
-        <p class="session-message">今日もよくがんばったね！</p>
+        <p class="session-message">${escapeHtml(completion?.message || "今日もよくがんばったね！")}</p>
+        ${completion?.added ? `<p class="streak-clear ${completion.milestone ? "is-milestone" : ""}">🔥 連続${completion.stats.current}日達成！${completion.milestone ? " ✦" : ""}</p>` : ""}
       </div>
       <p class="session-retry-note">間違えた問題もその場でリトライしたよ。</p>
       <div class="session-summary" aria-label="今日の成績">
@@ -2328,6 +2383,7 @@ function resetAllData() {
   if (!window.confirm("学習データとユーザー名をすべて初期化しますか？")) return;
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(USER_NAME_KEY);
+  localStorage.removeItem(STREAK_STORAGE_KEY);
   clearRetryState();
   clearDailyPracticeCompleted();
   learningData = normalizeRecords(SAMPLE_DATA);

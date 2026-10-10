@@ -2726,3 +2726,36 @@ body.keyboard-mode .practice-note {
     padding: 0;
   }
 }
+
+/* Adventure journal: compact, touch-friendly, no extra animation. */
+.streak-panel {
+  margin: 14px auto;
+  padding: 12px 16px;
+  max-width: 780px;
+  border: 2px solid #e4c875;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #fffdf1, #fff3cc);
+  color: #37516a;
+  box-shadow: 0 3px 0 rgba(110, 86, 31, .1);
+}
+.streak-numbers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; text-align: center; }
+.streak-numbers span { font-size: clamp(.75rem, 1.8vw, 1rem); }
+.streak-numbers strong { display: block; font-size: clamp(1.2rem, 2.8vw, 1.65rem); color: #805711; overflow-wrap: anywhere; }
+.streak-calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; list-style: none; padding: 0; margin: 10px 0 0; }
+.streak-day { display: grid; gap: 2px; padding: 4px 0; border: 2px solid transparent; border-radius: 9px; text-align: center; color: #74808a; background: rgba(255,255,255,.65); font-size: .8rem; }
+.streak-day strong { font-size: 1.1rem; }
+.streak-day.is-answered { background: #e6f6e6; color: #2b7048; }
+.streak-day.is-full { background: #ffe4ef; color: #a52b66; }
+.streak-day.is-revival { background: #fff0ae; color: #805711; }
+.streak-day strong { min-height: 1.4em; line-height: 1.4; }
+.streak-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; margin-top: 8px; font-size: .75rem; line-height: 1.5; }
+.streak-legend span { white-space: nowrap; }
+.streak-day.is-today { border-color: #ae7927; }
+.streak-panel p { margin: 8px 0 0; font-size: .8rem; text-align: center; line-height: 1.5; }
+.streak-clear { display: inline-block; padding: 10px 20px; border-radius: 14px; background: #fff2c1; color: #805711; font-size: 1.3rem; font-weight: 900; }
+.streak-clear.is-milestone { border: 3px solid #dfb54f; box-shadow: 0 0 18px #ffe29b; }
+@media (max-width: 480px) {
+  .streak-panel { padding: 10px 8px; }
+  .streak-calendar { gap: 3px; }
+  .streak-day { font-size: .7rem; }
+}

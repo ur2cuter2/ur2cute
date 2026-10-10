@@ -328,6 +328,39 @@
       font-weight: 700;
     }
 
+    .celebration-overlay[hidden] { display: none; }
+    .celebration-overlay {
+      position: fixed; inset: 0; z-index: 1000; display: flex;
+      align-items: center; justify-content: center; padding: 20px;
+      background: rgba(20, 36, 49, .65); overscroll-behavior: contain;
+    }
+    .celebration-dialog {
+      position: relative; width: min(540px, 100%); max-height: 90vh;
+      overflow: auto; padding: 48px 24px 28px; border-radius: 24px;
+      background: #fffdf8; text-align: center; border: 3px solid #efc35c;
+      box-shadow: 0 20px 70px rgba(0, 0, 0, .25);
+    }
+    .celebration-icon { font-size: 80px; line-height: 1.3; }
+    .celebration-dialog h2 { font-size: clamp(26px, 5vw, 34px); line-height: 1.4; }
+    .celebration-close { position: absolute; top: 8px; right: 8px; }
+    .celebration-dialog button {
+      min-width: 48px; min-height: 48px; border-radius: 12px; border: 1px solid #b7d8d5;
+      padding: 10px 20px; background: var(--accent); color: white; font-weight: 700;
+      cursor: pointer;
+    }
+    .celebration-confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+    .celebration-confetti i {
+      position: absolute; top: -20px; left: var(--x); width: 9px; height: 16px;
+      background: var(--color); animation: celebration-fall 2.4s var(--delay) both;
+    }
+    @keyframes celebration-fall {
+      from { transform: translateY(0) rotate(0); opacity: 1; }
+      to { transform: translateY(520px) rotate(280deg); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .celebration-confetti { display: none; }
+    }
+
     @media (max-width: 640px) {
       body { font-size: 17px; }
       .app { padding: 14px 10px 32px; }
@@ -390,8 +423,30 @@
     <section class="cards" id="wordCards" aria-live="polite"></section>
   </main>
 
+  <div class="celebration-overlay" id="celebrationOverlay" hidden>
+    <section class="celebration-dialog" role="dialog" aria-modal="true"
+      aria-labelledby="celebrationTitle" aria-describedby="celebrationPraise">
+      <div class="celebration-confetti" id="celebrationConfetti" aria-hidden="true"></div>
+      <button class="celebration-close" id="celebrationClose" type="button" aria-label="お祝いを閉じる">×</button>
+      <div class="celebration-icon" id="celebrationIcon" aria-hidden="true"></div>
+      <h2 id="celebrationTitle"></h2>
+      <p id="celebrationPraise">今日までの分を最後までやりきったね。その努力に拍手！</p>
+      <button id="celebrationDone" type="button">やったー！</button>
+    </section>
+  </div>
+
   <script>
     const STORAGE_KEY = "knowledge-drill-learning-log-v1";
+    const CELEBRATION_KEY = "knowledge-drill-celebration-v1";
+    const CELEBRATION_MESSAGES = [{"id": "celebration-01", "word_id": "022", "word": "完全無欠", "emoji": "👑", "title": "完全無欠のミッションクリア！", "praise": "今日までの課題はすべて達成。お見事！"}, {"id": "celebration-02", "word_id": "064", "word": "電光石火", "emoji": "⚡", "title": "電光石火の勢いでクリア！", "praise": "やると決めたら、すばやく行動！"}, {"id": "celebration-03", "word_id": "051", "word": "七転八起", "emoji": "🏆", "title": "まさに七転八起！", "praise": "途中でつまずいても、また挑戦する力がある！"}, {"id": "celebration-04", "word_id": "158", "word": "破顔一笑", "emoji": "😆", "title": "ここは破顔一笑！", "praise": "全部終わったんだから、思いっきり笑おう！"}, {"id": "celebration-05", "word_id": "200", "word": "肩の荷がおりる", "emoji": "🎈", "title": "肩の荷がおりる瞬間！", "praise": "今日までの予定は全部終了。おつかれさま！"}, {"id": "celebration-06", "word_id": "017", "word": "一朝一夕", "emoji": "🌱", "title": "実力は一朝一夕ではつかない。", "praise": "今日の積み重ねが、明日の力になる！"}, {"id": "celebration-07", "word_id": "075", "word": "有頂天", "emoji": "🚀", "title": "今日は有頂天になってよし！", "praise": "今日までの課題を全部やりきったぞ！"}, {"id": "celebration-08", "word_id": "079", "word": "金字塔", "emoji": "🏅", "title": "また一つ、金字塔を打ち立てた！", "praise": "今日までのミッション、完全クリア！"}, {"id": "celebration-09", "word_id": "016", "word": "一心不乱", "emoji": "🔥", "title": "一心不乱に取り組んだね！", "praise": "集中して進めた一歩一歩に拍手！"}, {"id": "celebration-10", "word_id": "279", "word": "胸をなでおろす", "emoji": "😌", "title": "ほっと胸をなでおろそう！", "praise": "積み残しも片づいて、今日の任務は終了！"}, {"id": "celebration-11", "word_id": "041", "word": "日進月歩", "emoji": "📈", "title": "今日も日進月歩！", "praise": "少しずつでも、着実に前へ進んでいるよ。"}, {"id": "celebration-12", "word_id": "042", "word": "温故知新", "emoji": "📚", "title": "温故知新の達成日！", "praise": "覚えた言葉を振り返ると、新しい発見があるかも！"}, {"id": "celebration-13", "word_id": "013", "word": "一石二鳥", "emoji": "🐦", "title": "今日は一石二鳥！", "praise": "課題を終えて、達成感も手に入れた！"}, {"id": "celebration-14", "word_id": "003", "word": "一目散", "emoji": "🏃", "title": "ゴールへ一目散！", "praise": "今日までの分を、最後までやりきったね！"}, {"id": "celebration-15", "word_id": "159", "word": "順風満帆", "emoji": "⛵", "title": "今日は順風満帆！", "praise": "予定どおりに進めた、その調子！"}, {"id": "celebration-16", "word_id": "161", "word": "心機一転", "emoji": "🌅", "title": "明日は心機一転！", "praise": "今日の分を終えたら、新しい気持ちで次へ！"}, {"id": "celebration-17", "word_id": "071", "word": "無我夢中", "emoji": "🎮", "title": "無我夢中で頑張ったね！", "praise": "気づけば今日までのミッションを全部クリア！"}, {"id": "celebration-18", "word_id": "072", "word": "用意周到", "emoji": "🧭", "title": "用意周到、そして達成！", "praise": "コツコツ進めた準備が、今日のゴールにつながった！"}, {"id": "celebration-19", "word_id": "073", "word": "臨機応変", "emoji": "🦎", "title": "臨機応変に乗りこえた！", "praise": "予定が変わっても、最後は全部やりきった！"}, {"id": "celebration-20", "word_id": "059", "word": "大器晩成", "emoji": "🌳", "title": "大器晩成でもいいんだよ。", "praise": "自分のペースで育てる力は、きっと大きい！"}, {"id": "celebration-21", "word_id": "054", "word": "自由自在", "emoji": "🪄", "title": "言葉を自由自在に使える日へ！", "praise": "今日の練習も、その一歩になったね！"}, {"id": "celebration-22", "word_id": "055", "word": "十人十色", "emoji": "🎨", "title": "頑張り方は十人十色！", "praise": "自分なりの進め方で、今日のゴールに到着！"}, {"id": "celebration-23", "word_id": "142", "word": "奇想天外", "emoji": "🛸", "title": "奇想天外なごほうび発生！？", "praise": "なんと、今日までの課題が全部クリアになった！"}, {"id": "celebration-24", "word_id": "169", "word": "百発百中", "emoji": "🎯", "title": "狙うは百発百中！", "praise": "今日のミッションは全部完了。次も一歩ずつ！"}, {"id": "celebration-25", "word_id": "170", "word": "不言実行", "emoji": "🤫", "title": "不言実行、かっこいい！", "praise": "やると言うだけじゃなく、ちゃんと終えたね！"}, {"id": "celebration-26", "word_id": "135", "word": "一所懸命", "emoji": "💪", "title": "一所懸命の勝利！", "praise": "取り組んだ時間は、ちゃんと自分の力になる！"}, {"id": "celebration-27", "word_id": "147", "word": "終始一貫", "emoji": "🧵", "title": "終始一貫、最後まで！", "praise": "始めたことをやりとげた、その姿勢がすてき！"}, {"id": "celebration-28", "word_id": "154", "word": "徹頭徹尾", "emoji": "🚩", "title": "徹頭徹尾、やりきった！", "praise": "最初から最後まで取り組んで、ミッション完了！"}, {"id": "celebration-29", "word_id": "134", "word": "一刻千金", "emoji": "💎", "title": "この達成感は一刻千金！", "praise": "今のうれしい瞬間を、たっぷり味わおう！"}, {"id": "celebration-30", "word_id": "167", "word": "大胆不敵", "emoji": "🦁", "title": "大胆不敵にチャレンジ！", "praise": "ちょっと難しい課題にも向き合ったね！"}, {"id": "celebration-31", "word_id": "274", "word": "胸がいっぱいになる", "emoji": "💗", "title": "達成感で胸がいっぱいになるね！", "praise": "今日までの分、ぜんぶ終わったよ！"}, {"id": "celebration-32", "word_id": "278", "word": "胸をおどらせる", "emoji": "🎠", "title": "次の挑戦に胸をおどらせよう！", "praise": "まずは今日のクリアを思いっきり喜ぼう！"}, {"id": "celebration-33", "word_id": "280", "word": "胸をふくらませる", "emoji": "🎁", "title": "明日への期待に胸をふくらませて！", "praise": "今日のミッションはきれいに完了！"}, {"id": "celebration-34", "word_id": "198", "word": "腕をみがく", "emoji": "🛠️", "title": "今日も言葉の腕をみがいたね！", "praise": "一枚ずつの練習が、確かな経験になるよ！"}, {"id": "celebration-35", "word_id": "196", "word": "腕が上がる", "emoji": "📣", "title": "どんどん腕が上がるといいね！", "praise": "そのための一歩を、今日も積み重ねた！"}, {"id": "celebration-36", "word_id": "197", "word": "腕が鳴る", "emoji": "🥊", "title": "次の問題に腕が鳴る！？", "praise": "その前に、今日の全クリアをお祝いだ！"}, {"id": "celebration-37", "word_id": "227", "word": "手に入れる", "emoji": "🔑", "title": "達成感を手に入れた！", "praise": "今日までの課題は、すべてチェック済み！"}, {"id": "celebration-38", "word_id": "267", "word": "身につける", "emoji": "🧠", "title": "知識を身につける旅は続く！", "praise": "今日の分を完了した自分に拍手！"}, {"id": "celebration-39", "word_id": "264", "word": "身を入れる", "emoji": "📖", "title": "身を入れて取り組んだね！", "praise": "今日までの学習、これで全部終了！"}, {"id": "celebration-40", "word_id": "255", "word": "骨を折る", "emoji": "🦴", "title": "骨を折ったかいがあったね！", "praise": "手間をかけて進めた分、達成感も大きい！"}, {"id": "celebration-41", "word_id": "260", "word": "骨休め", "emoji": "🛋️", "title": "さあ、ちょっと骨休め！", "praise": "今日までの学習は全部クリア。ひと休みしよう！"}, {"id": "celebration-42", "word_id": "292", "word": "目を丸くする", "emoji": "😲", "title": "思わず目を丸くする大達成！", "praise": "今日までの課題、ひとつ残らず終了！"}, {"id": "celebration-43", "word_id": "294", "word": "目をうたがう", "emoji": "👀", "title": "目をうたがうほどのクリアっぷり！", "praise": "でも本当です。今日までの分は全部終了！"}, {"id": "celebration-44", "word_id": "194", "word": "頭をしぼる", "emoji": "🧩", "title": "頭をしぼった成果がここに！", "praise": "考えて取り組んだ一枚一枚、おつかれさま！"}, {"id": "celebration-45", "word_id": "311", "word": "頭が切れる", "emoji": "🧠", "title": "頭が切れる名探偵みたい！", "praise": "今日までの課題を一つずつ解決したね！"}, {"id": "celebration-46", "word_id": "141", "word": "起死回生", "emoji": "🌟", "title": "ここから起死回生の大逆転！", "praise": "残っていた課題まで片づけて、見事に達成！"}, {"id": "celebration-47", "word_id": "122", "word": "笑う門には福来る", "emoji": "😄", "title": "笑う門には福来る！", "praise": "今日のクリアを笑顔でお祝いしよう！"}, {"id": "celebration-48", "word_id": "112", "word": "好きこそ物の上手なれ", "emoji": "❤️", "title": "好きこそ物の上手なれ！", "praise": "言葉のおもしろさも、少しずつ見つけていこう！"}, {"id": "celebration-49", "word_id": "392", "word": "太鼓判をおす", "emoji": "🥁", "title": "今日の頑張りに太鼓判！", "praise": "予定していた学習を全部終えた、その行動に拍手！"}, {"id": "celebration-50", "word_id": "372", "word": "けりがつく", "emoji": "✅", "title": "今日の課題には、けりがついた！", "praise": "最後の一つまで終えたね。おめでとう！"}];
+    const GENERIC_CELEBRATION = {
+      title: "今日までのミッション、全部クリア！おめでとう！",
+      praise: "今日までの分を最後までやりきったね。その努力に拍手！",
+      emoji: "🏆"
+    };
+    let lastCelebratedDate = loadCelebrationDate();
+    let celebrationReturnFocus = null;
+    let celebrationScrollY = 0;
     const DATA_URL = "data/words.json";
     const FILTERS = [
       { key: "today", label: "今日" },
@@ -452,6 +507,17 @@
     }
 
     function bindEvents() {
+      document.getElementById("celebrationClose").addEventListener("click", closeCelebration);
+      document.getElementById("celebrationDone").addEventListener("click", closeCelebration);
+      document.getElementById("celebrationOverlay").addEventListener("keydown", (event) => {
+        if (event.key === "Escape") { event.preventDefault(); closeCelebration(); }
+        if (event.key === "Tab") {
+          event.preventDefault();
+          const close = document.getElementById("celebrationClose");
+          const done = document.getElementById("celebrationDone");
+          (document.activeElement === done ? close : done).focus();
+        }
+      });
       elements.studyDate.addEventListener("change", resetAnswersAndRender);
       elements.searchText.addEventListener("input", resetAnswersAndRender);
       elements.categoryFilter.addEventListener("change", resetAnswersAndRender);
@@ -649,6 +715,8 @@
     }
 
     function updateCheck(wordId, kind, checked) {
+      const today = getTodayText();
+      const wasAchieved = isLearningAchieved(today);
       const next = { ...getRecord(wordId) };
       if (kind === "understood") {
         next.understood = checked;
@@ -662,6 +730,96 @@
       state.records[wordId] = next;
       saveRecords();
       render();
+      if (kind === "attempted" && checked && !wasAchieved && isLearningAchieved(today)) {
+        celebrateAchievement(today, wordId);
+      }
+    }
+
+    function isValidPlannedDate(value) {
+      if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+      const date = new Date(value + "T12:00:00Z");
+      return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+    }
+
+    function getAchievementWords(today) {
+      return state.words.filter((word) => isValidPlannedDate(word.planned_date) && word.planned_date <= today);
+    }
+
+    function isLearningAchieved(today) {
+      const dueWords = getAchievementWords(today);
+      return dueWords.length > 0 && dueWords.every((word) => state.records[word.id]?.attempted === true);
+    }
+
+    function loadCelebrationDate() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(CELEBRATION_KEY) || "null");
+        return isValidPlannedDate(saved?.lastCelebratedDate) ? saved.lastCelebratedDate : "";
+      } catch (error) { return ""; }
+    }
+
+    function celebrateAchievement(today, wordId) {
+      if (lastCelebratedDate === today || loadCelebrationDate() === today) return;
+      lastCelebratedDate = today;
+      try {
+        localStorage.setItem(CELEBRATION_KEY, JSON.stringify({ lastCelebratedDate: today }));
+      } catch (error) {
+        console.warn("お祝い履歴を保存できませんでした。", error);
+      }
+      showCelebration(wordId, selectCelebration(today));
+    }
+
+    function randomChoice(items) { return items[Math.floor(Math.random() * items.length)]; }
+
+    function getCelebrationCandidates(today) {
+      const eligibleIds = new Set(getAchievementWords(today)
+        .filter((word) => state.records[word.id]?.attempted === true)
+        .map((word) => String(word.id)));
+      return CELEBRATION_MESSAGES.filter((message) => eligibleIds.has(message.word_id));
+    }
+
+    function selectCelebration(today) {
+      const candidates = getCelebrationCandidates(today);
+      return candidates.length ? randomChoice(candidates) : GENERIC_CELEBRATION;
+    }
+
+    function showCelebration(wordId, celebration = GENERIC_CELEBRATION) {
+      const overlay = document.getElementById("celebrationOverlay");
+      document.getElementById("celebrationTitle").textContent = celebration.title;
+      document.getElementById("celebrationIcon").textContent = celebration.emoji;
+      document.getElementById("celebrationPraise").textContent = celebration.praise;
+      const confetti = document.getElementById("celebrationConfetti");
+      confetti.innerHTML = "";
+      for (let index = 0; index < 16; index += 1) {
+        const piece = document.createElement("i");
+        piece.style.setProperty("--x", `${index * 6 + 2}%`);
+        piece.style.setProperty("--delay", `${index % 4 * .15}s`);
+        piece.style.setProperty("--color", randomChoice(["#efc35c", "#2f6f73", "#dd7291"]));
+        confetti.appendChild(piece);
+      }
+      celebrationReturnFocus = Array.from(elements.cards.querySelectorAll("article"))
+        .find((card) => card.dataset.wordId === String(wordId))?.querySelector('[data-kind="attempted"]')
+        || elements.studyDate;
+      celebrationScrollY = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${celebrationScrollY}px`;
+      document.body.style.width = "100%";
+      const app = document.querySelector(".app");
+      app.inert = true;
+      app.setAttribute("aria-hidden", "true");
+      overlay.hidden = false;
+      document.getElementById("celebrationDone").focus();
+    }
+
+    function closeCelebration() {
+      document.getElementById("celebrationOverlay").hidden = true;
+      const app = document.querySelector(".app");
+      app.inert = false;
+      app.removeAttribute("aria-hidden");
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      window.scrollTo(0, celebrationScrollY);
+      (celebrationReturnFocus?.isConnected ? celebrationReturnFocus : elements.studyDate).focus({ preventScroll: true });
     }
 
     function getRecord(wordId) {
