@@ -10,6 +10,78 @@ let testStreakState = { d: [] };
 let sessionHasQuestions = false;
 let currentQuestionHadAnswer = false;
 const DAILY_COMPLETED_KEY = "kanji-de-go-daily-completed-date";
+const NOTIFICATION_STORAGE_KEY = "kanji-go-notification-v1";
+const reportedDates = new Set();
+let notificationState = { date: "", status: "idle", note: "" };
+
+function hasReportedAdventure(date) {
+  if (reportedDates.has(date)) return true;
+  if (IS_TEST_MODE) return false;
+  try {
+    return JSON.parse(localStorage.getItem(NOTIFICATION_STORAGE_KEY))?.lastReportedDate === date;
+  } catch { return false; }
+}
+
+function renderAdventureReport() {
+  const date = todayString();
+  const state = notificationState.date === date ? notificationState : { status: "idle", note: "" };
+  const reported = hasReportedAdventure(date);
+  const labels = { idle: "✉ 冒険の成果を報告！", sending: "報告中…", success: "✅ 冒険の成果を報告した！", error: "報告できなかったよ。もう一度ためしてね" };
+  return `<div class="adventure-report"><button type="button" class="primary-button report-button" data-action="report-adventure" aria-describedby="report-note" ${reported || state.status === "sending" ? "disabled" : ""}>${reported && state.status !== "success" ? "✅ 報告済み" : labels[state.status]}</button><p id="report-note" role="status">${state.note}</p></div>`;
+}
+
+function refreshAdventureReport() {
+  const region = app.querySelector(".adventure-report");
+  if (!region) return;
+  region.outerHTML = renderAdventureReport();
+  app.querySelector('[data-action="report-adventure"]')?.addEventListener("click", reportAdventure);
+}
+
+// Fixed payload only; transport is independent of learning and treasure state.
+async function sendAdventureNotification() {
+  const controller = new AbortController();
+  let timeout;
+  try {
+    const response = await Promise.race([
+      fetch("https://ntfy.sh/study-y9n53rqohrg2w2jytdw2aiw47khrbwkf", {
+        method: "POST", mode: "cors", credentials: "omit", referrerPolicy: "no-referrer",
+        headers: { "Content-Type": "text/plain;charset=UTF-8" },
+        body: "漢字でGO!完了！", signal: controller.signal
+      }),
+      new Promise((_, reject) => {
+        timeout = window.setTimeout(() => {
+          reject(new Error("timeout"));
+          controller.abort();
+        }, 15000);
+      })
+    ]);
+    if (!response.ok || response.type === "opaque") {
+      const error = new Error("http");
+      error.definiteFailure = response.type !== "opaque";
+      throw error;
+    }
+  } finally { window.clearTimeout(timeout); }
+}
+
+async function reportAdventure() {
+  const date = todayString();
+  if (!isDailyPracticeCompleted() || hasReportedAdventure(date) || notificationState.status === "sending") return;
+  notificationState = { date, status: "sending", note: "" };
+  refreshAdventureReport();
+  try {
+    await sendAdventureNotification();
+    reportedDates.add(date);
+    let note = "";
+    if (!IS_TEST_MODE) {
+      try { localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify({ lastReportedDate: date })); }
+      catch { note = "報告は届いたよ。この端末に保存できなかったため、再読み込み後はもう一度送れてしまうよ。"; }
+    }
+    notificationState = { date, status: "success", note };
+  } catch (error) {
+    notificationState = { date, status: "error", note: error.definiteFailure ? "" : "届いたか確認できなかったよ。もう一度送ると、同じ報告が2回届くことがあるよ。" };
+  }
+  refreshAdventureReport();
+}
 const DAILY_ADVENTURE_KEY = "kanji-de-go-daily-adventure";
 const DAILY_TREASURE_KEY = "kanji-de-go-daily-treasure";
 const CSV_SOURCE_PATHS = ["kanji-mistakes.csv", "data/kanji-mistakes.csv"];
@@ -1189,6 +1261,7 @@ function renderHome() {
           <div class="daily-complete-state" role="status">
             <strong>今日の練習は完了！</strong>
             <span>また明日やろう</span>
+            ${renderAdventureReport()}
           </div>
         ` : `<button class="primary-button" data-action="start">${waitingForRetry ? "リベンジを始める" : "今日の練習を始める"}</button>`}
         <button class="secondary-button" data-action="paper">紙テストモード</button>
@@ -1199,6 +1272,7 @@ function renderHome() {
   `;
 
   const startButton = app.querySelector('[data-action="start"]');
+  app.querySelector('[data-action="report-adventure"]')?.addEventListener("click", reportAdventure);
   if (startButton) startButton.addEventListener("click", startPractice);
   app.querySelector('[data-action="paper"]').addEventListener("click", renderPaperMode);
   app.querySelector('[data-action="kanji-cards"]').addEventListener("click", () => renderKanjiCardsMode());
