@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>English Typing Quest</title>
+  <style>
+    /* =============================================
+       CSS変数・リセット
+    ============================================= */
+    :root {
+      --bg:         #0d1b2a;
+      --surface:    #1b2e45;
+      --card:       #22395a;
+      --accent:     #38d9a9;
+      --accent2:    #ffd43b;
+      --text:       #e8f4fd;
+      --text-dim:   #7fa7c4;
+      --correct:    #69db7c;
+      --wrong:      #ff6b6b;
+      --hint-color: #da77f2;
+      --radius:     18px;
+      --shadow:     0 8px 32px rgba(0,0,0,0.4);
+    }
+
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
+  padding: 24px 0;
+}
+
+/* 背景グラデーション装飾 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(56,217,169,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 70%, rgba(255,212,59,0.06) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* =============================================
+   メインラッパー
+============================================= */
+.wrapper {
+  width: min(680px, 96vw);
+  padding: 0 8px;
+}
+
+/* =============================================
+   ゲームカード
+============================================= */
+.card {
+  background: var(--card);
+  border: 1px solid rgba(56,217,169,0.18);
+  border-radius: var(--radius);
+  padding: 40px 36px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.5s ease-out;
+}
+
+/* カード上部のグラデーションライン */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+}
+
+/* =============================================
+   スタート画面
+============================================= */
+#start-screen { text-align: center; }
+
+.game-logo {
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 900;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+
+.game-sub {
+  color: var(--text-dim);
+  font-size: 1rem;
+  margin-bottom: 28px;
+}
+
+/* あそびかた説明ボックス */
+.info-box {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 18px 24px;
+  margin-bottom: 28px;
+  text-align: left;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--text);
+}
+
+.info-box strong { color: var(--accent2); }
+
+/* =============================================
+   レベル選択
+============================================= */
+.level-select-title {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  font-weight: 700;
+  margin-bottom: 14px;
+  letter-spacing: 0.5px;
+}
+
+.level-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+/* レベルボタン */
+.btn-level {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface);
+  color: var(--text);
+  border: 2px solid rgba(56,217,169,0.2);
+  border-radius: 14px;
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  min-width: 110px;
+}
+
+.btn-level:hover {
+  border-color: var(--accent);
+  background: rgba(56,217,169,0.08);
+  transform: translateY(-2px);
+}
+
+.btn-level.selected {
+  border-color: var(--accent);
+  background: rgba(56,217,169,0.16);
+  box-shadow: 0 0 0 3px rgba(56,217,169,0.2);
+}
+
+.btn-level .lv-emoji { font-size: 1.5rem; }
+.btn-level .lv-name  { font-size: 0.9rem; font-weight: 800; }
+.btn-level .lv-desc  { font-size: 0.72rem; color: var(--text-dim); }
+
+/* =============================================
+   共通ボタン
+============================================= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--accent), #20c997);
+  color: #0d1b2a;
+  font-size: 1.05rem;
+  font-weight: 800;
+  border: none;
+  border-radius: 50px;
+  padding: 13px 36px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 20px rgba(56,217,169,0.35);
+  letter-spacing: 0.5px;
+}
+
+.btn:hover  { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(56,217,169,0.5); }
+.btn:active { transform: translateY(0);    box-shadow: 0 2px 12px rgba(56,217,169,0.3); }
+
+/* アウトラインボタン */
+.btn-secondary {
+  background: transparent;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  box-shadow: none;
+}
+.btn-secondary:hover { background: rgba(56,217,169,0.1); box-shadow: none; }
+
+/* ヒントボタン（紫） */
+.btn-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, var(--hint-color), #b197fc);
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 50px;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.2s, box-shadow 0.15s;
+  box-shadow: 0 3px 12px rgba(218,119,242,0.3);
+}
+.btn-hint:hover    { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(218,119,242,0.45); }
+.btn-hint:active   { transform: translateY(0); }
+.btn-hint:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* 再挑戦ボタン（オレンジ） */
+.btn-retry-wrong {
+  background: linear-gradient(135deg, #ff922b, #fd7e14);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(255,146,43,0.35);
+}
+.btn-retry-wrong:hover { box-shadow: 0 8px 28px rgba(255,146,43,0.5); }
+
+/* =============================================
+   ゲーム画面
+============================================= */
+#game-screen { display: none; }
+
+/* ステータスバー */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.status-label {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.level-badge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(56,217,169,0.4);
+  color: var(--accent);
+  letter-spacing: 0.5px;
+}
+
+/* プログレスバー */
+.progress-wrap {
+  flex: 1;
+  height: 8px;
+  background: var(--surface);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0 14px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 4px;
+  transition: width 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+/* レベルバッジ＋ヒント数行 */
+.game-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+/* ヒント使用数ラベル */
+.hint-used-label {
+  font-size: 0.8rem;
+  color: var(--hint-color);
+  min-height: 18px;
+}
+
+/* 問題文エリア */
+.question-area {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 24px 28px;
+  margin-bottom: 14px;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 問題文（1文字ずつspan） */
+#question-display {
+  font-size: clamp(1.3rem, 4vw, 1.8rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-align: center;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* 各文字の状態スタイル */
+#question-display .char             { transition: color 0.1s; }
+#question-display .char.correct     { color: var(--correct); }
+#question-display .char.wrong       { color: var(--wrong); text-decoration: underline wavy var(--wrong); }
+#question-display .char.cursor      { border-bottom: 2px solid var(--accent2); }
+#question-display .char.pending     { color: var(--text-dim); }
+/* ヒントでハイライトした文字 */
+#question-display .char.hint-reveal {
+  color: var(--hint-color);
+  border-bottom: 2px solid var(--hint-color);
+}
+
+/* ヒントボタン行 */
+.hint-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+/* 入力欄 */
+#input-field {
+  width: 100%;
+  background: var(--surface);
+  border: 2px solid rgba(56,217,169,0.3);
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  letter-spacing: 0.03em;
+  caret-color: var(--accent2);
+  margin-bottom: 14px;
+}
+
+#input-field:focus         { border-color: var(--accent);  box-shadow: 0 0 0 3px rgba(56,217,169,0.15); }
+#input-field.state-correct { border-color: var(--correct); box-shadow: 0 0 0 3px rgba(105,219,124,0.2); }
+#input-field.state-wrong   { border-color: var(--wrong);   box-shadow: 0 0 0 3px rgba(255,107,107,0.2); }
+
+/* フィードバックメッセージ */
+.feedback {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  min-height: 28px;
+  transition: opacity 0.2s;
+}
+
+.feedback.show-ok     { color: var(--correct); }
+.feedback.show-gentle { color: var(--accent2); }   /* 優しい注意 */
+.feedback.show-hint   { color: var(--hint-color); }
+
+/* =============================================
+   正解エフェクト
+============================================= */
+.flash-overlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, rgba(56,217,169,0.3), transparent 70%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s;
+  z-index: 100;
+}
+.flash-overlay.active { opacity: 1; }
+
+/* パーティクル */
+.particle {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 200;
+  animation: particle-fly 0.7s ease-out forwards;
+}
+
+@keyframes particle-fly {
+  0%   { transform: translate(0,0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+}
+
+/* =============================================
+   結果画面
+============================================= */
+#result-screen { display: none; text-align: center; }
+
+.result-title {
+  font-size: clamp(1.5rem, 5vw, 2.3rem);
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.result-title.perfect {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.score-display {
+  font-size: clamp(2.2rem, 9vw, 3.6rem);
+  font-weight: 900;
+  margin: 14px 0;
+  letter-spacing: -2px;
+}
+
+.score-display .num   { color: var(--accent2); }
+.score-display .denom { color: var(--text-dim); font-size: 0.65em; }
+
+.stars {
+  font-size: 1.9rem;
+  margin-bottom: 14px;
+  letter-spacing: 4px;
+}
+
+/* 詳細チップ行 */
+.result-details {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.result-chip {
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 0.88rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 100px;
+}
+
+.result-chip .chip-label { color: var(--text-dim); font-size: 0.72rem; }
+.result-chip .chip-value { font-weight: 800; font-size: 1.05rem; }
+
+.chip-score .chip-value { color: var(--correct); }
+.chip-hint  .chip-value { color: var(--hint-color); }
+.chip-wrong .chip-value { color: #ff922b; }
+
+/* 間違えた問題リスト */
+.wrong-list {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.wrong-list-title {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  font-weight: 700;
+  margin-bottom: 10px;
+  letter-spacing: 0.4px;
+}
+
+.wrong-list ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+
+.wrong-list ul li {
+  font-size: 0.92rem;
+  color: var(--text);
+  padding: 6px 10px;
+  background: rgba(255,107,107,0.08);
+  border-radius: 8px;
+  border-left: 3px solid var(--wrong);
+}
+
+.result-msg {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+}
+
+/* 結果ボタン群 */
+.result-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* =============================================
+   アニメーション
+============================================= */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(28px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.question-area.entering { animation: slideIn 0.3s ease-out; }
+
+/* =============================================
+   レスポンシブ
+============================================= */
+@media (max-width: 480px) {
+  .card { padding: 24px 16px; }
+  .btn-level { min-width: 88px; padding: 12px 10px; }
+}
+
+  </style>
+</head>
+<body>
+
+<!-- 正解時フラッシュオーバーレイ -->
+
+<div class="flash-overlay" id="flash-overlay"></div>
+
+<div class="wrapper">
+  <div class="card">
+
+
+<!-- =============================================
+     スタート画面
+============================================= -->
+<div id="start-screen">
+  <div class="game-logo">✏️ Typing Quest</div>
+  <div class="game-sub">英語タイピング練習</div>
+
+  <div class="info-box">
+    📋 <strong>あそびかた</strong><br>
+    画面に出てくる英文を、そのまま正確に入力しよう！<br>
+    正しく入力できたら、自動で次の問題に進むよ。<br>
+    わからないときは <strong>💡 ヒント</strong> を使ってね。
+  </div>
+
+  <!-- レベル選択 -->
+  <div class="level-select-title">🎯 レベルをえらんでね</div>
+  <div class="level-buttons">
+    <button class="btn-level selected" data-level="1">
+      <span class="lv-emoji">🌱</span>
+      <span class="lv-name">Level 1</span>
+      <span class="lv-desc">みじかい文</span>
+    </button>
+    <button class="btn-level" data-level="2">
+      <span class="lv-emoji">🌿</span>
+      <span class="lv-name">Level 2</span>
+      <span class="lv-desc">ふつうの文</span>
+    </button>
+    <button class="btn-level" data-level="3">
+      <span class="lv-emoji">🌳</span>
+      <span class="lv-name">Level 3</span>
+      <span class="lv-desc">少し長い文</span>
+    </button>
+  </div>
+
+  <button class="btn" id="btn-start">🚀 スタート！</button>
+</div>
+
+<!-- =============================================
+     ゲーム画面
+============================================= -->
+<div id="game-screen">
+
+  <!-- ステータスバー（問題番号 / プログレスバー / スコア） -->
+  <div class="status-bar">
+    <div class="status-label" id="q-counter">1 / 5</div>
+    <div class="progress-wrap">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="status-label">⭐ <span id="score-live">0</span></div>
+  </div>
+
+  <!-- レベルバッジ ＆ ヒント使用数 -->
+  <div class="game-meta-row">
+    <div class="level-badge" id="level-badge">Lv.1</div>
+    <div class="hint-used-label" id="hint-used-label"></div>
+  </div>
+
+  <!-- 問題文（1文字ずつspanに分解） -->
+  <div class="question-area" id="question-area">
+    <div id="question-display"></div>
+  </div>
+
+  <!-- ヒントボタン -->
+  <div class="hint-row">
+    <button class="btn-hint" id="btn-hint">💡 ヒント</button>
+  </div>
+
+  <!-- 入力欄 -->
+  <input
+    type="text"
+    id="input-field"
+    autocomplete="off"
+    autocorrect="off"
+    autocapitalize="off"
+    spellcheck="false"
+    placeholder="ここに入力しよう..."
+  />
+
+  <!-- フィードバックメッセージ -->
+  <div class="feedback" id="feedback"></div>
+</div>
+
+<!-- =============================================
+     結果画面
+============================================= -->
+<div id="result-screen">
+  <div class="result-title" id="result-title"></div>
+  <div class="stars" id="result-stars"></div>
+
+  <!-- 大きなスコア -->
+  <div class="score-display">
+    <span class="num"   id="result-score"></span>
+    <span class="denom" id="result-total"></span>
+  </div>
+
+  <!-- 詳細チップ -->
+  <div class="result-details">
+    <div class="result-chip chip-score">
+      <span class="chip-value" id="chip-correct"></span>
+      <span class="chip-label">✅ 正解</span>
+    </div>
+    <div class="result-chip chip-hint">
+      <span class="chip-value" id="chip-hints"></span>
+      <span class="chip-label">💡 ヒント使用</span>
+    </div>
+    <div class="result-chip chip-wrong">
+      <span class="chip-value" id="chip-wrong-count"></span>
+      <span class="chip-label">🔁 要再挑戦</span>
+    </div>
+  </div>
+
+  <!-- 間違えた問題リスト（あるときだけ表示） -->
+  <div class="wrong-list" id="wrong-list" style="display:none;">
+    <div class="wrong-list-title">📝 まちがえた・ヒントを使った問題</div>
+    <ul id="wrong-list-items"></ul>
+  </div>
+
+  <div class="result-msg" id="result-msg"></div>
+
+  <!-- ボタン群 -->
+  <div class="result-buttons">
+    <button class="btn btn-retry-wrong" id="btn-retry-wrong" style="display:none;">
+      🔁 まちがいだけやり直す
+    </button>
+    <button class="btn" id="btn-retry">✨ もう一回</button>
+    <button class="btn btn-secondary" id="btn-quit">🏠 タイトルへ</button>
+  </div>
+</div>
+
+
+  </div><!-- /.card -->
+</div><!-- /.wrapper -->
+
+<script>
+  /* =============================================
+     問題データ：レベル別
+     Level 1 : 短文（〜18文字）
+     Level 2 : 基本文（18〜32文字）
+     Level 3 : やや長い文（32文字以上）
+  ============================================= */
+  const QUESTION_BANK = {
+    1: [
+      "I like cats.",
+      "She is kind.",
+      "I play soccer.",
+      "He reads books.",
+      "We are friends.",
+      "I have a dog.",
+      "It is sunny.",
+      "I can swim.",
+      "She likes music.",
+      "He is my brother.",
+      "I feel happy.",
+      "We play tennis.",
+    ],
+    2: [
+      "I like apples.",
+      "She studies English every day.",
+      "He wants to be a doctor.",
+      "We need more practice.",
+      "I enjoy playing soccer.",
+      "Reading books is fun.",
+      "She always helps others.",
+      "I hope to travel abroad.",
+      "Animals are important to us.",
+      "I think math is interesting.",
+      "He gets up early every day.",
+      "My dream is to be a teacher.",
+    ],
+    3: [
+      "I think that it is important.",
+      "People should study English hard.",
+      "We need to protect the environment.",
+      "Technology makes our lives easier.",
+      "Reading books is a good habit.",
+      "Many students use smartphones at school.",
+      "It is fun to learn new things.",
+      "I enjoy spending time with my family.",
+      "We should eat more vegetables every day.",
+      "She always tries her best at school.",
+      "Helping others makes people feel happy.",
+      "I believe that practice makes perfect.",
+    ],
+  };
+
+  /* 1プレイあたりの出題数 */
+  const QUESTIONS_PER_GAME = 5;
+
+  /* 優しいミスフィードバックのバリエーション */
+  const GENTLE_MESSAGES = [
+    'おしい！そこをなおしてみよう😊',
+    'もう少し！ゆっくり確認してみよう',
+    'いいね、もうちょっと！見なおしてみよう',
+    'ちょっと違うかも。落ち着いて入れなおしてみよう',
+    'ほぼ合ってるよ！その部分を確認してみよう',
+  ];
+
+  /* 正解時のバリエーション */
+  const CORRECT_MESSAGES = [
+    '✅ 正解！ Great!',
+    '🎉 やった！ Excellent!',
+    '✨ 完璧！ Perfect!',
+    '🌟 すばらしい！ Well done!',
+  ];
+
+  /* =============================================
+     ゲームの状態
+  ============================================= */
+  let state = {
+    level:           1,     // 選択中レベル（1〜3）
+    questions:       [],    // 今回の問題リスト
+    currentIndex:    0,     // 現在の問題インデックス（0始まり）
+    score:           0,     // 正解数
+    totalHints:      0,     // ヒント合計使用回数（全問通算）
+    hintUsedThis:    0,     // 現在の問題でのヒント使用回数
+    wrongQuestions:  [],    // 再挑戦対象（ミス or ヒント使用）
+    isLocked:        false, // 正解後の連続入力防止
+  };
+
+  /* =============================================
+     DOM要素
+  ============================================= */
+  const startScreen    = document.getElementById('start-screen');
+  const gameScreen     = document.getElementById('game-screen');
+  const resultScreen   = document.getElementById('result-screen');
+  const qCounter       = document.getElementById('q-counter');
+  const progressFill   = document.getElementById('progress-fill');
+  const scoreLive      = document.getElementById('score-live');
+  const levelBadge     = document.getElementById('level-badge');
+  const hintUsedLabel  = document.getElementById('hint-used-label');
+  const questionArea   = document.getElementById('question-area');
+  const questionDisp   = document.getElementById('question-display');
+  const inputField     = document.getElementById('input-field');
+  const feedbackEl     = document.getElementById('feedback');
+  const flashOverlay   = document.getElementById('flash-overlay');
+  const btnHint        = document.getElementById('btn-hint');
+  const resultTitle    = document.getElementById('result-title');
+  const resultStars    = document.getElementById('result-stars');
+  const resultScore    = document.getElementById('result-score');
+  const resultTotal    = document.getElementById('result-total');
+  const resultMsg      = document.getElementById('result-msg');
+  const chipCorrect    = document.getElementById('chip-correct');
+  const chipHints      = document.getElementById('chip-hints');
+  const chipWrongCount = document.getElementById('chip-wrong-count');
+  const wrongListEl    = document.getElementById('wrong-list');
+  const wrongListItems = document.getElementById('wrong-list-items');
+  const btnRetryWrong  = document.getElementById('btn-retry-wrong');
+
+  /* =============================================
+     ユーティリティ：Fisher-Yates シャッフル
+  ============================================= */
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  /* =============================================
+     ユーティリティ：パーティクルエフェクト
+  ============================================= */
+  function spawnParticles(x, y) {
+    const colors = ['#38d9a9', '#ffd43b', '#ff6b6b', '#74c0fc', '#da77f2'];
+    for (let i = 0; i < 12; i++) {
+      const el = document.createElement('div');
+      el.className = 'particle';
+      el.style.left = x + 'px';
+      el.style.top  = y + 'px';
+      el.style.background = colors[i % colors.length];
+      const angle = (Math.PI * 2 * i) / 12;
+      const dist  = 60 + Math.random() * 60;
+      el.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+      el.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 800);
+    }
+  }
+
+  /* =============================================
+     問題文をDOMに描画（1文字ずつ span に分割）
+  ============================================= */
+  function renderQuestion(text) {
+    questionDisp.innerHTML = '';
+    [...text].forEach((ch, i) => {
+      const span = document.createElement('span');
+      span.className = 'char pending';
+      span.textContent = ch;
+      span.dataset.index = i;
+      questionDisp.appendChild(span);
+    });
+  }
+
+  /* =============================================
+     リアルタイム入力チェック：文字色の更新
+  ============================================= */
+  function updateCharColors(input, target) {
+    const spans = questionDisp.querySelectorAll('.char');
+    spans.forEach((span, i) => {
+      // hint-reveal クラスがある文字はヒント状態を保持しつつ更新
+      span.className = 'char';
+      if (i < input.length) {
+        span.classList.add(input[i] === target[i] ? 'correct' : 'wrong');
+      } else if (i === input.length) {
+        span.classList.add('cursor');
+      } else {
+        span.classList.add('pending');
+      }
+    });
+  }
+
+  /* =============================================
+     ヒント機能
+     ・次に入力すべき文字を問題文上でハイライト
+     ・フィードバックにその文字を表示
+     ・ヒント使用回数を記録
+     ・1回でもヒントを使った問題は wrongQuestions に登録
+  ============================================= */
+  function useHint() {
+    if (state.isLocked) return;
+
+    const target = state.questions[state.currentIndex];
+    const input  = inputField.value;
+
+    // すでに全部入力済みなら何もしない
+    if (input.length >= target.length) return;
+
+    // ヒントを表示する位置を決める
+    // 最初のミス位置、または未入力の先頭位置
+    let hintPos = input.length;
+    for (let i = 0; i < input.length; i++) {
+      if (input[i] !== target[i]) {
+        hintPos = i;
+        break;
+      }
+    }
+
+    // ヒント使用回数を増やす
+    state.hintUsedThis++;
+    state.totalHints++;
+    updateHintUsedLabel();
+
+    // 問題文の対象文字をハイライト
+    const spans = questionDisp.querySelectorAll('.char');
+    if (spans[hintPos]) {
+      spans[hintPos].className = 'char hint-reveal';
+    }
+
+    // フィードバック：次の文字を提示
+    const nextChar    = target[hintPos];
+    const displayChar = nextChar === ' ' ? '空白（スペース）' : `"${nextChar}"`;
+    setFeedback(`💡 次は ${displayChar} だよ！`, 'show-hint');
+
+    // 初回ヒント使用時のみ wrongQuestions に追加
+    if (state.hintUsedThis === 1) {
+      if (!state.wrongQuestions.includes(target)) {
+        state.wrongQuestions.push(target);
+      }
+    }
+
+    inputField.focus();
+  }
+
+  /* ヒント使用数ラベルを更新 */
+  function updateHintUsedLabel() {
+    hintUsedLabel.textContent =
+      state.hintUsedThis > 0 ? `💡 ヒント ${state.hintUsedThis}回使用` : '';
+  }
+
+  /* =============================================
+     入力イベントハンドラ（メインロジック）
+  ============================================= */
+  function onInput() {
+    if (state.isLocked) return;
+
+    const target = state.questions[state.currentIndex];
+    const input  = inputField.value;
+
+    // 文字色をリアルタイム更新
+    updateCharColors(input, target);
+
+    // 最初のミス位置を探す
+    let firstError = -1;
+    for (let i = 0; i < input.length; i++) {
+      if (input[i] !== target[i]) {
+        firstError = i;
+        break;
+      }
+    }
+
+    if (firstError !== -1) {
+      // ミスあり → 優しいメッセージ
+      inputField.className = 'state-wrong';
+      const msg = GENTLE_MESSAGES[Math.floor(Math.random() * GENTLE_MESSAGES.length)];
+      setFeedback(msg, 'show-gentle');
+
+      // ミスした問題を wrongQuestions に追加（重複チェック）
+      if (!state.wrongQuestions.includes(target)) {
+        state.wrongQuestions.push(target);
+      }
+    } else if (input.length > 0) {
+      // 入力中・今のところ正解
+      inputField.className = 'state-correct';
+      // ミスメッセージが出ていたらクリア
+      if (feedbackEl.classList.contains('show-gentle')) clearFeedback();
+    } else {
+      inputField.className = '';
+      clearFeedback();
+    }
+
+    // 完全一致チェック
+    if (input === target) {
+      onCorrect();
+    }
+  }
+
+  /* =============================================
+     正解処理
+  ============================================= */
+  function onCorrect() {
+    state.isLocked = true;
+    state.score++;
+    scoreLive.textContent = state.score;
+
+    // 入力欄・ヒントボタンをロック
+    inputField.disabled = true;
+    inputField.className = 'state-correct';
+    btnHint.disabled = true;
+
+    // 正解メッセージ（ランダム）
+    const msg = CORRECT_MESSAGES[Math.floor(Math.random() * CORRECT_MESSAGES.length)];
+    setFeedback(msg, 'show-ok');
+
+    // フラッシュエフェクト
+    flashOverlay.classList.add('active');
+    setTimeout(() => flashOverlay.classList.remove('active'), 350);
+
+    // パーティクルエフェクト（入力欄の中心から）
+    const rect = inputField.getBoundingClientRect();
+    spawnParticles(rect.left + rect.width / 2, rect.top + rect.height / 2);
+
+    // 0.7秒後に次の問題へ
+    setTimeout(nextQuestion, 700);
+  }
+
+  /* =============================================
+     次の問題へ進む
+  ============================================= */
+  function nextQuestion() {
+    state.currentIndex++;
+
+    if (state.currentIndex >= state.questions.length) {
+      // 全問終了 → 結果画面へ
+      showResult();
+      return;
+    }
+
+    // 問題切り替えアニメーション（classを一度外して再付与してアニメーションをリセット）
+    questionArea.classList.remove('entering');
+    void questionArea.offsetWidth; // reflow を強制
+    questionArea.classList.add('entering');
+
+    // 新しい問題を描画
+    renderQuestion(state.questions[state.currentIndex]);
+    updateProgress();
+
+    // 入力欄・状態をリセット
+    inputField.value     = '';
+    inputField.disabled  = false;
+    inputField.className = '';
+    btnHint.disabled     = false;
+    state.isLocked       = false;
+    state.hintUsedThis   = 0;
+    updateHintUsedLabel();
+    clearFeedback();
+    inputField.focus();
+  }
+
+  /* =============================================
+     プログレスバーとカウンターの更新
+  ============================================= */
+  function updateProgress() {
+    const total = state.questions.length;
+    const done  = state.currentIndex;
+    progressFill.style.width = (done / total * 100) + '%';
+    qCounter.textContent = `${done + 1} / ${total}`;
+  }
+
+  /* =============================================
+     フィードバックの表示・消去
+  ============================================= */
+  function setFeedback(msg, cls) {
+    feedbackEl.textContent = msg;
+    feedbackEl.className   = 'feedback ' + cls;
+  }
+
+  function clearFeedback() {
+    feedbackEl.textContent = '';
+    feedbackEl.className   = 'feedback';
+  }
+
+  /* =============================================
+     結果画面の表示
+  ============================================= */
+  function showResult() {
+    gameScreen.style.display   = 'none';
+    resultScreen.style.display = 'block';
+
+    const total = state.questions.length;
+    const score = state.score;
+    const ratio = score / total;
+
+    // スコア
+    resultScore.textContent = score;
+    resultTotal.textContent = ' / ' + total;
+
+    // 詳細チップ
+    chipCorrect.textContent    = `${score} 問`;
+    chipHints.textContent      = `${state.totalHints} 回`;
+    chipWrongCount.textContent = `${state.wrongQuestions.length} 問`;
+
+    // 間違えた問題リスト
+    if (state.wrongQuestions.length > 0) {
+      wrongListItems.innerHTML = '';
+      state.wrongQuestions.forEach(q => {
+        const li = document.createElement('li');
+        li.textContent = q;
+        wrongListItems.appendChild(li);
+      });
+      wrongListEl.style.display   = 'block';
+      btnRetryWrong.style.display = 'inline-flex';
+    } else {
+      wrongListEl.style.display   = 'none';
+      btnRetryWrong.style.display = 'none';
+    }
+
+    // スコア評価
+    if (ratio === 1 && state.totalHints === 0) {
+      resultTitle.textContent = '🎉 パーフェクト！';
+      resultTitle.className   = 'result-title perfect';
+      resultStars.textContent = '⭐⭐⭐⭐⭐';
+      resultMsg.textContent   = 'すごい！ノーヒントで全問正解！最高だよ！';
+    } else if (ratio === 1) {
+      resultTitle.textContent = '🎉 全問正解！';
+      resultTitle.className   = 'result-title perfect';
+      resultStars.textContent = '⭐⭐⭐⭐⭐';
+      resultMsg.textContent   = 'やった！全問正解だよ！次はヒントなしに挑戦してみよう！';
+    } else if (ratio >= 0.8) {
+      resultTitle.textContent = '😊 すばらしい！';
+      resultTitle.className   = 'result-title';
+      resultStars.textContent = '⭐⭐⭐⭐';
+      resultMsg.textContent   = 'もう少しで完璧！まちがえた問題も挑戦してみよう！';
+    } else if (ratio >= 0.6) {
+      resultTitle.textContent = '👍 よくできました！';
+      resultTitle.className   = 'result-title';
+      resultStars.textContent = '⭐⭐⭐';
+      resultMsg.textContent   = '練習あるのみ！まちがえた問題をもう一度やってみよう！';
+    } else {
+      resultTitle.textContent = '💪 ファイト！';
+      resultTitle.className   = 'result-title';
+      resultStars.textContent = '⭐⭐';
+      resultMsg.textContent   = 'まちがえた問題に再挑戦して、少しずつ上手になろう！';
+    }
+  }
+
+  /* =============================================
+     ゲーム開始処理
+     retryWrong = true のとき → wrongQuestions を使って再挑戦
+     retryWrong = false のとき → 選択レベルの問題プールから出題
+  ============================================= */
+  function startGame(retryWrong = false) {
+    let questions;
+
+    if (retryWrong && state.wrongQuestions.length > 0) {
+      // 再挑戦モード：間違えた問題をシャッフル
+      questions = shuffle(state.wrongQuestions);
+    } else {
+      // 通常モード：レベルに合った問題をシャッフルして QUESTIONS_PER_GAME 問だけ取る
+      const pool = QUESTION_BANK[state.level] || QUESTION_BANK[1];
+      questions  = shuffle(pool).slice(0, QUESTIONS_PER_GAME);
+    }
+
+    // state をリセット
+    state.questions      = questions;
+    state.currentIndex   = 0;
+    state.score          = 0;
+    state.totalHints     = 0;
+    state.hintUsedThis   = 0;
+    state.wrongQuestions = [];
+    state.isLocked       = false;
+
+    // UI をリセット
+    scoreLive.textContent    = '0';
+    levelBadge.textContent   = `Lv.${state.level}`;
+
+    // 画面切り替え
+    startScreen.style.display  = 'none';
+    resultScreen.style.display = 'none';
+    gameScreen.style.display   = 'block';
+
+    // 最初の問題を表示
+    renderQuestion(state.questions[0]);
+    updateProgress();
+    inputField.value     = '';
+    inputField.disabled  = false;
+    inputField.className = '';
+    btnHint.disabled     = false;
+    clearFeedback();
+    updateHintUsedLabel();
+    inputField.focus();
+  }
+
+  /* =============================================
+     イベントリスナーの登録
+  ============================================= */
+
+  // スタートボタン
+  document.getElementById('btn-start').addEventListener('click', () => startGame(false));
+
+  // もう一回ボタン（同レベルで再スタート）
+  document.getElementById('btn-retry').addEventListener('click', () => startGame(false));
+
+  // まちがいだけやり直しボタン
+  btnRetryWrong.addEventListener('click', () => startGame(true));
+
+  // タイトルへボタン
+  document.getElementById('btn-quit').addEventListener('click', () => {
+    resultScreen.style.display = 'none';
+    gameScreen.style.display   = 'none';
+    startScreen.style.display  = 'block';
+  });
+
+  // ヒントボタン
+  btnHint.addEventListener('click', useHint);
+
+  // 入力欄（リアルタイムチェック）
+  inputField.addEventListener('input', onInput);
+
+  // Enterキーでも確認（通常は完全一致で自動遷移するが念のため）
+  inputField.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !state.isLocked) onInput();
+  });
+
+  /* =============================================
+     レベル選択ボタンの切り替え
+  ============================================= */
+  document.querySelectorAll('.btn-level').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.btn-level').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      state.level = parseInt(btn.dataset.level, 10);
+    });
+  });
+</script>
+
+</body>
+</html>
