@@ -348,6 +348,11 @@
       padding: 10px 20px; background: var(--accent); color: white; font-weight: 700;
       cursor: pointer;
     }
+    /* NOTIFICATION START */
+    #celebrationReport { display: block; margin: 20px auto 8px; max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+    #celebrationReport:disabled { cursor: default; opacity: .75; }
+    #celebrationReportStatus { font-size: 14px; overflow-wrap: anywhere; }
+    /* NOTIFICATION END */
     .celebration-confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
     .celebration-confetti i {
       position: absolute; top: -20px; left: var(--x); width: 9px; height: 16px;
@@ -431,12 +436,80 @@
       <div class="celebration-icon" id="celebrationIcon" aria-hidden="true"></div>
       <h2 id="celebrationTitle"></h2>
       <p id="celebrationPraise">今日までの分を最後までやりきったね。その努力に拍手！</p>
+      <!-- NOTIFICATION START -->
+      <button id="celebrationReport" type="button" aria-describedby="celebrationReportStatus">📨 修了を報告する</button>
+      <p id="celebrationReportStatus" role="status" aria-live="polite"></p>
+      <!-- NOTIFICATION END -->
       <button id="celebrationDone" type="button">やったー！</button>
     </section>
   </div>
 
   <script>
     const STORAGE_KEY = "knowledge-drill-learning-log-v1";
+    /* NOTIFICATION START */
+    const NOTIFICATION_KEY = "knowledge-drill-notification-v1";
+    const NOTIFICATION_URL = "https://ntfy.sh/study-y9n53rqohrg2w2jytdw2aiw47khrbwkf";
+    const reportedDates = new Set();
+    let reportPending = false;
+    let reportViewDate = "";
+
+    function hasReported(date) {
+      if (reportedDates.has(date)) return true;
+      try {
+        return JSON.parse(localStorage.getItem(NOTIFICATION_KEY) || "null")?.lastReportedDate === date;
+      } catch { return false; }
+    }
+
+    // Transport only: no learning state or UI access. A rejected fetch may have reached the server.
+    async function sendCompletionNotification() {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 15000);
+      try {
+        const response = await fetch(NOTIFICATION_URL, {
+          method: "POST", mode: "cors", credentials: "omit",
+          headers: { "Content-Type": "text/plain;charset=UTF-8" },
+          body: "語句ワークシート完了！", signal: controller.signal
+        });
+        if (response.type === "opaque" || response.status === 0) return "unknown";
+        if (!response.ok) return response.status >= 500 ? "unknown" : "failed";
+        return "success";
+      } catch { return "unknown"; }
+      finally { clearTimeout(timer); }
+    }
+
+    function refreshReportButton() {
+      const button = document.getElementById("celebrationReport");
+      const reported = hasReported(reportViewDate);
+      button.disabled = reportPending || reported;
+      button.textContent = reportPending ? "報告中…" : reported ? "✅ 報告済み" : "📨 修了を報告する";
+      document.getElementById("celebrationReportStatus").textContent = "";
+    }
+
+    async function reportCompletion() {
+      if (document.getElementById("celebrationOverlay").hidden || reportPending || hasReported(reportViewDate)) return;
+      const date = reportViewDate;
+      reportPending = true;
+      refreshReportButton();
+      const result = await sendCompletionNotification();
+      reportPending = false;
+      if (result === "success") {
+        reportedDates.add(date);
+        try { localStorage.setItem(NOTIFICATION_KEY, JSON.stringify({ lastReportedDate: date })); } catch { /* Keep this session's receipt. */ }
+      }
+      refreshReportButton();
+      if (date !== reportViewDate) return;
+      const button = document.getElementById("celebrationReport");
+      const status = document.getElementById("celebrationReportStatus");
+      if (result === "success") {
+        button.textContent = "✅ 修了を報告しました！";
+      } else {
+        status.textContent = result === "unknown"
+          ? "送信結果を確認できませんでした。再送信すると通知が重複する場合があります"
+          : "送信できませんでした。もう一度ためしてね";
+      }
+    }
+
+    /* NOTIFICATION END */
     const CELEBRATION_KEY = "knowledge-drill-celebration-v1";
     const CELEBRATION_MESSAGES = [{"id": "celebration-01", "word_id": "022", "word": "完全無欠", "emoji": "👑", "title": "完全無欠のミッションクリア！", "praise": "今日までの課題はすべて達成。お見事！"}, {"id": "celebration-02", "word_id": "064", "word": "電光石火", "emoji": "⚡", "title": "電光石火の勢いでクリア！", "praise": "やると決めたら、すばやく行動！"}, {"id": "celebration-03", "word_id": "051", "word": "七転八起", "emoji": "🏆", "title": "まさに七転八起！", "praise": "途中でつまずいても、また挑戦する力がある！"}, {"id": "celebration-04", "word_id": "158", "word": "破顔一笑", "emoji": "😆", "title": "ここは破顔一笑！", "praise": "全部終わったんだから、思いっきり笑おう！"}, {"id": "celebration-05", "word_id": "200", "word": "肩の荷がおりる", "emoji": "🎈", "title": "肩の荷がおりる瞬間！", "praise": "今日までの予定は全部終了。おつかれさま！"}, {"id": "celebration-06", "word_id": "017", "word": "一朝一夕", "emoji": "🌱", "title": "実力は一朝一夕ではつかない。", "praise": "今日の積み重ねが、明日の力になる！"}, {"id": "celebration-07", "word_id": "075", "word": "有頂天", "emoji": "🚀", "title": "今日は有頂天になってよし！", "praise": "今日までの課題を全部やりきったぞ！"}, {"id": "celebration-08", "word_id": "079", "word": "金字塔", "emoji": "🏅", "title": "また一つ、金字塔を打ち立てた！", "praise": "今日までのミッション、完全クリア！"}, {"id": "celebration-09", "word_id": "016", "word": "一心不乱", "emoji": "🔥", "title": "一心不乱に取り組んだね！", "praise": "集中して進めた一歩一歩に拍手！"}, {"id": "celebration-10", "word_id": "279", "word": "胸をなでおろす", "emoji": "😌", "title": "ほっと胸をなでおろそう！", "praise": "積み残しも片づいて、今日の任務は終了！"}, {"id": "celebration-11", "word_id": "041", "word": "日進月歩", "emoji": "📈", "title": "今日も日進月歩！", "praise": "少しずつでも、着実に前へ進んでいるよ。"}, {"id": "celebration-12", "word_id": "042", "word": "温故知新", "emoji": "📚", "title": "温故知新の達成日！", "praise": "覚えた言葉を振り返ると、新しい発見があるかも！"}, {"id": "celebration-13", "word_id": "013", "word": "一石二鳥", "emoji": "🐦", "title": "今日は一石二鳥！", "praise": "課題を終えて、達成感も手に入れた！"}, {"id": "celebration-14", "word_id": "003", "word": "一目散", "emoji": "🏃", "title": "ゴールへ一目散！", "praise": "今日までの分を、最後までやりきったね！"}, {"id": "celebration-15", "word_id": "159", "word": "順風満帆", "emoji": "⛵", "title": "今日は順風満帆！", "praise": "予定どおりに進めた、その調子！"}, {"id": "celebration-16", "word_id": "161", "word": "心機一転", "emoji": "🌅", "title": "明日は心機一転！", "praise": "今日の分を終えたら、新しい気持ちで次へ！"}, {"id": "celebration-17", "word_id": "071", "word": "無我夢中", "emoji": "🎮", "title": "無我夢中で頑張ったね！", "praise": "気づけば今日までのミッションを全部クリア！"}, {"id": "celebration-18", "word_id": "072", "word": "用意周到", "emoji": "🧭", "title": "用意周到、そして達成！", "praise": "コツコツ進めた準備が、今日のゴールにつながった！"}, {"id": "celebration-19", "word_id": "073", "word": "臨機応変", "emoji": "🦎", "title": "臨機応変に乗りこえた！", "praise": "予定が変わっても、最後は全部やりきった！"}, {"id": "celebration-20", "word_id": "059", "word": "大器晩成", "emoji": "🌳", "title": "大器晩成でもいいんだよ。", "praise": "自分のペースで育てる力は、きっと大きい！"}, {"id": "celebration-21", "word_id": "054", "word": "自由自在", "emoji": "🪄", "title": "言葉を自由自在に使える日へ！", "praise": "今日の練習も、その一歩になったね！"}, {"id": "celebration-22", "word_id": "055", "word": "十人十色", "emoji": "🎨", "title": "頑張り方は十人十色！", "praise": "自分なりの進め方で、今日のゴールに到着！"}, {"id": "celebration-23", "word_id": "142", "word": "奇想天外", "emoji": "🛸", "title": "奇想天外なごほうび発生！？", "praise": "なんと、今日までの課題が全部クリアになった！"}, {"id": "celebration-24", "word_id": "169", "word": "百発百中", "emoji": "🎯", "title": "狙うは百発百中！", "praise": "今日のミッションは全部完了。次も一歩ずつ！"}, {"id": "celebration-25", "word_id": "170", "word": "不言実行", "emoji": "🤫", "title": "不言実行、かっこいい！", "praise": "やると言うだけじゃなく、ちゃんと終えたね！"}, {"id": "celebration-26", "word_id": "135", "word": "一所懸命", "emoji": "💪", "title": "一所懸命の勝利！", "praise": "取り組んだ時間は、ちゃんと自分の力になる！"}, {"id": "celebration-27", "word_id": "147", "word": "終始一貫", "emoji": "🧵", "title": "終始一貫、最後まで！", "praise": "始めたことをやりとげた、その姿勢がすてき！"}, {"id": "celebration-28", "word_id": "154", "word": "徹頭徹尾", "emoji": "🚩", "title": "徹頭徹尾、やりきった！", "praise": "最初から最後まで取り組んで、ミッション完了！"}, {"id": "celebration-29", "word_id": "134", "word": "一刻千金", "emoji": "💎", "title": "この達成感は一刻千金！", "praise": "今のうれしい瞬間を、たっぷり味わおう！"}, {"id": "celebration-30", "word_id": "167", "word": "大胆不敵", "emoji": "🦁", "title": "大胆不敵にチャレンジ！", "praise": "ちょっと難しい課題にも向き合ったね！"}, {"id": "celebration-31", "word_id": "274", "word": "胸がいっぱいになる", "emoji": "💗", "title": "達成感で胸がいっぱいになるね！", "praise": "今日までの分、ぜんぶ終わったよ！"}, {"id": "celebration-32", "word_id": "278", "word": "胸をおどらせる", "emoji": "🎠", "title": "次の挑戦に胸をおどらせよう！", "praise": "まずは今日のクリアを思いっきり喜ぼう！"}, {"id": "celebration-33", "word_id": "280", "word": "胸をふくらませる", "emoji": "🎁", "title": "明日への期待に胸をふくらませて！", "praise": "今日のミッションはきれいに完了！"}, {"id": "celebration-34", "word_id": "198", "word": "腕をみがく", "emoji": "🛠️", "title": "今日も言葉の腕をみがいたね！", "praise": "一枚ずつの練習が、確かな経験になるよ！"}, {"id": "celebration-35", "word_id": "196", "word": "腕が上がる", "emoji": "📣", "title": "どんどん腕が上がるといいね！", "praise": "そのための一歩を、今日も積み重ねた！"}, {"id": "celebration-36", "word_id": "197", "word": "腕が鳴る", "emoji": "🥊", "title": "次の問題に腕が鳴る！？", "praise": "その前に、今日の全クリアをお祝いだ！"}, {"id": "celebration-37", "word_id": "227", "word": "手に入れる", "emoji": "🔑", "title": "達成感を手に入れた！", "praise": "今日までの課題は、すべてチェック済み！"}, {"id": "celebration-38", "word_id": "267", "word": "身につける", "emoji": "🧠", "title": "知識を身につける旅は続く！", "praise": "今日の分を完了した自分に拍手！"}, {"id": "celebration-39", "word_id": "264", "word": "身を入れる", "emoji": "📖", "title": "身を入れて取り組んだね！", "praise": "今日までの学習、これで全部終了！"}, {"id": "celebration-40", "word_id": "255", "word": "骨を折る", "emoji": "🦴", "title": "骨を折ったかいがあったね！", "praise": "手間をかけて進めた分、達成感も大きい！"}, {"id": "celebration-41", "word_id": "260", "word": "骨休め", "emoji": "🛋️", "title": "さあ、ちょっと骨休め！", "praise": "今日までの学習は全部クリア。ひと休みしよう！"}, {"id": "celebration-42", "word_id": "292", "word": "目を丸くする", "emoji": "😲", "title": "思わず目を丸くする大達成！", "praise": "今日までの課題、ひとつ残らず終了！"}, {"id": "celebration-43", "word_id": "294", "word": "目をうたがう", "emoji": "👀", "title": "目をうたがうほどのクリアっぷり！", "praise": "でも本当です。今日までの分は全部終了！"}, {"id": "celebration-44", "word_id": "194", "word": "頭をしぼる", "emoji": "🧩", "title": "頭をしぼった成果がここに！", "praise": "考えて取り組んだ一枚一枚、おつかれさま！"}, {"id": "celebration-45", "word_id": "311", "word": "頭が切れる", "emoji": "🧠", "title": "頭が切れる名探偵みたい！", "praise": "今日までの課題を一つずつ解決したね！"}, {"id": "celebration-46", "word_id": "141", "word": "起死回生", "emoji": "🌟", "title": "ここから起死回生の大逆転！", "praise": "残っていた課題まで片づけて、見事に達成！"}, {"id": "celebration-47", "word_id": "122", "word": "笑う門には福来る", "emoji": "😄", "title": "笑う門には福来る！", "praise": "今日のクリアを笑顔でお祝いしよう！"}, {"id": "celebration-48", "word_id": "112", "word": "好きこそ物の上手なれ", "emoji": "❤️", "title": "好きこそ物の上手なれ！", "praise": "言葉のおもしろさも、少しずつ見つけていこう！"}, {"id": "celebration-49", "word_id": "392", "word": "太鼓判をおす", "emoji": "🥁", "title": "今日の頑張りに太鼓判！", "praise": "予定していた学習を全部終えた、その行動に拍手！"}, {"id": "celebration-50", "word_id": "372", "word": "けりがつく", "emoji": "✅", "title": "今日の課題には、けりがついた！", "praise": "最後の一つまで終えたね。おめでとう！"}];
     const GENERIC_CELEBRATION = {
@@ -507,10 +580,25 @@
     }
 
     function bindEvents() {
+    /* NOTIFICATION START */
+      document.getElementById("celebrationReport").addEventListener("click", reportCompletion);
+      window.addEventListener("storage", (event) => {
+        if (event.key === NOTIFICATION_KEY) refreshReportButton();
+      });
+    /* NOTIFICATION END */
       document.getElementById("celebrationClose").addEventListener("click", closeCelebration);
       document.getElementById("celebrationDone").addEventListener("click", closeCelebration);
       document.getElementById("celebrationOverlay").addEventListener("keydown", (event) => {
         if (event.key === "Escape") { event.preventDefault(); closeCelebration(); }
+    /* NOTIFICATION START */
+        if (event.key === "Tab") {
+          event.preventDefault();
+          const buttons = Array.from(document.querySelectorAll("#celebrationOverlay button:not(:disabled)"));
+          const index = buttons.indexOf(document.activeElement);
+          buttons[(index + (event.shiftKey ? -1 : 1) + buttons.length) % buttons.length].focus();
+          return;
+        }
+    /* NOTIFICATION END */
         if (event.key === "Tab") {
           event.preventDefault();
           const close = document.getElementById("celebrationClose");
@@ -783,6 +871,10 @@
     }
 
     function showCelebration(wordId, celebration = GENERIC_CELEBRATION) {
+    /* NOTIFICATION START */
+      reportViewDate = getTodayText();
+      refreshReportButton();
+    /* NOTIFICATION END */
       const overlay = document.getElementById("celebrationOverlay");
       document.getElementById("celebrationTitle").textContent = celebration.title;
       document.getElementById("celebrationIcon").textContent = celebration.emoji;
