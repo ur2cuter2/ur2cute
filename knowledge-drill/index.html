@@ -34,7 +34,16 @@
       line-height: 1.6;
     }
 
-    button, input, select { font: inherit; }
+    button, input, select, textarea { font: inherit; }
+    button:disabled, input:disabled { cursor: default; opacity: .55; }
+    .meaning-panel { display: grid; gap: 8px; min-width: 0; }
+    .meaning-panel:empty { display: none; }
+    .meaning-panel textarea { width: 100%; min-height: 110px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; }
+    .meaning-panel p { margin: 0; }
+    .meaning-error, .storage-notice { color: var(--danger); font-weight: 700; }
+    .meaning-history { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .storage-notice { padding: 12px; border: 2px solid var(--danger); background: #fff8f8; }
+
 
     .app {
       width: min(1120px, 100%);
@@ -530,9 +539,535 @@
       { key: "completed", label: "完了" }
     ];
 
+        // Embedded by build_public_tracker.py; never fetched at runtime.
+    const MEANING_KEY = "knowledge-drill-meaning-responses-v1";
+    const TRANSACTION_KEY = "knowledge-drill-restore-pending-v1";
+    const BACKUP_PREFIX = "knowledge-drill-restore-backup-v1-";
+    const LOCK_NAME = "knowledge-drill-learning-write-v1";
+    const DRAFT_LIMIT = 20000;
+    const storageBoundary = { ready: false, blocked: false, rawLog: null, rawMeaning: null };
+    let meaningData = null;
+    let activeWrites = 0;
+    const editingAnswers = new Set();
+    const composingAnswers = new Set();
+    const volatileDrafts = new Map();
+    const meaningErrors = new Map();
+    const RESPONSE_FIELDS = ["firstAnswer", "firstConfirmedAt", "currentAnswer", "lastModifiedAt", "draft", "draftUpdatedAt", "attemptedRecordedAt"];
+    const CSV_RESPONSE_FIELDS = ["firstAnswer", "firstConfirmedAt", "currentAnswer", "lastModifiedAt", "draft", "draftUpdatedAt", "attemptedRecordedAt"];
+    const CSV_EXTRA = ["backupVersion", "legacyExempt", ...CSV_RESPONSE_FIELDS];
+
+    function plainObject(value) {
+      return value !== null && typeof value === "object" && !Array.isArray(value);
+    }
+    function own(value, key) { return Object.prototype.hasOwnProperty.call(value, key); }
+    function safeId(id) {
+      return typeof id === "string" && /^[A-Za-z0-9][A-Za-z0-9_-]{0,99}$/.test(id)
+        && !["__proto__", "constructor", "prototype"].includes(id);
+    }
+    function exactFields(value, fields) {
+      return plainObject(value) && Object.keys(value).length === fields.length && fields.every(key => own(value, key));
+    }
+    function validInstant(value) {
+      return typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)
+        && Number.isFinite(Date.parse(value)) && new Date(value).toISOString() === value;
+    }
+    function validLogDate(value) { return value === "" || isValidPlannedDate(value) || validInstant(value); }
+    function validateRecords(records) {
+      if (!plainObject(records)) throw new Error("学習記録の形式を確認できません。元の記録を保護して停止しました。");
+      for (const [id, record] of Object.entries(records)) {
+        if (!safeId(id) || !exactFields(record, ["attempted", "understood", "lastUpdated"])
+          || typeof record.attempted !== "boolean" || typeof record.understood !== "boolean"
+          || (record.understood && !record.attempted) || !validLogDate(record.lastUpdated)) {
+          throw new Error("学習記録に不明な形式があります。元の記録を保護して停止しました。");
+        }
+      }
+      return records;
+    }
+    function emptyResponse() {
+      return { firstAnswer: null, firstConfirmedAt: null, currentAnswer: null, lastModifiedAt: null,
+        draft: "", draftUpdatedAt: null, attemptedRecordedAt: null };
+    }
+    function validateResponse(response) {
+      if (!exactFields(response, RESPONSE_FIELDS) || typeof response.draft !== "string" || response.draft.length > DRAFT_LIMIT
+        || ![response.firstConfirmedAt, response.lastModifiedAt, response.draftUpdatedAt, response.attemptedRecordedAt]
+          .every(value => value === null || validInstant(value))) throw new Error("回答の保存形式が不明です。");
+      const confirmed = response.firstAnswer !== null;
+      if (confirmed) {
+        if (typeof response.firstAnswer !== "string" || typeof response.currentAnswer !== "string"
+          || response.firstAnswer.length > DRAFT_LIMIT || response.currentAnswer.length > DRAFT_LIMIT
+          || !response.firstAnswer.trim() || !response.currentAnswer.trim()
+          || !validInstant(response.firstConfirmedAt) || !validInstant(response.lastModifiedAt)
+          || response.lastModifiedAt < response.firstConfirmedAt) throw new Error("確定回答と日時が不整合です。");
+      } else if (response.firstConfirmedAt !== null || response.currentAnswer !== null || response.lastModifiedAt !== null
+        || response.attemptedRecordedAt !== null) {
+        throw new Error("未確定回答の形式が不明です。");
+      }
+      if (response.draft && response.draftUpdatedAt === null) throw new Error("下書きの日時がありません。");
+      return response;
+    }
+    function validateMeaning(data) {
+      if (!exactFields(data, ["schemaVersion", "revision", "legacyExemptIds", "responses"]) || data.schemaVersion !== 1
+        || !Number.isSafeInteger(data.revision) || data.revision < 0 || !Array.isArray(data.legacyExemptIds)
+        || !data.legacyExemptIds.every(safeId) || new Set(data.legacyExemptIds).size !== data.legacyExemptIds.length
+        || !plainObject(data.responses)) throw new Error("回答データの形式を確認できません。");
+      for (const [id, response] of Object.entries(data.responses)) {
+        if (!safeId(id)) throw new Error("回答の語句IDが不正です。");
+        validateResponse(response);
+      }
+      return data;
+    }
+    function validatePair(records, meanings) {
+      validateRecords(records); validateMeaning(meanings);
+      for (const [id, record] of Object.entries(records)) {
+        if (record.attempted && !meanings.legacyExemptIds.includes(id)) {
+          const response = meanings.responses[id];
+          if (!response?.firstAnswer || !response.attemptedRecordedAt) throw new Error("学習記録と回答が一致しません。");
+        }
+      }
+    }
+    function storageNotice(message) {
+      let banner = document.getElementById("storageNotice");
+      if (!banner) {
+        banner = document.createElement("p"); banner.id = "storageNotice"; banner.setAttribute("role", "alert");
+        banner.className = "storage-notice";
+        document.querySelector(".toolbar").after(banner);
+      }
+      banner.textContent = message;
+      const exportButton = document.createElement("button"); exportButton.type = "button";
+      exportButton.className = "download-button"; exportButton.textContent = "保存データを退避";
+      exportButton.addEventListener("click", exportRawStorage); banner.append(document.createTextNode(" "), exportButton);
+    }
+    function exportRawStorage() {
+      try {
+        const data = { format: "knowledge-drill-recovery-v1", exportedAt: new Date().toISOString(),
+          log: localStorage.getItem(STORAGE_KEY), meaning: localStorage.getItem(MEANING_KEY),
+          pending: localStorage.getItem(TRANSACTION_KEY), backups: {} };
+        for (let index = 0; index < localStorage.length; index++) {
+          const key = localStorage.key(index);
+          if (key?.startsWith(BACKUP_PREFIX)) data.backups[key] = localStorage.getItem(key);
+        }
+        const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8" }));
+        const anchor = document.createElement("a"); anchor.href = url; anchor.download = "knowledge-drill-recovery.json";
+        document.body.appendChild(anchor); anchor.click(); anchor.remove(); URL.revokeObjectURL(url);
+      } catch { alert("保存データを読み出せませんでした。このブラウザのデータは削除しないでください。"); }
+    }
+    function stopStorage(error) {
+      storageBoundary.blocked = true;
+      storageNotice((error?.message || "保存できませんでした。") + " 更新を停止しました。入力中の文は画面に残っています。再読込前に控えてください。");
+      for (const control of document.querySelectorAll(".checks input, .meaning-confirm, #clearAll, #importCsv")) control.disabled = true;
+    }
+    function assertSnapshot() {
+      if (localStorage.getItem(TRANSACTION_KEY) !== null) throw new Error("中断した保存処理があります。元データとバックアップを確認してください。");
+      if (localStorage.getItem(STORAGE_KEY) !== storageBoundary.rawLog || localStorage.getItem(MEANING_KEY) !== storageBoundary.rawMeaning) {
+        throw new Error("別の画面で記録が変更されました。");
+      }
+    }
+    async function initializeStorage() {
+      try {
+        if (!navigator.locks?.request) throw new Error("このブラウザでは安全な保存を利用できません。");
+        if (!Intl.Segmenter) throw new Error("このブラウザでは文字数を正しく確認できません。");
+        await navigator.locks.request(LOCK_NAME, async () => {
+          storageBoundary.rawLog = localStorage.getItem(STORAGE_KEY);
+          storageBoundary.rawMeaning = localStorage.getItem(MEANING_KEY);
+          assertSnapshot();
+          const records = validateRecords(storageBoundary.rawLog === null ? {} : JSON.parse(storageBoundary.rawLog));
+          let meanings;
+          if (storageBoundary.rawMeaning === null) {
+            meanings = { schemaVersion: 1, revision: 0,
+              legacyExemptIds: Object.keys(records).filter(id => records[id].attempted), responses: {} };
+            const raw = JSON.stringify(meanings);
+            assertSnapshot(); localStorage.setItem(MEANING_KEY, raw);
+            if (localStorage.getItem(MEANING_KEY) !== raw || localStorage.getItem(STORAGE_KEY) !== storageBoundary.rawLog) {
+              throw new Error("初期設定の保存を確認できませんでした。");
+            }
+            storageBoundary.rawMeaning = raw;
+          } else meanings = validateMeaning(JSON.parse(storageBoundary.rawMeaning));
+          validatePair(records, meanings);
+          state.records = records; meaningData = meanings; storageBoundary.ready = true;
+        });
+      } catch (error) { stopStorage(error); }
+      window.addEventListener("storage", event => {
+        if (event.key === null || [STORAGE_KEY, MEANING_KEY, TRANSACTION_KEY].includes(event.key)) {
+          try { assertSnapshot(); } catch (error) { stopStorage(error); }
+        }
+      });
+      window.addEventListener("beforeunload", event => {
+        if (activeWrites || Array.from(volatileDrafts).some(([id, draft]) => responseFor(id).draft !== draft)) {
+          event.preventDefault(); event.returnValue = "";
+        }
+      });
+    }
+    async function commitState(transform, { backup = false } = {}) {
+      if (!storageBoundary.ready || storageBoundary.blocked) return false;
+      activeWrites += 1;
+      try {
+        return await navigator.locks.request(LOCK_NAME, async () => {
+          if (storageBoundary.blocked) return false;
+          assertSnapshot();
+          const records = structuredClone(state.records), meanings = structuredClone(meaningData);
+          if (transform(records, meanings) === false) return false;
+          validatePair(records, meanings);
+          const rawLog = JSON.stringify(records);
+          const changedLog = rawLog !== JSON.stringify(state.records);
+          const changedMeaning = JSON.stringify(meanings) !== JSON.stringify(meaningData);
+          if (!changedLog && !changedMeaning && !backup) return true;
+          if (changedMeaning) meanings.revision += 1;
+          const rawMeaning = JSON.stringify(meanings);
+          const journal = JSON.stringify({ version: 1, createdAt: new Date().toISOString(),
+            beforeLog: storageBoundary.rawLog, beforeMeaning: storageBoundary.rawMeaning,
+            afterLog: changedLog ? rawLog : storageBoundary.rawLog, afterMeaning: rawMeaning });
+          if (backup) {
+            const backupKey = BACKUP_PREFIX + crypto.randomUUID();
+            if (localStorage.getItem(backupKey) !== null) throw new Error("バックアップ名が重複しました。");
+            localStorage.setItem(backupKey, journal);
+            if (localStorage.getItem(backupKey) !== journal) throw new Error("バックアップを確認できませんでした。");
+          }
+          assertSnapshot();
+          // A journal contains both originals. Never automatically roll back a partial write.
+          localStorage.setItem(TRANSACTION_KEY, journal);
+          if (localStorage.getItem(TRANSACTION_KEY) !== journal) throw new Error("保存開始を確認できませんでした。");
+          if (localStorage.getItem(STORAGE_KEY) !== storageBoundary.rawLog || localStorage.getItem(MEANING_KEY) !== storageBoundary.rawMeaning) {
+            throw new Error("保存中に別の画面で記録が変更されました。");
+          }
+          if (changedMeaning) localStorage.setItem(MEANING_KEY, rawMeaning);
+          if (localStorage.getItem(MEANING_KEY) !== (changedMeaning ? rawMeaning : storageBoundary.rawMeaning)
+            || localStorage.getItem(STORAGE_KEY) !== storageBoundary.rawLog) throw new Error("回答の保存を確認できませんでした。");
+          if (changedLog) localStorage.setItem(STORAGE_KEY, rawLog);
+          const finalLog = changedLog ? rawLog : storageBoundary.rawLog;
+          const finalMeaning = changedMeaning ? rawMeaning : storageBoundary.rawMeaning;
+          if (localStorage.getItem(STORAGE_KEY) !== finalLog || localStorage.getItem(MEANING_KEY) !== finalMeaning
+            || localStorage.getItem(TRANSACTION_KEY) !== journal) throw new Error("保存後の確認に失敗しました。");
+          localStorage.removeItem(TRANSACTION_KEY);
+          if (localStorage.getItem(TRANSACTION_KEY) !== null) throw new Error("保存完了を確認できませんでした。");
+          state.records = records; meaningData = meanings;
+          storageBoundary.rawLog = finalLog; storageBoundary.rawMeaning = finalMeaning;
+          return true;
+        });
+      } catch (error) { stopStorage(error); return false; }
+      finally { activeWrites -= 1; }
+    }
+    function getRecord(id) {
+      return state.records[id] || { attempted: false, understood: false, lastUpdated: "" };
+    }
+    function getStatus(id) {
+      const record = getRecord(id);
+      return record.understood ? { key: "completed", label: "完了" }
+        : record.attempted ? { key: "review", label: "復習対象" } : { key: "not_started", label: "未着手" };
+    }
+    function isExempt(id) { return meaningData?.legacyExemptIds.includes(id) === true; }
+    function responseFor(id) { return meaningData?.responses[id] || emptyResponse(); }
+    function canReveal(id) { return storageBoundary.ready && (isExempt(id) || responseFor(id).firstAnswer !== null); }
+    function canAttempt(id) { return canReveal(id) && !storageBoundary.blocked; }
+    function canUnderstand(id) {
+      return canAttempt(id) && getRecord(id).attempted;
+    }
+    function isCheckDisabled(id, kind) {
+      return storageBoundary.blocked || !storageBoundary.ready
+        || (kind === "understood" && canReveal(id) && !getRecord(id).attempted);
+    }
+    function requestMeaning(id) {
+      if (!storageBoundary.ready || storageBoundary.blocked || !state.words.some(word => word.id === id)) return;
+      editingAnswers.add(id);
+      state.visibleAnswers.add(id);
+      render();
+      document.getElementById(`meaning-${id}`)?.focus();
+    }
+    function validationText(text) {
+      return String(text).normalize("NFC").replace(/[\s\p{Cc}]/gu, "");
+    }
+    function validateAnswer(value, word) {
+      const chars = Array.from(new Intl.Segmenter("ja", { granularity: "grapheme" }).segment(validationText(value)), part => part.segment)
+        .filter(char => !/^\p{Default_Ignorable_Code_Point}+$/u.test(char));
+      const text = chars.join("");
+      if (!text) return "意味を入力してね。";
+      if (chars.length > 200) return "200文字以内で説明してね。";
+      const copyText = text.normalize("NFKC").replace(/[\p{P}\p{S}\p{Default_Ignorable_Code_Point}]/gu, "");
+      const target = validationText(word).normalize("NFKC").replace(/[\p{P}\p{S}\p{Default_Ignorable_Code_Point}]/gu, "");
+      if (target && [target, target + "という意味", target + "という意味です", target + "のこと", target + "のことです"].includes(copyText)) {
+        return "語句をそのまま書くのではなく、意味を説明してね。";
+      }
+      if (chars.length < 5) return "5文字以上で説明してね。";
+      if (chars.every(char => char === chars[0])) return "同じ文字だけでは説明にならないよ。";
+      if (!/\p{L}/u.test(text)) return "言葉を使って意味を説明してね。";
+      return "";
+    }
+    function createMeaningPanel(article, word) {
+      const id = word.id, response = responseFor(id);
+      const open = editingAnswers.has(id) || (state.visibleAnswers.has(id) && !canReveal(id));
+      const panel = document.createElement("section"); panel.className = "meaning-panel";
+      if (open) {
+        const label = document.createElement("label"); label.htmlFor = `meaning-${id}`;
+        label.textContent = "この言葉はどういう意味？ 自分の言葉で説明してね";
+        const input = document.createElement("textarea"); input.id = label.htmlFor; input.rows = 3;
+        input.setAttribute("aria-describedby", `meaning-error-${id}`); input.autocomplete = "off";
+        input.value = volatileDrafts.has(id) ? volatileDrafts.get(id) : response.draftUpdatedAt !== null ? response.draft : response.currentAnswer || "";
+        const error = document.createElement("p"); error.id = `meaning-error-${id}`; error.className = "meaning-error"; error.setAttribute("aria-live", "polite");
+        const button = document.createElement("button"); button.type = "button"; button.className = "meaning-confirm answer-toggle"; button.textContent = "回答を確定";
+        const status = document.createElement("p"); status.className = "answer-help"; status.setAttribute("role", "status");
+        const refresh = () => {
+          const reason = composingAnswers.has(id) ? "" : validateAnswer(input.value, word.word);
+          error.textContent = meaningErrors.get(id) || reason;
+          input.setAttribute("aria-invalid", error.textContent ? "true" : "false");
+          button.disabled = !!reason || composingAnswers.has(id) || storageBoundary.blocked || !storageBoundary.ready;
+        };
+        const saveDraft = async () => {
+          const value = input.value; volatileDrafts.set(id, value); meaningErrors.delete(id); refresh();
+          status.textContent = "下書きを保存中…";
+          if (value.length > DRAFT_LIMIT) { status.textContent = "入力が長すぎて下書きを保存できません。短くしてね。"; return; }
+          const saved = await commitState((_records, meanings) => {
+            const row = meanings.responses[id] ||= emptyResponse(); row.draft = value; row.draftUpdatedAt = new Date().toISOString();
+          });
+          if (input.value === value) status.textContent = saved ? "下書きを保存しました。" : "下書きを保存できませんでした。文を控えてね。";
+          refresh();
+        };
+        input.addEventListener("compositionstart", () => { composingAnswers.add(id); refresh(); });
+        input.addEventListener("compositionend", () => { composingAnswers.delete(id); void saveDraft(); });
+        input.addEventListener("input", () => { void saveDraft(); });
+        button.addEventListener("click", async () => {
+          if (button.disabled || composingAnswers.has(id)) return;
+          const value = input.value.trim(), reason = validateAnswer(value, word.word);
+          if (reason) { meaningErrors.set(id, reason); refresh(); return; }
+          button.disabled = true; input.readOnly = true;
+          const saved = await confirmMeaning(id, value);
+          if (saved) { editingAnswers.delete(id); composingAnswers.delete(id); volatileDrafts.delete(id); meaningErrors.delete(id); render(); }
+          else { input.readOnly = false; refresh(); }
+        });
+        panel.append(label, input, error, button, status); refresh();
+      } else if (response.firstAnswer !== null || isExempt(id)) {
+        const edit = document.createElement("button"); edit.type = "button"; edit.className = "answer-toggle";
+        edit.textContent = response.firstAnswer === null ? "意味を入力する" : "回答を修正";
+        edit.disabled = storageBoundary.blocked;
+        edit.addEventListener("click", () => { editingAnswers.add(id); render(); document.getElementById(`meaning-${id}`)?.focus(); });
+        panel.append(edit);
+      }
+      if (response.firstAnswer !== null) {
+        const saved = document.createElement("p"); saved.className = "answer-help"; saved.textContent = "回答を保存したよ。";
+        const details = document.createElement("details"), summary = document.createElement("summary"); summary.textContent = "回答履歴"; details.append(summary);
+        for (const [label, value] of [["初回回答", response.firstAnswer], ["初回確定日時", response.firstConfirmedAt],
+          ["現在の回答", response.currentAnswer], ["最終修正日時", response.lastModifiedAt]]) {
+          const line = document.createElement("p"); line.className = "meaning-history"; line.textContent = `${label}：${value}`; details.append(line);
+        }
+        panel.append(saved, details);
+      }
+      article.querySelector(".answer-toggle").after(panel);
+    }
+    async function confirmMeaning(id, answer) {
+      const word = state.words.find(word => word.id === id);
+      if (!word || typeof answer !== "string" || composingAnswers.has(id) || validateAnswer(answer, word.word)) return false;
+      answer = answer.trim();
+      return commitState((_records, meanings) => {
+        const row = meanings.responses[id] ||= emptyResponse();
+        const now = new Date().toISOString();
+        if (row.firstAnswer === null) { row.firstAnswer = answer; row.firstConfirmedAt = now; }
+        if (row.currentAnswer !== answer) { row.currentAnswer = answer; row.lastModifiedAt = now; }
+        row.draft = ""; row.draftUpdatedAt = null;
+      });
+    }
+    async function updateCheck(wordId, kind, checked) {
+      if (!state.words.some(word => word.id === wordId) || !["attempted", "understood"].includes(kind) || typeof checked !== "boolean") return false;
+      if (!storageBoundary.ready || storageBoundary.blocked) return false;
+      if (!canReveal(wordId)) { requestMeaning(wordId); return false; }
+      if (checked && !(kind === "attempted" ? canAttempt(wordId) : canUnderstand(wordId))) { render(); return false; }
+      const today = getTodayText(), wasAchieved = isLearningAchieved(today);
+      const saved = await commitState((records, meanings) => {
+        // Recheck after acquiring the write lock: an earlier queued operation may have cleared attempted.
+        if (!canAttempt(wordId) || (kind === "understood" && checked && !canUnderstand(wordId))) return false;
+        const next = { ...getRecord(wordId) };
+        if (next[kind] === checked) return;
+        if (kind === "attempted") {
+          next.attempted = checked;
+          if (!checked) next.understood = false;
+          else if (!isExempt(wordId)) {
+            const row = meanings.responses[wordId] ||= emptyResponse(); row.attemptedRecordedAt = new Date().toISOString();
+          }
+        } else next.understood = checked;
+        next.lastUpdated = elements.studyDate.value || getTodayText(); records[wordId] = next;
+      });
+      if (saved) {
+        render();
+        if (kind === "attempted" && checked && !wasAchieved && isLearningAchieved(today)) celebrateAchievement(today, wordId);
+      } else if (!storageBoundary.blocked) render();
+      return saved;
+    }
+    async function clearAllChecks() {
+      if (!confirm("すべてのチェックをクリアします。回答と下書きは残ります。よろしいですか？")) return;
+      const saved = await commitState(records => {
+        for (const record of Object.values(records)) { record.attempted = false; record.understood = false; }
+      });
+      if (saved) render();
+    }
+    function importCsvRecords(event) {
+      const file = event.target.files?.[0]; event.target.value = "";
+      if (!file) return;
+      const reader = new FileReader();
+      reader.addEventListener("load", async () => {
+        try { await restoreRecordsFromCsv(String(reader.result || "")); }
+        catch (error) { alert(error.message || "CSVから記録を復元できませんでした。"); }
+      });
+      reader.addEventListener("error", () => alert("CSVファイルを読み込めませんでした。"));
+      reader.readAsText(file, "utf-8");
+    }
+    function indexCsvHeaders(headers) {
+      const indexes = Object.create(null);
+      headers.forEach((header, index) => {
+        const name = header.replace(/^\uFEFF/u, "").trim();
+        if (!name || own(indexes, name)) throw new Error("CSVの列名が空欄または重複しています。");
+        indexes[name] = index;
+      });
+      return indexes;
+    }
+    function getCsvCell(row, index) { return index === undefined ? "" : row[index]; }
+    function parseCsvBoolean(value) {
+      const normalized = String(value).trim().toLowerCase();
+      if (["true", "1", "yes", "y", "やった", "わかった"].includes(normalized)) return true;
+      if (["", "false", "0", "no", "n"].includes(normalized)) return false;
+      return null;
+    }
+    function parseCsv(text) {
+      text = text.replace(/^\uFEFF/u, "");
+      const rows = []; let row = [], cell = "", mode = "start";
+      const pushCell = () => { row.push(cell); cell = ""; mode = "start"; };
+      const pushRow = () => { pushCell(); if (row.some(value => value.trim())) rows.push(row); row = []; };
+      for (let index = 0; index < text.length; index++) {
+        const char = text[index];
+        if (mode === "quoted") {
+          if (char === '"') {
+            if (text[index + 1] === '"') { cell += '"'; index++; } else mode = "closed";
+          } else cell += char;
+          continue;
+        }
+        if (char === ",") { pushCell(); continue; }
+        if (char === "\r" || char === "\n") { if (char === "\r" && text[index + 1] === "\n") index++; pushRow(); continue; }
+        if (mode === "closed") throw new Error("CSVの引用符の後に不正な文字があります。");
+        if (char === '"') { if (mode !== "start") throw new Error("CSVの引用符が不正です。"); mode = "quoted"; }
+        else { cell += char; mode = "plain"; }
+      }
+      if (mode === "quoted") throw new Error("CSVの引用符が閉じられていません。");
+      if (cell || row.length || mode !== "start") pushRow();
+      return rows;
+    }
+    function decodeCsvText(value) {
+      if (!value.startsWith("json:")) throw new Error("回答列の符号化形式が不正です。");
+      const decoded = JSON.parse(value.slice(5));
+      if (decoded !== null && typeof decoded !== "string") throw new Error("回答列の値が不正です。");
+      return decoded;
+    }
+    function csvText(value) { return "json:" + JSON.stringify(value); }
+    async function restoreRecordsFromCsv(csvTextValue) {
+      if (!storageBoundary.ready || storageBoundary.blocked) throw new Error("保存を停止中のため復元できません。");
+      if (activeWrites || composingAnswers.size || Array.from(volatileDrafts).some(([id, value]) => responseFor(id).draft !== value)) {
+        throw new Error("入力中の下書きを保存してから復元してください。");
+      }
+      assertSnapshot();
+      const rows = parseCsv(csvTextValue);
+      if (rows.length < 2) throw new Error("CSVにデータ行がありません。");
+      const indexes = indexCsvHeaders(rows[0]), modern = own(indexes, "backupVersion");
+      if (!["id", "attempted", "understood"].every(name => own(indexes, name))) throw new Error("CSVに必要な列がありません。");
+      if (modern && !["date", "word", "reading", "category", "planned_date", "lesson_group", "status", "lastUpdated", ...CSV_EXTRA]
+        .every(name => own(indexes, name))) throw new Error("新形式CSVの列が不足しています。");
+      if (!modern && CSV_EXTRA.some(name => own(indexes, name))) throw new Error("CSVの形式バージョンがありません。");
+      const known = new Set(state.words.map(word => word.id)), seen = new Set(), unknown = [], incoming = [];
+      for (const row of rows.slice(1)) {
+        if (row.length !== rows[0].length) throw new Error("CSVの列数が一致しません。");
+        const cell = name => getCsvCell(row, indexes[name]);
+        const id = cell("id").trim();
+        if (!safeId(id) || seen.has(id)) throw new Error("CSVの語句IDが不正または重複しています。");
+        seen.add(id);
+        const attempted = parseCsvBoolean(cell("attempted")), understood = parseCsvBoolean(cell("understood"));
+        let lastUpdated = cell("lastUpdated").trim();
+        if (attempted === null || understood === null || (understood && !attempted) || !validLogDate(lastUpdated)) throw new Error("CSVのチェックまたは日時が不正です。");
+        if (!modern && !lastUpdated) lastUpdated = getRecord(id).lastUpdated;
+        let response = null, exempt = false;
+        if (modern) {
+          if (cell("backupVersion") !== "1" || !["true", "false"].includes(cell("legacyExempt"))) throw new Error("CSVの形式が不明です。");
+          exempt = cell("legacyExempt") === "true";
+          response = Object.fromEntries(CSV_RESPONSE_FIELDS.map(name => [name, decodeCsvText(cell(name))]));
+          validateResponse(response);
+          if (attempted && !exempt && (!response.firstAnswer || !response.attemptedRecordedAt)) throw new Error("CSVの学習記録と回答が一致しません。");
+        }
+        if (!known.has(id)) { unknown.push(id); continue; }
+        if (modern && response.firstAnswer !== null) {
+          const word = state.words.find(word => word.id === id);
+          if (validateAnswer(response.firstAnswer, word.word) || validateAnswer(response.currentAnswer, word.word)) {
+            throw new Error(`CSVの確定回答が入力規則に合いません（${id}）。`);
+          }
+        }
+        const existing = responseFor(id);
+        if (modern && existing.firstAnswer !== null
+          && (response.firstAnswer !== existing.firstAnswer || response.firstConfirmedAt !== existing.firstConfirmedAt)) {
+          throw new Error(`初回回答が競合しています（${id}）。自動で上書きせず停止しました。`);
+        }
+        if (isExempt(id) && modern && !exempt) throw new Error(`免除情報が競合しています（${id}）。`);
+        // Adding an absent answer is safe; differing established answers/drafts require manual resolution.
+        if (modern && own(meaningData.responses, id) && RESPONSE_FIELDS.some(name => existing[name] !== response[name])) {
+          throw new Error(`現在回答・下書き・実施日時が競合しています（${id}）。`);
+        }
+        incoming.push({ id, record: { attempted, understood, lastUpdated }, response, exempt });
+      }
+      const changed = incoming.filter(item => JSON.stringify(getRecord(item.id)) !== JSON.stringify(item.record)).map(item => item.id);
+      const conflicts = changed.filter(id => own(state.records, id));
+      const prompt = ["CSVから記録を復元します。復元前の記録をブラウザ内にバックアップします。",
+        `対象: ${incoming.length}件 / 既存チェックの変更: ${conflicts.length}件`,
+        conflicts.length ? `チェック変更ID: ${conflicts.join(", ")}` : "",
+        unknown.length ? `対象外ID（保存しません）: ${unknown.join(", ")}` : "", "表示した変更を適用しますか？"].filter(Boolean).join("\n");
+      if (!confirm(prompt)) return false;
+      const saved = await commitState((records, meanings) => {
+        for (const item of incoming) {
+          records[item.id] = item.record;
+          if (modern) {
+            meanings.responses[item.id] = item.response;
+            if (item.exempt && !meanings.legacyExemptIds.includes(item.id)) meanings.legacyExemptIds.push(item.id);
+          } else if (item.record.attempted && !meanings.legacyExemptIds.includes(item.id)) {
+            // Only explicit restoration of old history grants an additional exemption.
+            meanings.legacyExemptIds.push(item.id);
+          }
+        }
+      }, { backup: true });
+      if (!saved) throw new Error("CSVの復元を完了できませんでした。更新を停止しています。作成済みのバックアップや中断記録は削除していません。");
+      state.visibleAnswers.clear(); volatileDrafts.clear(); editingAnswers.clear(); composingAnswers.clear(); render();
+      alert(`CSVから記録を復元しました。更新: ${incoming.length}件 / 対象外: ${unknown.length}件`);
+      return true;
+    }
+    function downloadCsv(words, filename) {
+      if (!storageBoundary.ready || storageBoundary.blocked || activeWrites) {
+        alert("記録の保存状態を確認できないためCSVを出力できません。保存停止中は元データを保護しています。"); return;
+      }
+      try { assertSnapshot(); } catch (error) { stopStorage(error); return; }
+      if (volatileDrafts.size && Array.from(volatileDrafts).some(([id, draft]) => responseFor(id).draft !== draft)) {
+        alert("未保存の下書きがあります。文を控えてから確認してください。"); return;
+      }
+      const csv = buildCsv(words);
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob), anchor = document.createElement("a");
+      anchor.href = url; anchor.download = filename; document.body.appendChild(anchor); anchor.click(); anchor.remove(); URL.revokeObjectURL(url);
+    }
+    function buildCsv(words) {
+      const rows = [["date", "id", "word", "reading", "category", "planned_date", "lesson_group", "attempted", "understood", "status", "lastUpdated", ...CSV_EXTRA]];
+      const date = elements.studyDate.value || getTodayText();
+      // All-log exports include orphaned local records/answers, preserving future vocabulary changes.
+      const all = words === state.words;
+      const byId = new Map(words.map(word => [word.id, word]));
+      if (all) for (const id of new Set([...Object.keys(state.records), ...Object.keys(meaningData?.responses || {}), ...(meaningData?.legacyExemptIds || [])])) {
+        if (!byId.has(id)) byId.set(id, { id });
+      }
+      for (const word of byId.values()) {
+        const record = getRecord(word.id), response = responseFor(word.id);
+        rows.push([date, word.id, word.word || "", word.reading || "", word.category || "", word.planned_date || "", word.lesson_group || "",
+          String(record.attempted), String(record.understood), getStatus(word.id).key, record.lastUpdated,
+          "1", String(isExempt(word.id)), ...CSV_RESPONSE_FIELDS.map(name => csvText(response[name]))]);
+      }
+      return rows.map(row => row.map(csvEscape).join(",")).join("\r\n");
+    }
+    function csvEscape(value) {
+      let text = String(value ?? "");
+      if (/^[\s\u0000-\u001f]*[=+@-]/u.test(text) || /^[\t\r\n]/u.test(text)) text = "'" + text;
+      return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    }
+
+
     const state = {
       words: [],
-      records: loadRecords(),
+      records: {},
       activeFilter: "today",
       visibleAnswers: new Set(),
       visibleWords: []
@@ -562,6 +1097,8 @@
       setupFilters();
       bindEvents();
       await loadWords();
+      if (!state.words.length) return;
+      await initializeStorage();
       setupCategories();
       render();
     }
@@ -571,7 +1108,11 @@
         const response = await fetch(DATA_URL, { cache: "no-store" });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const words = await response.json();
-        state.words = Array.isArray(words) ? words : [];
+        if (!Array.isArray(words) || !words.length || words.some(word => !word || !safeId(word.id)
+          || typeof word.word !== "string" || !word.word.trim()) || new Set(words.map(word => word.id)).size !== words.length) {
+          throw new Error("語句データの形式またはIDが不正です。");
+        }
+        state.words = words;
       } catch (error) {
         console.error("語句データを読み込めませんでした。", error);
         elements.resultLine.textContent = "語句データを読み込めませんでした。";
@@ -741,7 +1282,7 @@
     function createWordCard(word) {
       const record = getRecord(word.id);
       const status = getStatus(word.id);
-      const isAnswerVisible = state.visibleAnswers.has(word.id);
+      const isAnswerVisible = state.visibleAnswers.has(word.id) && canReveal(word.id);
       const imageSrc = getImageSrc(word);
       const answerId = `answer-${word.id}`;
       const article = document.createElement("article");
@@ -769,23 +1310,26 @@
           <section class="answer-box" id="${answerId}">
             <h3>答え：</h3>
             <p class="answer-note">${escapeHtml(word.answer_note || "答えデータはまだありません。")}</p>
-            <p class="answer-help">意味を覚えたら「意味を覚えた！」にチェックしよう。</p>
           </section>
         ` : ""}
         <div class="checks">
           <label class="check-option">
-            <input type="checkbox" data-kind="attempted" ${record.attempted ? "checked" : ""}>
+            <input type="checkbox" data-kind="attempted" ${record.attempted ? "checked" : ""} ${isCheckDisabled(word.id, "attempted") ? "disabled" : ""}>
             <span>やった！</span>
           </label>
           <label class="check-option">
-            <input type="checkbox" data-kind="understood" ${record.understood ? "checked" : ""}>
-            <span>意味を覚えた！</span>
+            <input type="checkbox" data-kind="understood" ${record.understood ? "checked" : ""} ${isCheckDisabled(word.id, "understood") ? "disabled" : ""}>
+            <span>わかった！</span>
           </label>
         </div>
       `;
 
+      createMeaningPanel(article, word);
       article.querySelectorAll("input[type='checkbox']").forEach((checkbox) => {
-        checkbox.addEventListener("change", (event) => updateCheck(word.id, event.target.dataset.kind, event.target.checked));
+        checkbox.addEventListener("change", async (event) => {
+          const kind = event.target.dataset.kind;
+          if (!await updateCheck(word.id, kind, event.target.checked)) checkbox.checked = getRecord(word.id)[kind];
+        });
       });
       article.querySelectorAll(".word-card-thumbnail").forEach((image) => {
         image.addEventListener("error", () => {
@@ -797,30 +1341,11 @@
     }
 
     function toggleAnswer(wordId) {
+      if (!canReveal(wordId)) { requestMeaning(wordId); return; }
       if (state.visibleAnswers.has(wordId)) state.visibleAnswers.delete(wordId);
       else state.visibleAnswers.add(wordId);
       render();
-    }
-
-    function updateCheck(wordId, kind, checked) {
-      const today = getTodayText();
-      const wasAchieved = isLearningAchieved(today);
-      const next = { ...getRecord(wordId) };
-      if (kind === "understood") {
-        next.understood = checked;
-        if (checked) next.attempted = true;
-      }
-      if (kind === "attempted") {
-        next.attempted = checked;
-        if (!checked) next.understood = false;
-      }
-      next.lastUpdated = elements.studyDate.value || getTodayText();
-      state.records[wordId] = next;
-      saveRecords();
-      render();
-      if (kind === "attempted" && checked && !wasAchieved && isLearningAchieved(today)) {
-        celebrateAchievement(today, wordId);
-      }
+      document.getElementById(`meaning-${wordId}`)?.focus();
     }
 
     function isValidPlannedDate(value) {
@@ -912,237 +1437,6 @@
       document.body.style.width = "";
       window.scrollTo(0, celebrationScrollY);
       (celebrationReturnFocus?.isConnected ? celebrationReturnFocus : elements.studyDate).focus({ preventScroll: true });
-    }
-
-    function getRecord(wordId) {
-      return {
-        attempted: Boolean(state.records[wordId]?.attempted),
-        understood: Boolean(state.records[wordId]?.understood),
-        lastUpdated: state.records[wordId]?.lastUpdated || ""
-      };
-    }
-
-    function getStatus(wordId) {
-      const record = getRecord(wordId);
-      if (record.attempted && record.understood) return { key: "completed", label: "完了" };
-      if (record.attempted && !record.understood) return { key: "review", label: "復習対象" };
-      return { key: "not_started", label: "未着手" };
-    }
-
-    function loadRecords() {
-      try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        return stored ? JSON.parse(stored) : {};
-      } catch (error) {
-        console.warn("学習記録を読み込めませんでした。", error);
-        return {};
-      }
-    }
-
-    function saveRecords() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.records));
-    }
-
-    function clearAllChecks() {
-      if (!confirm("すべてのチェックをクリアします。よろしいですか？")) return;
-      state.records = {};
-      localStorage.removeItem(STORAGE_KEY);
-      render();
-    }
-
-    function importCsvRecords(event) {
-      const file = event.target.files?.[0];
-      event.target.value = "";
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.addEventListener("load", () => {
-        try {
-          restoreRecordsFromCsv(String(reader.result || ""));
-        } catch (error) {
-          console.error("CSVから記録を復元できませんでした。", error);
-          alert(error.message || "CSVから記録を復元できませんでした。");
-        }
-      });
-      reader.addEventListener("error", () => {
-        alert("CSVファイルを読み込めませんでした。");
-      });
-      reader.readAsText(file, "utf-8");
-    }
-
-    function restoreRecordsFromCsv(csvText) {
-      const rows = parseCsv(csvText);
-      if (rows.length < 2) throw new Error("CSVにデータ行がありません。");
-
-      const headers = rows[0].map((header) => header.trim());
-      const indexes = indexCsvHeaders(headers);
-      const required = ["id", "attempted", "understood", "lastUpdated"];
-      const missing = required.filter((name) => indexes[name] === undefined);
-      if (missing.length > 0) throw new Error(`必要な列がありません：${missing.join(", ")}`);
-
-      if (!confirm("CSVから学習記録を復元します。現在のブラウザ内の記録に上書き・追加されます。よろしいですか？")) {
-        return;
-      }
-
-      const knownIds = new Set(state.words.map((word) => String(word.id)));
-      const nextRecords = { ...state.records };
-      const summary = { read: 0, updated: 0, skipped: 0, errors: 0 };
-
-      for (const row of rows.slice(1)) {
-        if (row.every((value) => !String(value || "").trim())) continue;
-        summary.read += 1;
-
-        const id = getCsvCell(row, indexes.id).trim();
-        if (!id) {
-          summary.errors += 1;
-          continue;
-        }
-        if (!knownIds.has(id)) {
-          summary.skipped += 1;
-          continue;
-        }
-
-        const attempted = parseCsvBoolean(getCsvCell(row, indexes.attempted));
-        const understood = parseCsvBoolean(getCsvCell(row, indexes.understood));
-        if (attempted === null || understood === null) {
-          summary.errors += 1;
-          continue;
-        }
-
-        const existing = getRecord(id);
-        const nextAttempted = attempted || understood;
-        const nextUnderstood = nextAttempted ? understood : false;
-        let lastUpdated = getCsvCell(row, indexes.lastUpdated).trim();
-        if (!lastUpdated) {
-          lastUpdated = existing.lastUpdated || (nextAttempted || nextUnderstood ? new Date().toISOString() : "");
-        }
-
-        nextRecords[id] = {
-          attempted: nextAttempted,
-          understood: nextUnderstood,
-          lastUpdated
-        };
-        summary.updated += 1;
-      }
-
-      state.records = nextRecords;
-      saveRecords();
-      state.visibleAnswers.clear();
-      render();
-      alert([
-        "CSVから記録を復元しました。",
-        `読み込み: ${summary.read}件`,
-        `更新: ${summary.updated}件`,
-        `スキップ: ${summary.skipped}件`,
-        `エラー: ${summary.errors}件`
-      ].join("\n"));
-    }
-
-    function indexCsvHeaders(headers) {
-      const indexes = {};
-      headers.forEach((header, index) => {
-        const normalized = header.replace(/^\uFEFF/, "").trim();
-        if (normalized) indexes[normalized] = index;
-      });
-      return indexes;
-    }
-
-    function getCsvCell(row, index) {
-      return index === undefined ? "" : String(row[index] ?? "");
-    }
-
-    function parseCsvBoolean(value) {
-      const normalized = String(value || "").trim().toLowerCase();
-      if (!normalized) return false;
-      if (["true", "1", "yes", "y", "やった", "わかった"].includes(normalized)) return true;
-      if (["false", "0", "no", "n"].includes(normalized)) return false;
-      return null;
-    }
-
-    function parseCsv(text) {
-      const rows = [];
-      let row = [];
-      let cell = "";
-      let inQuotes = false;
-
-      for (let index = 0; index < text.length; index += 1) {
-        const char = text[index];
-        const next = text[index + 1];
-
-        if (inQuotes) {
-          if (char === '"' && next === '"') {
-            cell += '"';
-            index += 1;
-          } else if (char === '"') {
-            inQuotes = false;
-          } else {
-            cell += char;
-          }
-          continue;
-        }
-
-        if (char === '"') {
-          inQuotes = true;
-        } else if (char === ",") {
-          row.push(cell);
-          cell = "";
-        } else if (char === "\n") {
-          row.push(cell);
-          rows.push(row);
-          row = [];
-          cell = "";
-        } else if (char !== "\r") {
-          cell += char;
-        }
-      }
-
-      if (cell || row.length > 0) {
-        row.push(cell);
-        rows.push(row);
-      }
-
-      return rows.filter((csvRow) => csvRow.some((value) => String(value || "").trim()));
-    }
-
-    function downloadCsv(words, filename) {
-      const csv = buildCsv(words);
-      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = filename;
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(url);
-    }
-
-    function buildCsv(words) {
-      const rows = [["date", "id", "word", "reading", "category", "planned_date", "lesson_group", "attempted", "understood", "status", "lastUpdated"]];
-      const date = elements.studyDate.value || getTodayText();
-      for (const word of words) {
-        const record = getRecord(word.id);
-        rows.push([
-          date,
-          word.id,
-          word.word,
-          word.reading,
-          word.category,
-          word.planned_date,
-          word.lesson_group,
-          String(record.attempted),
-          String(record.understood),
-          getStatus(word.id).key,
-          record.lastUpdated
-        ]);
-      }
-      return rows.map((row) => row.map(csvEscape).join(",")).join("\r\n");
-    }
-
-    function csvEscape(value) {
-      const text = String(value ?? "");
-      if (/[",\r\n]/.test(text)) return `"${text.replace(/"/g, '""')}"`;
-      return text;
     }
 
     function getImageSrc(word) {
