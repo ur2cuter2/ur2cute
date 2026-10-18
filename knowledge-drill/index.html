@@ -36,6 +36,15 @@
 
     button, input, select, textarea { font: inherit; }
     button:disabled, input:disabled { cursor: default; opacity: .55; }
+    [hidden] { display: none !important; }
+    #answerReview { margin: 16px 0; }
+    #reviewError:empty { display: none; }
+    #answerReview input, #answerReview select, #answerReview button, #openAnswerReview { min-height: 44px; }
+    .review-controls { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+    .review-controls label { display: grid; gap: 6px; }
+    .review-entry { border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin: 12px 0; }
+    .review-entry summary { cursor: pointer; min-height: 44px; overflow-wrap: anywhere; }
+    .review-entry p { white-space: pre-wrap; overflow-wrap: anywhere; }
     .meaning-panel { display: grid; gap: 8px; min-width: 0; }
     .meaning-panel:empty { display: none; }
     .meaning-panel textarea { width: 100%; min-height: 110px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; }
@@ -413,6 +422,22 @@
       </section>
     </header>
 
+    <button class="download-button" type="button" id="openAnswerReview" aria-controls="answerReview" aria-expanded="false">回答確認（保護者用）</button>
+    <section id="answerReview" aria-labelledby="answerReviewTitle" hidden>
+      <h2 id="answerReviewTitle" tabindex="-1">回答確認（保護者用・読み取り専用）</h2>
+      <p>この端末・ブラウザに保存した確定回答を確認できます。正誤判定や保護者の承認は不要です。</p>
+      <p id="reviewCounts" role="status"></p>
+      <div class="review-controls">
+        <label>検索（ID・語句）<input id="reviewSearch" type="search"></label>
+        <label>並び替え<select id="reviewSort"><option value="newest">初回確定日時の新しい順</option><option value="oldest">初回確定日時の古い順</option><option value="idAsc">語句IDの昇順</option><option value="idDesc">語句IDの降順</option></select></label>
+        <label>絞り込み<select id="reviewFilter"><option value="all">全回答</option><option value="changed">修正あり</option></select></label>
+      </div>
+      <p id="reviewError" role="alert" class="storage-notice"></p>
+      <div id="reviewEntries"></div>
+      <div class="review-controls"><button id="reviewPrevious" type="button">前の50件</button><span id="reviewPage" role="status"></span><button id="reviewNext" type="button">次の50件</button></div>
+      <button id="closeAnswerReview" type="button" class="download-button">通常画面へ戻る</button>
+    </section>
+    <div id="learningView">
     <section class="summary" aria-label="集計">
       <div class="summary-item"><span>未着手</span><strong id="notStartedCount">0語</strong></div>
       <div class="summary-item"><span>復習対象</span><strong id="reviewCount">0語</strong></div>
@@ -435,6 +460,7 @@
 
     <p class="result-line" id="resultLine">読み込み中...</p>
     <section class="cards" id="wordCards" aria-live="polite"></section>
+    </div>
   </main>
 
   <div class="celebration-overlay" id="celebrationOverlay" hidden>
@@ -555,6 +581,87 @@
     const RESPONSE_FIELDS = ["firstAnswer", "firstConfirmedAt", "currentAnswer", "lastModifiedAt", "draft", "draftUpdatedAt", "attemptedRecordedAt"];
     const CSV_RESPONSE_FIELDS = ["firstAnswer", "firstConfirmedAt", "currentAnswer", "lastModifiedAt", "draft", "draftUpdatedAt", "attemptedRecordedAt"];
     const CSV_EXTRA = ["backupVersion", "legacyExempt", ...CSV_RESPONSE_FIELDS];
+
+    // Review always reads a fresh validated snapshot; it never repairs or saves it.
+    let reviewPage = 0;
+    function bindAnswerReview() {
+      const panel = document.getElementById("answerReview");
+      document.getElementById("openAnswerReview").addEventListener("click", () => {
+        panel.hidden = false;
+        document.getElementById("learningView").hidden = true;
+        document.querySelector("header").hidden = true;
+        document.getElementById("openAnswerReview").hidden = true;
+        document.getElementById("openAnswerReview").setAttribute("aria-expanded", "true");
+        reviewPage = 0; renderAnswerReview();
+        document.getElementById("answerReviewTitle").focus();
+      });
+      document.getElementById("closeAnswerReview").addEventListener("click", () => {
+        panel.hidden = true;
+        document.getElementById("learningView").hidden = false;
+        document.querySelector("header").hidden = false;
+        const button = document.getElementById("openAnswerReview");
+        button.hidden = false; button.setAttribute("aria-expanded", "false"); button.focus();
+      });
+      for (const [id, event] of [["reviewSearch", "input"], ["reviewSort", "change"], ["reviewFilter", "change"]]) {
+        document.getElementById(id).addEventListener(event, () => { reviewPage = 0; renderAnswerReview(); });
+      }
+      for (const [id, delta] of [["reviewPrevious", -1], ["reviewNext", 1]]) {
+        document.getElementById(id).addEventListener("click", () => { reviewPage += delta; renderAnswerReview(); });
+      }
+      window.addEventListener("storage", event => {
+        if (!panel.hidden && (event.key === null || [MEANING_KEY, STORAGE_KEY, TRANSACTION_KEY].includes(event.key))) renderAnswerReview();
+      });
+      window.addEventListener("pageshow", () => { if (!panel.hidden) renderAnswerReview(); });
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden && !panel.hidden) renderAnswerReview();
+      });
+    }
+    function renderAnswerReview() {
+      const entries = document.getElementById("reviewEntries"), error = document.getElementById("reviewError");
+      entries.replaceChildren(); error.textContent = "";
+      document.getElementById("reviewCounts").textContent = "件数を確認中…";
+      document.getElementById("reviewPage").textContent = "";
+      document.getElementById("reviewPrevious").disabled = true;
+      document.getElementById("reviewNext").disabled = true;
+      try {
+        if (localStorage.getItem(TRANSACTION_KEY) !== null) throw new Error("中断した保存処理があります。");
+        const raw = localStorage.getItem(MEANING_KEY);
+        const data = raw === null ? { responses: {} } : validateMeaning(JSON.parse(raw));
+        const words = new Map(state.words.map(word => [word.id, word.word]));
+        const all = Object.entries(data.responses).filter(([, response]) => response.firstAnswer !== null)
+          .map(([id, response]) => ({ id, response, word: words.get(id) ?? "（現在の教材一覧にない語句）" }));
+        const changed = entry => entry.response.firstAnswer !== entry.response.currentAnswer;
+        const query = document.getElementById("reviewSearch").value.trim().toLowerCase();
+        const filtered = all.filter(entry => (!query || entry.id.toLowerCase().includes(query) || entry.word.toLowerCase().includes(query))
+          && (document.getElementById("reviewFilter").value !== "changed" || changed(entry)));
+        const idOrder = (a, b) => a.id.localeCompare(b.id, "ja", { numeric: true }) || a.id.localeCompare(b.id);
+        const sort = document.getElementById("reviewSort").value;
+        filtered.sort((a, b) => sort === "idAsc" ? idOrder(a, b) : sort === "idDesc" ? -idOrder(a, b)
+          : (sort === "oldest" ? 1 : -1) * a.response.firstConfirmedAt.localeCompare(b.response.firstConfirmedAt) || idOrder(a, b));
+        reviewPage = Math.max(0, Math.min(reviewPage, Math.ceil(filtered.length / 50) - 1));
+        const visible = filtered.slice(reviewPage * 50, (reviewPage + 1) * 50);
+        document.getElementById("reviewCounts").textContent = `回答あり：${all.length}件／修正あり：${all.filter(changed).length}件／条件一致：${filtered.length}件／表示中：${visible.length}件`;
+        const formatDate = value => new Intl.DateTimeFormat("ja-JP", { timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).format(new Date(value)) + "（日本時間）";
+        for (const entry of visible) {
+          const response = entry.response, details = document.createElement("details"), summary = document.createElement("summary");
+          details.className = "review-entry"; details.dataset.reviewId = entry.id;
+          summary.textContent = `No.${entry.id.padStart(3, "0")} ${entry.word}｜${changed(entry) ? "修正あり" : "修正なし"}｜${formatDate(response.firstConfirmedAt)}｜初回回答：${Array.from(response.firstAnswer).slice(0, 60).join("")}${Array.from(response.firstAnswer).length > 60 ? "…" : ""}`;
+          details.append(summary);
+          for (const [label, value] of [["初回回答", response.firstAnswer], ["現在の回答", response.currentAnswer],
+            ["初回確定日時", formatDate(response.firstConfirmedAt)], ["最終修正日時", formatDate(response.lastModifiedAt)]]) {
+            const line = document.createElement("p"); line.textContent = `${label}：${value}`; details.append(line);
+          }
+          entries.append(details);
+        }
+        if (!filtered.length) entries.textContent = all.length ? "条件に一致する回答はありません。" : "確定した回答はまだありません。下書きは表示しません。";
+        document.getElementById("reviewPage").textContent = `${filtered.length ? reviewPage * 50 + 1 : 0}〜${reviewPage * 50 + visible.length}件／${filtered.length}件`;
+        document.getElementById("reviewPrevious").disabled = reviewPage === 0;
+        document.getElementById("reviewNext").disabled = (reviewPage + 1) * 50 >= filtered.length;
+      } catch (failure) {
+        document.getElementById("reviewCounts").textContent = "回答件数を確認できません。";
+        error.textContent = `回答を安全に読み取れません：${failure.message} 保存原文は変更していません。ブラウザのデータを削除しないでください。`;
+      }
+    }
 
     function plainObject(value) {
       return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -1121,6 +1228,7 @@
     }
 
     function bindEvents() {
+      bindAnswerReview();
     /* NOTIFICATION START */
       document.getElementById("celebrationReport").addEventListener("click", reportCompletion);
       window.addEventListener("storage", (event) => {
