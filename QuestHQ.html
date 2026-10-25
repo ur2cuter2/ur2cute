@@ -28,6 +28,8 @@
   .mission-card::before { content:attr(data-symbol); position:absolute; right:12px; bottom:36px; font-family:serif; font-size:110px; line-height:1; opacity:.045; pointer-events:none; }
   .card-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
   .card-icon { font-family:"Kaisei Tokumin","Yu Mincho",serif; font-size:30px; line-height:1; color:var(--accent); }
+  .app-icon { display:block; width:64px; height:64px; flex-shrink:0; object-fit:contain; border-radius:14px; box-shadow:0 2px 8px #0002; }
+  .app-icon-emoji { display:flex; align-items:center; justify-content:center; background:#e3e9dc; font-size:40px; line-height:1; }
   .card-label { border:1px solid currentColor; border-radius:20px; padding:4px 11px; font-size:11px; color:var(--accent); }
   .card-title { position:relative; font-size:21px; line-height:1.5; margin:0 0 8px; }
   .card-desc { position:relative; color:var(--secondary); font-size:14px; line-height:1.85; margin:0 0 24px; }
@@ -62,19 +64,19 @@
     <div class="section-heading"><h2 id="missionsTitle">学習アプリ</h2><p>6つの世界から選ぼう</p></div>
     <div class="missions">
     <a class="mission-card card-washi" href="vocab-quest/index.html" data-symbol="語">
-      <div class="card-top"><span class="card-icon" aria-hidden="true">語</span><span class="card-label">国語 · 語彙</span></div>
+      <div class="card-top"><img class="app-icon" src="vocab-quest/assets/icons/apple-touch-icon.png" width="64" height="64" alt=""><span class="card-label">国語 · 語彙</span></div>
       <h3 class="card-title">語彙クエスト</h3>
       <p class="card-desc">中学受験の語彙を、バトルを通して身につけよう。</p>
       <span class="card-action"><span>はじめる</span><span aria-hidden="true">→</span></span>
     </a>
     <a class="mission-card card-washi card-knowledge" href="knowledge-drill/index.html" data-symbol="詞">
-      <div class="card-top"><span class="card-icon" aria-hidden="true">詞</span><span class="card-label">国語 · 語句</span></div>
+      <div class="card-top"><span class="app-icon app-icon-emoji" aria-hidden="true">📖</span><span class="card-label">国語 · 語句</span></div>
       <h3 class="card-title">語句ワークシート</h3>
       <p class="card-desc">語句をひとつずつ学んで、毎日の学習記録をつけよう。</p>
       <span class="card-action"><span>はじめる</span><span aria-hidden="true">→</span></span>
     </a>
     <a class="mission-card card-washi card-kanji" href="kanji-de-go/index.html" data-symbol="漢">
-      <div class="card-top"><span class="card-icon" aria-hidden="true">漢</span><span class="card-label">国語 · 漢字</span></div>
+      <div class="card-top"><img class="app-icon" src="kanji-de-go/icons/apple-touch-icon-180.png" width="64" height="64" alt=""><span class="card-label">国語 · 漢字</span></div>
       <h3 class="card-title">漢字でGO！</h3>
       <p class="card-desc">漢字をくり返し練習して、できることを増やそう。</p>
       <span class="card-action"><span>はじめる</span><span aria-hidden="true">→</span></span>
@@ -92,7 +94,7 @@
       <span class="card-action"><span>はじめる</span><span aria-hidden="true">→</span></span>
     </a>
     <a class="mission-card card-washi card-history" href="Taiga_Historia/index.html" data-symbol="史">
-      <div class="card-top"><span class="card-icon" aria-hidden="true">史</span><span class="card-label">社会 · 歴史</span></div>
+      <div class="card-top"><img class="app-icon" src="Taiga_Historia/icons/apple-touch-icon-180.png" width="64" height="64" alt=""><span class="card-label">社会 · 歴史</span></div>
       <h3 class="card-title">大河ヒストリア</h3>
       <p class="card-desc">歴史の流れを、ひとつずつ。時代のつながりを学ぼう。</p>
       <span class="card-action"><span>はじめる</span><span aria-hidden="true">→</span></span>
