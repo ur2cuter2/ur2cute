@@ -1,499 +1,107 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>[プレイヤー名]'s Quest HQ</title>
+<title>[プレイヤー名]の Quest HQ</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Kaisei+Tokumin:wght@400;700&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #08090f;
-    --kanji-gold: #f5c842;
-    --kanji-red: #e8453c;
-    --kanji-ink: #1a0a00;
-    --crystal-blue: #4fc3f7;
-    --crystal-purple: #ce93d8;
-    --crystal-dark: #04080f;
-    --galaxy-teal: #00e5cc;
-    --galaxy-orange: #ff9800;
-    --galaxy-dark: #050f10;
-    --text: #f0eeea;
-    --text-dim: #888;
-  }
-
-  html, body {
-    min-height: 100vh;
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Exo 2', sans-serif;
-    overflow-x: hidden;
-  }
-
-  /* ── Starfield ── */
-  .starfield {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  .star {
-    position: absolute;
-    border-radius: 50%;
-    background: white;
-    animation: twinkle var(--d) ease-in-out infinite;
-    animation-delay: var(--delay);
-    opacity: 0;
-  }
-
-  @keyframes twinkle {
-    0%, 100% { opacity: 0; }
-    50% { opacity: var(--max-op); }
-  }
-
-  /* ── Layout ── */
-  .app {
-    position: relative;
-    z-index: 1;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 48px 20px 40px;
-  }
-
-  /* ── Header ── */
-  .hq-header {
-    text-align: center;
-    margin-bottom: 12px;
-    animation: fadeDown 0.8s ease both;
-  }
-
-  @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-16px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  .hq-eyebrow {
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    letter-spacing: 4px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    margin-bottom: 10px;
-  }
-
-  .hq-title {
-    font-size: 36px;
-    font-family: 'Kaisei Tokumin', serif;
-    font-weight: 700;
-    letter-spacing: 2px;
-    background: linear-gradient(135deg, var(--kanji-gold) 0%, #fff8e0 50%, var(--crystal-blue) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    filter: drop-shadow(0 0 24px rgba(245,200,66,0.3));
-    margin-bottom: 6px;
-  }
-
-  .hq-sub {
-    font-size: 12px;
-    color: var(--text-dim);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-  }
-
-  /* ── Date strip ── */
-  .date-strip {
-    font-family: 'Orbitron', monospace;
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 2px;
-    margin-bottom: 44px;
-    padding: 6px 18px;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 20px;
-    background: rgba(255,255,255,0.03);
-    animation: fadeDown 0.8s 0.1s ease both;
-  }
-
-  .date-strip span { color: var(--text); }
-
-  /* ── Mission cards ── */
-  .missions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    width: 100%;
-    max-width: 680px;
-    animation: fadeUp 0.8s 0.2s ease both;
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  @media (max-width: 480px) {
-    .missions { grid-template-columns: 1fr; }
-  }
-
-  .mission-card {
-    position: relative;
-    border-radius: 20px;
-    padding: 28px 22px 24px;
-    cursor: pointer;
-    text-decoration: none;
-    display: block;
-    overflow: hidden;
-    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1),
-                box-shadow 0.3s ease;
-  }
-
-  .mission-card:hover {
-    transform: translateY(-6px) scale(1.01);
-  }
-
-  .mission-card:active {
-    transform: scale(0.97);
-  }
-
-  /* ── Kanji Quest card ── */
-  .card-kanji {
-    background: linear-gradient(145deg, #1a0800 0%, #2d1200 60%, #1a0800 100%);
-    border: 1px solid rgba(245,200,66,0.25);
-    box-shadow: 0 4px 32px rgba(232,69,60,0.15), inset 0 1px 0 rgba(245,200,66,0.15);
-  }
-
-  .card-kanji:hover {
-    box-shadow: 0 12px 48px rgba(232,69,60,0.3), 0 0 0 1px rgba(245,200,66,0.4),
-                inset 0 1px 0 rgba(245,200,66,0.2);
-  }
-
-  .card-kanji::before {
-    content: '語';
-    position: absolute;
-    right: -8px;
-    bottom: -20px;
-    font-family: 'Kaisei Tokumin', serif;
-    font-size: 120px;
-    font-weight: 700;
-    color: rgba(245,200,66,0.06);
-    line-height: 1;
-    pointer-events: none;
-    user-select: none;
-  }
-
-  .card-kanji::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--kanji-red), var(--kanji-gold), var(--kanji-red));
-    border-radius: 20px 20px 0 0;
-  }
-
-  /* ── Crystal Seeker card ── */
-  .card-crystal {
-    background: linear-gradient(145deg, #04080f 0%, #080f20 60%, #04080f 100%);
-    border: 1px solid rgba(79,195,247,0.2);
-    box-shadow: 0 4px 32px rgba(79,195,247,0.1), inset 0 1px 0 rgba(79,195,247,0.1);
-  }
-
-  .card-crystal:hover {
-    box-shadow: 0 12px 48px rgba(79,195,247,0.25), 0 0 0 1px rgba(79,195,247,0.4),
-                inset 0 1px 0 rgba(79,195,247,0.15);
-  }
-
-  .card-crystal::before {
-    content: '✦';
-    position: absolute;
-    right: 16px;
-    bottom: 16px;
-    font-size: 80px;
-    color: rgba(79,195,247,0.06);
-    line-height: 1;
-    pointer-events: none;
-  }
-
-  .card-crystal::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--crystal-blue), var(--crystal-purple), var(--crystal-blue));
-    border-radius: 20px 20px 0 0;
-  }
-
-  /* ── Galaxy Academy card ── */
-  .card-galaxy {
-    background: linear-gradient(145deg, #050f10 0%, #081818 60%, #050f10 100%);
-    border: 1px solid rgba(0,229,204,0.2);
-    box-shadow: 0 4px 32px rgba(0,229,204,0.08), inset 0 1px 0 rgba(0,229,204,0.1);
-  }
-
-  .card-galaxy:hover {
-    box-shadow: 0 12px 48px rgba(0,229,204,0.22), 0 0 0 1px rgba(0,229,204,0.4),
-                inset 0 1px 0 rgba(0,229,204,0.15);
-  }
-
-  /* 銀河の渦 ウォーターマーク */
-  .card-galaxy::before {
-    content: '🌌';
-    position: absolute;
-    right: -4px;
-    bottom: -12px;
-    font-size: 100px;
-    line-height: 1;
-    opacity: 0.07;
-    pointer-events: none;
-    user-select: none;
-    filter: grayscale(0.3);
-  }
-
-  .card-galaxy::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--galaxy-teal), var(--galaxy-orange), var(--galaxy-teal));
-    border-radius: 20px 20px 0 0;
-  }
-
-  /* ── Card internals ── */
-  .card-icon {
-    font-size: 40px;
-    margin-bottom: 14px;
-    display: block;
-    line-height: 1;
-  }
-
-  .card-label {
-    font-size: 10px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-
-  .card-kanji .card-label   { color: rgba(245,200,66,0.6); }
-  .card-crystal .card-label { color: rgba(79,195,247,0.6); }
-  .card-galaxy .card-label  { color: rgba(0,229,204,0.6); }
-
-  .card-title {
-    font-weight: 700;
-    font-size: 20px;
-    margin-bottom: 4px;
-    line-height: 1.2;
-  }
-
-  .card-kanji .card-title {
-    font-family: 'Kaisei Tokumin', serif;
-    color: var(--kanji-gold);
-  }
-
-  .card-crystal .card-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 16px;
-    color: var(--crystal-blue);
-    letter-spacing: 1px;
-  }
-
-  .card-galaxy .card-title {
-    font-family: 'Orbitron', monospace;
-    font-size: 14px;
-    color: var(--galaxy-teal);
-    letter-spacing: 1px;
-  }
-
-  .card-desc {
-    font-size: 12px;
-    line-height: 1.6;
-    margin-bottom: 20px;
-  }
-
-  .card-kanji .card-desc   { color: rgba(240,230,200,0.55); }
-  .card-crystal .card-desc { color: rgba(180,220,240,0.5); }
-  .card-galaxy .card-desc  { color: rgba(160,240,230,0.5); }
-
-  /* Status pills */
-  .card-status {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-
-  .pill {
-    font-size: 10px;
-    letter-spacing: 1px;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-family: 'Orbitron', monospace;
-  }
-
-  .card-kanji .pill {
-    background: rgba(245,200,66,0.1);
-    border: 1px solid rgba(245,200,66,0.25);
-    color: var(--kanji-gold);
-  }
-
-  .card-crystal .pill {
-    background: rgba(79,195,247,0.1);
-    border: 1px solid rgba(79,195,247,0.25);
-    color: var(--crystal-blue);
-  }
-
-  .card-galaxy .pill {
-    background: rgba(0,229,204,0.08);
-    border: 1px solid rgba(0,229,204,0.25);
-    color: var(--galaxy-teal);
-  }
-
-  /* Arrow */
-  .card-arrow {
-    position: absolute;
-    bottom: 22px;
-    right: 22px;
-    font-size: 18px;
-    opacity: 0.4;
-    transition: opacity 0.3s, transform 0.3s;
-  }
-
-  .mission-card:hover .card-arrow {
-    opacity: 1;
-    transform: translateX(4px);
-  }
-
-  .card-kanji .card-arrow   { color: var(--kanji-gold); }
-  .card-crystal .card-arrow { color: var(--crystal-blue); }
-  .card-galaxy .card-arrow  { color: var(--galaxy-teal); }
-
-  /* ── Footer ── */
-  .footer {
-    margin-top: 48px;
-    text-align: center;
-    font-size: 11px;
-    color: rgba(255,255,255,0.12);
-    letter-spacing: 2px;
-    animation: fadeUp 0.8s 0.4s ease both;
-  }
-
-  .name-button {
-    margin-top: 16px;
-    padding: 8px 14px;
-    border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.12);
-    background: rgba(255,255,255,0.04);
-    color: rgba(255,255,255,0.45);
-    font-family: 'Exo 2', sans-serif;
-    font-size: 11px;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-  }
-
-  .name-button:hover {
-    background: rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.75);
-    border-color: rgba(255,255,255,0.22);
-  }
-
-  /* ── Floating particles ── */
-  .particles {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .particle {
-    position: absolute;
-    width: 2px;
-    height: 2px;
-    border-radius: 50%;
-    animation: floatUp var(--dur) linear infinite;
-    animation-delay: var(--delay);
-    opacity: 0;
-  }
-
-  @keyframes floatUp {
-    0%   { transform: translateY(100vh) scale(0); opacity: 0; }
-    10%  { opacity: var(--op); }
-    90%  { opacity: var(--op); }
-    100% { transform: translateY(-10vh) scale(1); opacity: 0; }
-  }
+  *, *::before, *::after { box-sizing: border-box; }
+  :root { color-scheme: dark; --bg:#101925; --text:#f4f2ed; --muted:#b3becc; }
+  body { margin:0; min-height:100vh; background:radial-gradient(ellipse at 50% 0%,#24364a 0%,var(--bg) 65%); color:var(--text); font-family:"Yu Gothic","Hiragino Kaku Gothic ProN",Meiryo,sans-serif; }
+  .starfield { position:fixed; inset:0; pointer-events:none; z-index:0; }
+  .star { position:absolute; border-radius:50%; background:#dce8f5; opacity:.22; }
+  .app { position:relative; max-width:1120px; margin:auto; padding:48px 32px 32px; }
+  .hq-header { text-align:center; }
+  .hq-eyebrow { color:#c2ad7e; font-size:12px; letter-spacing:.22em; margin-bottom:12px; }
+  .hq-title { margin:0; font-size:clamp(25px,4vw,38px); line-height:1.5; overflow-wrap:anywhere; }
+  .hq-sub { margin:12px 0 8px; font-size:22px; font-weight:700; }
+  .hq-intro { color:var(--muted); font-size:14px; line-height:1.8; margin:0; }
+  .date-strip { text-align:center; color:var(--muted); font-size:13px; margin:20px 0 38px; }
+  .section-heading { display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:16px; }
+  .section-heading h2 { font-size:18px; margin:0; }
+  .section-heading p { color:var(--muted); font-size:12px; margin:0; }
+  .missions { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:20px; }
+  .mission-card { --accent:#a9d9fb; --surface:#1b2c40; --ink:#f1f6fc; --secondary:#c1d2e3; position:relative; display:flex; flex-direction:column; min-height:290px; padding:25px; border:1px solid #ffffff25; border-top:3px solid var(--accent); border-radius:16px; background:var(--surface); color:var(--ink); text-decoration:none; overflow:hidden; transition:transform .18s,box-shadow .18s; }
+  .mission-card:hover { transform:translateY(-4px); box-shadow:0 12px 28px #0004; }
+  .mission-card:focus-visible,.name-button:focus-visible { outline:3px solid #fff; outline-offset:5px; }
+  .mission-card::before { content:attr(data-symbol); position:absolute; right:12px; bottom:36px; font-family:serif; font-size:110px; line-height:1; opacity:.045; pointer-events:none; }
+  .card-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+  .card-icon { font-family:"Kaisei Tokumin","Yu Mincho",serif; font-size:30px; line-height:1; color:var(--accent); }
+  .card-label { border:1px solid currentColor; border-radius:20px; padding:4px 11px; font-size:11px; color:var(--accent); }
+  .card-title { position:relative; font-size:21px; line-height:1.5; margin:0 0 8px; }
+  .card-desc { position:relative; color:var(--secondary); font-size:14px; line-height:1.85; margin:0 0 24px; }
+  .card-action { position:relative; display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:15px; border-top:1px solid currentColor; color:var(--accent); font-size:14px; font-weight:700; }
+  .card-action span:last-child { font-size:20px; }
+  .card-washi { --surface:#f3eddf; --ink:#302c27; --secondary:#62594c; --accent:#835329; background-image:repeating-linear-gradient(0deg,transparent,transparent 4px,#77634405 4px,#77634405 5px); }
+  .card-washi .card-title { font-family:"Kaisei Tokumin","Yu Mincho",serif; }
+  .card-kanji { --accent:#953f35; }
+  .card-knowledge { --accent:#42644e; }
+  .card-history { --surface:#e9eff0; --accent:#305e75; }
+  .card-crystal { --surface:#1b293f; --accent:#b5d6ff; }
+  .card-galaxy { --surface:#193332; --accent:#a3ddd0; }
+  .footer { margin-top:32px; text-align:center; color:var(--muted); font-size:12px; line-height:1.8; }
+  .name-button { display:block; margin:14px auto 0; padding:9px 16px; border:1px solid #ffffff40; border-radius:24px; background:#ffffff08; color:#d5dfeb; cursor:pointer; font:inherit; font-size:12px; }
+  .name-button:hover { background:#ffffff15; }
+  @media(max-width:900px) { .missions { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  @media(max-width:600px) { .app { padding:32px 20px 24px; } .missions { grid-template-columns:1fr; gap:16px; } .mission-card { min-height:260px; } .hq-sub { font-size:20px; } .section-heading { align-items:center; } .section-heading p { max-width:10em; text-align:right; } }
+  @media(prefers-reduced-motion:reduce) { *,*::before,*::after { transition:none!important; animation:none!important; } .mission-card:hover { transform:none; } }
 </style>
 </head>
 <body>
-
-<!-- Starfield -->
-<div class="starfield" id="starfield"></div>
-<div class="particles" id="particles"></div>
-
-<div class="app">
-
+<div class="starfield" id="starfield" aria-hidden="true"></div>
+<main class="app">
   <header class="hq-header">
-    <div class="hq-eyebrow">Mission Control</div>
-    <h1 class="hq-title" id="hqTitle">[プレイヤー名]'s Quest HQ</h1>
-    <div class="hq-sub">Choose your training</div>
+    <div class="hq-eyebrow">QUEST HQ · 学びの冒険へ</div>
+    <h1 class="hq-title" id="hqTitle">[プレイヤー名]の Quest HQ</h1>
+    <p class="hq-sub">今日の学びを選ぼう</p>
+    <p class="hq-intro">ことばも、英語も、歴史も。気になる世界から、一歩ずつ。</p>
   </header>
-
-  <div class="date-strip" id="dateStrip">
-    Loading...
-  </div>
-
-  <div class="missions">
-
-    <!-- 語彙クエスト -->
-    <a class="mission-card card-kanji" href="vocab-quest/index.html">
-      <span class="card-icon">⚔️</span>
-      <div class="card-label">Daily Mission</div>
-      <div class="card-title">語彙クエスト</div>
-      <div class="card-desc">中学受験の語彙をバトルで制覇</div>
-      <div class="card-status">
-        <span class="pill">漢字</span>
-        <span class="pill">熟語</span>
-        <span class="pill">慣用句</span>
-      </div>
-      <span class="card-arrow">→</span>
+  <div class="date-strip" id="dateStrip"></div>
+  <section aria-labelledby="missionsTitle">
+    <div class="section-heading"><h2 id="missionsTitle">学習アプリ</h2><p>6つの世界から選ぼう</p></div>
+    <div class="missions">
+    <a class="mission-card card-washi" href="vocab-quest/index.html" data-symbol="語">
+      <div class="card-top"><span class="card-icon" aria-hidden="true">語</span><span class="card-label">国語 · 語彙</span></div>
+      <h3 class="card-title">語彙クエスト</h3>
+      <p class="card-desc">中学受験の語彙を、バトルを通して身につけよう。</p>
+      <span class="card-action"><span>はじめる</span><span aria-hidden="true">→</span></span>
     </a>
-
-    <!-- Crystal Seeker -->
-    <a class="mission-card card-crystal" href="spelling_quest/index.html">
-      <span class="card-icon">💎</span>
-      <div class="card-label">Padawan Training</div>
-      <div class="card-title">Crystal Seeker</div>
-      <div class="card-desc">Hunt crystals. Train your spelling. Master the Force.</div>
-      <div class="card-status">
-        <span class="pill">Scan</span>
-        <span class="pill">Train</span>
-        <span class="pill">Ilum</span>
-      </div>
-      <span class="card-arrow">→</span>
+    <a class="mission-card card-washi card-knowledge" href="knowledge-drill/index.html" data-symbol="詞">
+      <div class="card-top"><span class="card-icon" aria-hidden="true">詞</span><span class="card-label">国語 · 語句</span></div>
+      <h3 class="card-title">語句ワークシート</h3>
+      <p class="card-desc">語句をひとつずつ学んで、毎日の学習記録をつけよう。</p>
+      <span class="card-action"><span>はじめる</span><span aria-hidden="true">→</span></span>
     </a>
-
-    <!-- Galaxy Academy -->
-    <a class="mission-card card-galaxy" href="https://s4-kobayashi.github.io/galaxy-academy/index.html">
-      <span class="card-icon">🌌</span>
-      <div class="card-label">Jedi Academy</div>
-      <div class="card-title">Galaxy Academy</div>
-      <div class="card-desc">AI小説で語彙を読む・問題を解く・ランクを上げる</div>
-      <div class="card-status">
-        <span class="pill">読む</span>
-        <span class="pill">解く</span>
-        <span class="pill">Rank Up</span>
-      </div>
-      <span class="card-arrow">→</span>
+    <a class="mission-card card-washi card-kanji" href="kanji-de-go/index.html" data-symbol="漢">
+      <div class="card-top"><span class="card-icon" aria-hidden="true">漢</span><span class="card-label">国語 · 漢字</span></div>
+      <h3 class="card-title">漢字でGO！</h3>
+      <p class="card-desc">漢字をくり返し練習して、できることを増やそう。</p>
+      <span class="card-action"><span>はじめる</span><span aria-hidden="true">→</span></span>
     </a>
-
-  </div>
-
-  <footer class="footer">QUEST HQ · 毎日の修行</footer>
+    <a class="mission-card card-crystal" href="spelling_quest/index.html" data-symbol="✦">
+      <div class="card-top"><span class="card-icon" aria-hidden="true">✦</span><span class="card-label">英語 · スペリング</span></div>
+      <h3 class="card-title">Crystal Seeker</h3>
+      <p class="card-desc">クリスタルを集めながら、英単語のスペリングを練習しよう。</p>
+      <span class="card-action"><span>はじめる</span><span aria-hidden="true">→</span></span>
+    </a>
+    <a class="mission-card card-galaxy" href="https://s4-kobayashi.github.io/galaxy-academy/index.html" data-symbol="✧">
+      <div class="card-top"><span class="card-icon" aria-hidden="true">✧</span><span class="card-label">国語 · 読解・語彙</span></div>
+      <h3 class="card-title">Galaxy Academy</h3>
+      <p class="card-desc">AI小説を読んで問題に挑戦。語彙を学んでランクを上げよう。</p>
+      <span class="card-action"><span>はじめる</span><span aria-hidden="true">→</span></span>
+    </a>
+    <a class="mission-card card-washi card-history" href="Taiga_Historia/index.html" data-symbol="史">
+      <div class="card-top"><span class="card-icon" aria-hidden="true">史</span><span class="card-label">社会 · 歴史</span></div>
+      <h3 class="card-title">大河ヒストリア</h3>
+      <p class="card-desc">歴史の流れを、ひとつずつ。時代のつながりを学ぼう。</p>
+      <span class="card-action"><span>はじめる</span><span aria-hidden="true">→</span></span>
+    </a>
+    </div>
+  </section>
+  <footer class="footer">QUEST HQ · 毎日の小さな挑戦を、力に。</footer>
   <button class="name-button" type="button" onclick="changePlayerName()">プレイヤー名を変える</button>
-
-</div>
-
+</main>
 <script>
   // Player name personalization
   const PLAYER_NAME_STORAGE_KEY = 'vocabQuestPlayerName';
@@ -539,48 +147,17 @@
 
   applyPlayerName();
 
-  // Date display
-  const now = new Date();
-  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const dayJa = ['日','月','火','水','木','金','土'];
-  document.getElementById('dateStrip').innerHTML =
-    `<span>${days[now.getDay()]} ${months[now.getMonth()]} ${now.getDate()}</span>　${dayJa[now.getDay()]}曜日`;
-
-  // Starfield
+  // Japanese date and a quiet, static starfield
+  document.getElementById('dateStrip').textContent =
+    new Intl.DateTimeFormat('ja-JP', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' }).format(new Date());
   const sf = document.getElementById('starfield');
-  for (let i = 0; i < 80; i++) {
-    const s = document.createElement('div');
-    s.className = 'star';
-    const size = Math.random() * 2 + 0.5;
-    s.style.cssText = `
-      width:${size}px; height:${size}px;
-      left:${Math.random()*100}%;
-      top:${Math.random()*100}%;
-      --d:${2 + Math.random()*4}s;
-      --delay:${Math.random()*4}s;
-      --max-op:${0.3 + Math.random()*0.6};
-    `;
-    sf.appendChild(s);
-  }
-
-  // Particles — gold for left, blue for center, teal for right
-  const pc = document.getElementById('particles');
-  for (let i = 0; i < 30; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    const x = Math.random() * 100;
-    const color = x < 33 ? '#f5c842' : x < 66 ? '#4fc3f7' : '#00e5cc';
-    p.style.cssText = `
-      left:${x}%;
-      background:${color};
-      --dur:${6 + Math.random()*8}s;
-      --delay:${Math.random()*8}s;
-      --op:${0.3 + Math.random()*0.4};
-    `;
-    pc.appendChild(p);
+  for (let i = 0; i < 28; i++) {
+    const star = document.createElement('span');
+    star.className = 'star';
+    const size = Math.random() * 1.5 + 0.5;
+    star.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%`;
+    sf.appendChild(star);
   }
 </script>
-
 </body>
 </html>

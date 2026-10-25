@@ -308,6 +308,11 @@
       cursor: pointer;
     }
 
+    .check-option:has(input:checked) {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
     .answer-toggle {
       justify-self: start;
       min-height: 46px;
@@ -866,11 +871,10 @@
     function canReveal(id) { return storageBoundary.ready && (isExempt(id) || responseFor(id).firstAnswer !== null); }
     function canAttempt(id) { return canReveal(id) && !storageBoundary.blocked; }
     function canUnderstand(id) {
-      return canAttempt(id) && getRecord(id).attempted;
+      return canAttempt(id);
     }
     function isCheckDisabled(id, kind) {
-      return storageBoundary.blocked || !storageBoundary.ready
-        || (kind === "understood" && canReveal(id) && !getRecord(id).attempted);
+      return storageBoundary.blocked || !storageBoundary.ready;
     }
     function requestMeaning(id) {
       if (!storageBoundary.ready || storageBoundary.blocked || !state.words.some(word => word.id === id)) return;
@@ -977,17 +981,21 @@
       if (checked && !(kind === "attempted" ? canAttempt(wordId) : canUnderstand(wordId))) { render(); return false; }
       const today = getTodayText(), wasAchieved = isLearningAchieved(today);
       const saved = await commitState((records, meanings) => {
-        // Recheck after acquiring the write lock: an earlier queued operation may have cleared attempted.
+        // Recheck the answer/storage boundary after acquiring the write lock.
         if (!canAttempt(wordId) || (kind === "understood" && checked && !canUnderstand(wordId))) return false;
         const next = { ...getRecord(wordId) };
         if (next[kind] === checked) return;
+        const wasAttempted = next.attempted;
         if (kind === "attempted") {
           next.attempted = checked;
           if (!checked) next.understood = false;
-          else if (!isExempt(wordId)) {
-            const row = meanings.responses[wordId] ||= emptyResponse(); row.attemptedRecordedAt = new Date().toISOString();
-          }
-        } else next.understood = checked;
+        } else {
+          next.understood = checked;
+          if (checked) next.attempted = true;
+        }
+        if (!wasAttempted && next.attempted && !isExempt(wordId)) {
+          const row = meanings.responses[wordId] ||= emptyResponse(); row.attemptedRecordedAt = new Date().toISOString();
+        }
         next.lastUpdated = elements.studyDate.value || getTodayText(); records[wordId] = next;
       });
       if (saved) {
@@ -1423,11 +1431,11 @@
         <div class="checks">
           <label class="check-option">
             <input type="checkbox" data-kind="attempted" ${record.attempted ? "checked" : ""} ${isCheckDisabled(word.id, "attempted") ? "disabled" : ""}>
-            <span>やった！</span>
+            <span>できた</span>
           </label>
           <label class="check-option">
             <input type="checkbox" data-kind="understood" ${record.understood ? "checked" : ""} ${isCheckDisabled(word.id, "understood") ? "disabled" : ""}>
-            <span>わかった！</span>
+            <span>わかった</span>
           </label>
         </div>
       `;
