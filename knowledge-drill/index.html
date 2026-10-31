@@ -979,10 +979,12 @@
       if (!storageBoundary.ready || storageBoundary.blocked) return false;
       if (!canReveal(wordId)) { requestMeaning(wordId); return false; }
       if (checked && !(kind === "attempted" ? canAttempt(wordId) : canUnderstand(wordId))) { render(); return false; }
-      const today = getTodayText(), wasAchieved = isLearningAchieved(today);
+      let recordsBeforeUpdate;
       const saved = await commitState((records, meanings) => {
         // Recheck the answer/storage boundary after acquiring the write lock.
         if (!canAttempt(wordId) || (kind === "understood" && checked && !canUnderstand(wordId))) return false;
+        // Capture the committed snapshot under the lock; commitState replaces it on success.
+        recordsBeforeUpdate = state.records;
         const next = { ...getRecord(wordId) };
         if (next[kind] === checked) return;
         const wasAttempted = next.attempted;
@@ -1000,7 +1002,9 @@
       });
       if (saved) {
         render();
-        if (kind === "attempted" && checked && !wasAchieved && isLearningAchieved(today)) celebrateAchievement(today, wordId);
+        const today = getTodayText();
+        if (checked && recordsBeforeUpdate && !isLearningAchieved(today, recordsBeforeUpdate)
+          && isLearningAchieved(today)) celebrateAchievement(today, wordId);
       } else if (!storageBoundary.blocked) render();
       return saved;
     }
@@ -1474,9 +1478,10 @@
       return state.words.filter((word) => isValidPlannedDate(word.planned_date) && word.planned_date <= today);
     }
 
-    function isLearningAchieved(today) {
+    function isLearningAchieved(today, records = state.records) {
       const dueWords = getAchievementWords(today);
-      return dueWords.length > 0 && dueWords.every((word) => state.records[word.id]?.attempted === true);
+      return dueWords.length > 0 && dueWords.every((word) =>
+        records[word.id]?.attempted === true && records[word.id]?.understood === true);
     }
 
     function loadCelebrationDate() {
