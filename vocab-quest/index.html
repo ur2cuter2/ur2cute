@@ -2649,6 +2649,72 @@ function grantPicrossRewardFromBattleComplete() {
   return { ticketGranted, bonusGranted, bonusTickets: reward.bonusTickets || 0, yomiRequired:false };
 }
 
+// Manual report only; deliberately independent of learning/storage writes.
+let completionReportPending = false;
+let completionReportStatus = '';
+
+function completionReportHtml() {
+  return `<div style="margin-top:12px;">
+    <button id="completionReportButton" type="button" onclick="reportStudyCompletion()"
+      aria-describedby="completionReportStatus" ${completionReportPending ? 'disabled' : ''}
+      style="min-height:44px;padding:12px 18px;border-radius:999px;border:1px solid var(--accent-teal);
+      background:var(--bg-deep);color:var(--accent-teal);font:inherit;font-size:14px;font-weight:900;
+      max-width:100%;touch-action:manipulation;cursor:pointer;${completionReportPending ? 'opacity:0.65;' : ''}">
+      ${completionReportPending ? '送信中…' : '📣 今日の学習完了を報告'}
+    </button>
+    <div id="completionReportStatus" role="status" aria-live="polite" class="done-sub" style="margin-top:8px;">${completionReportStatus}</div>
+  </div>`;
+}
+
+function refreshCompletionReport() {
+  const button = document.getElementById('completionReportButton');
+  if (!button) return;
+  button.disabled = completionReportPending;
+  button.textContent = completionReportPending ? '送信中…' : '📣 今日の学習完了を報告';
+  button.style.opacity = completionReportPending ? '0.65' : '1';
+  document.getElementById('completionReportStatus').textContent = completionReportStatus;
+}
+
+async function reportStudyCompletion() {
+  const button = document.getElementById('completionReportButton');
+  if (!button || completionReportPending) return;
+  completionReportPending = true;
+  completionReportStatus = '送信中…';
+  refreshCompletionReport();
+  const controller = new AbortController();
+  let timeout;
+  try {
+    const response = await Promise.race([
+      fetch('https://ntfy.sh/study-y9n53rqohrg2w2jytdw2aiw47khrbwkf', {
+        method: 'POST', mode: 'cors', credentials: 'omit', referrerPolicy: 'no-referrer',
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: '語彙クエスト：今日の学習が完了しました！', signal: controller.signal
+      }),
+      new Promise((_, reject) => {
+        timeout = window.setTimeout(() => {
+          controller.abort();
+          reject(new Error('timeout'));
+        }, 15000);
+      })
+    ]);
+    if (response.type === 'opaque' || response.status === 0 || response.status >= 500) {
+      completionReportStatus = '送信結果不明：届いたか確認できませんでした。再送すると通知が重複する場合があります。';
+    } else if (!response.ok) {
+      completionReportStatus = '送信失敗：送信できませんでした。もう一度ためしてください。';
+    } else {
+      completionReportStatus = '✅ 今日の学習完了を報告しました！';
+    }
+  } catch (error) {
+    completionReportStatus = controller.signal.aborted
+      ? '送信結果不明：時間内に結果を確認できませんでした。再送すると通知が重複する場合があります。'
+      : '送信失敗：通信結果を確認できませんでした。届いている可能性があるため、再送すると通知が重複する場合があります。';
+  } finally {
+    window.clearTimeout(timeout);
+    completionReportPending = false;
+    refreshCompletionReport();
+  }
+}
+
 function getTodayRewardGuidanceHtml() {
   const today = todayStr();
   const yomiRequired = isYomiMissionRequiredForPicross(today);
@@ -2683,7 +2749,8 @@ function getTodayRewardGuidanceHtml() {
         ">
           🎁 ごほうび！ピクロスであそぶ
         </a>
-      </div>`;
+      </div>
+      ${completionReportHtml()}`;
   }
 
   return '';
