@@ -1481,7 +1481,7 @@
     function isLearningAchieved(today, records = state.records) {
       const dueWords = getAchievementWords(today);
       return dueWords.length > 0 && dueWords.every((word) =>
-        records[word.id]?.attempted === true && records[word.id]?.understood === true);
+        records[word.id]?.attempted === true || records[word.id]?.understood === true);
     }
 
     function loadCelebrationDate() {
